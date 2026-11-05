@@ -1,6 +1,10 @@
 name: Release
 
+# Two ways to publish:
+#  - Actions → Release → "Run workflow" on main: creates tag v<version from pyproject.toml> and the release.
+#  - Pushing a tag v* (or creating a release in the web UI): builds and attaches the files.
 on:
+  workflow_dispatch:
   push:
     tags: ["v*"]
 
@@ -15,22 +19,35 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           python-version: "3.12"
-      - name: Check the tag matches the package version
+      - name: Resolve the version and tag
+        id: v
         run: |
           version=$(uv run --no-project python -c "import tomllib;print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")
-          test "v$version" = "${GITHUB_REF_NAME}" || { echo "::error::tag ${GITHUB_REF_NAME} != version $version"; exit 1; }
+          tag="v$version"
+          if [ "${GITHUB_REF_TYPE}" = "tag" ] && [ "${GITHUB_REF_NAME}" != "$tag" ]; then
+            echo "::error::tag ${GITHUB_REF_NAME} != version $version"; exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
       - name: Build sdist and wheel
         run: uv build
       - name: Ready-to-use archives (launchers keep their executable bit in the .tar.gz)
         run: |
-          name="SnipScout-${GITHUB_REF_NAME#v}"
+          name="SnipScout-${{ steps.v.outputs.version }}"
           git archive --format=zip --prefix="$name/" -o "dist/$name-windows.zip" HEAD
           git archive --format=tar.gz --prefix="$name/" -o "dist/$name-macos-linux.tar.gz" HEAD
       - name: Release notes from CHANGELOG.md
         run: |
-          awk -v v="${GITHUB_REF_NAME#v}" '$0 ~ "^## \\[" v "\\]" {f=1; next} /^## \[/ && f {exit} f' CHANGELOG.md > notes.md
-          test -s notes.md || { echo "::error::no CHANGELOG entry for ${GITHUB_REF_NAME}"; exit 1; }
-      - name: Publish GitHub release
+          awk -v v="${{ steps.v.outputs.version }}" '$0 ~ "^## \\[" v "\\]" {f=1; next} /^## \[/ && f {exit} f' CHANGELOG.md > notes.md
+          test -s notes.md || { echo "::error::no CHANGELOG entry for ${{ steps.v.outputs.version }}"; exit 1; }
+      - name: Publish (create the release, or attach files if it already exists)
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" dist/* --title "SnipScout $GITHUB_REF_NAME" --notes-file notes.md
+          TAG: ${{ steps.v.outputs.tag }}
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist/* --clobber
+            gh release edit "$TAG" --notes-file notes.md
+          else
+            gh release create "$TAG" dist/* --target "$GITHUB_SHA" --title "SnipScout $TAG" --notes-file notes.md
+          fi
