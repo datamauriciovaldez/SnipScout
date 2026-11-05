@@ -72,6 +72,8 @@ def parse(css: str) -> dict[str, dict[str, str]]:
 
 
 def main() -> int:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # Windows consoles default to cp1252
     path = Path(sys.argv[1]) if len(sys.argv) > 1 else TOKENS
     themes = parse(path.read_text(encoding="utf-8"))
     failures = 0
@@ -85,7 +87,7 @@ def main() -> int:
             r = ratio(tok[fg], tok[bg])
             ok = r >= minimum
             failures += not ok
-            print(f"  {'ok  ' if ok else 'FAIL'} {r:5.2f} (≥{minimum})  --{fg} on --{bg}  [{what}]")
+            print(f"  {'ok  ' if ok else 'FAIL'} {r:5.2f} (>={minimum})  --{fg} on --{bg}  [{what}]")
     print(f"\n{'All pairs pass AA.' if not failures else f'{failures} pair(s) fail.'}")
     return 1 if failures else 0
 
