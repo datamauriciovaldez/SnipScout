@@ -5,7 +5,9 @@ import { api } from "./api.js";
 import { Button, ErrorNotice, Toaster } from "./components.js";
 import { Logo } from "./icons.js";
 import { fmt, preferredLang, setLang, t } from "./i18n.js";
-import { useRoute } from "./router.js";
+import { navigate, useRoute } from "./router.js";
+import { Home } from "./views/home.js";
+import { Welcome } from "./views/welcome.js";
 import { store, useStore } from "./store.js";
 
 function Topbar({ route }) {
@@ -20,38 +22,6 @@ function Topbar({ route }) {
       <span class="label status-dot">${status && status.offline ? t("status.offline") : t("status.local")}</span>
     </div>
   </header>`;
-}
-
-function Home() {
-  const status = useStore((s) => s.status);
-  const projects = useStore((s) => s.projects);
-  if (!status) return html`<div class="page"><div class="skeleton" style="height:28px;width:40%"></div></div>`;
-  if (!status.ffmpeg.ok) return html`<div class="page"><${ErrorNotice} error=${{ code: "ffmpeg_missing" }} /></div>`;
-  const model = status.models.find((m) => m.name === status.recommended_model);
-  return html`<main class="page" id="main">
-    <div class="label">${t("home.eyebrow")}</div>
-    <h1 class="title-1">${t("home.title")}</h1>
-    <p class="lead">${t("home.lead")}</p>
-    <section class="section" aria-labelledby="sys">
-      <div class="label" id="sys">${t("home.system")}</div>
-      <div class="table">
-        <div class="row kv"><div class="row__main">${t("home.video_engine")}</div><span class="row__cell mono">${status.ffmpeg.source}</span><span class="status-ok">${t("common.ok")}</span></div>
-        <div class="row kv"><div class="row__main">${t("home.speech_model")}</div><span class="row__cell mono">${t(`models.${model.label}`)} · ${fmt.bytes(model.bytes)}</span>
-          <span class=${model.installed ? "status-ok" : "status-bad"}>${model.installed ? t("home.installed") : t("home.not_installed")}</span></div>
-        <div class="row kv"><div class="row__main">${t("home.computer")}</div><span class="row__cell mono">${t("home.hardware", { cpu: status.hardware.cpu_threads, ram: status.hardware.ram_gb })}</span><span></span></div>
-      </div>
-    </section>
-    <section class="section" aria-labelledby="recent">
-      <div class="label" id="recent">${t("home.recent")}</div>
-      ${projects.length
-        ? html`<div class="table">${projects.map((p) => html`<a class="row kv" href=${`#/proyecto/${p.id}`} style="color:inherit;text-decoration:none">
-            <div class="row__main"><div class="row__title">${p.name}</div></div>
-            <span class="row__cell mono">${fmt.duration(p.source.duration)}</span>
-            <span class="row__cell mono">${fmt.date(p.updated_at)}</span>
-            <span class="tag">${t(`project_status.${p.status}`)}</span></a>`)}</div>`
-        : html`<div class="empty"><p class="lead">${t("home.no_projects")}</p></div>`}
-    </section>
-  </main>`;
 }
 
 function Settings() {
@@ -88,10 +58,15 @@ function App() {
   const route = useRoute();
   useStore((s) => s.lang); // re-render on language change
   const error = useStore((s) => s.error);
+  const status = useStore((s) => s.status);
+  useEffect(() => {
+    if (status && status.first_run && route.name === "home") navigate("/bienvenida");
+  }, [status, route.name]);
+  const ready = (view) => (status ? view() : html`<div class="page"><div class="skeleton" style="height:28px;width:40%"></div></div>`);
   const views = {
-    home: () => html`<${Home} />`,
+    home: () => ready(() => html`<${Home} />`),
     settings: () => html`<${Settings} />`,
-    welcome: () => html`<${Placeholder} titleKey="placeholder.welcome" />`,
+    welcome: () => ready(() => html`<${Welcome} />`),
     project: () => html`<${Placeholder} titleKey="placeholder.project" />`,
     clip: () => html`<${Placeholder} titleKey="placeholder.clip" />`,
     notFound: () => html`<${Placeholder} titleKey="placeholder.not_found" />`,

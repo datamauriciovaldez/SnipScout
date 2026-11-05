@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import logging
 import secrets
 import threading
@@ -64,6 +65,28 @@ def start_server(ctx: Context, port: int = 0) -> tuple[uvicorn.Server, int]:
     return server, real_port
 
 
+def _bind_native_drop(window: Any) -> None:
+    """Forward dropped files' full paths to the page (``window.snipscoutDropped(paths)``).
+
+    Browsers never expose real paths; pywebview adds ``pywebviewFullPath`` only to drop events
+    handled from Python, so the drop is caught here and passed back to the frontend.
+    """
+    from webview.dom import DOMEventHandler
+
+    def on_drop(event: dict[str, Any]) -> None:
+        files = (event.get("dataTransfer") or {}).get("files") or []
+        paths = [f["pywebviewFullPath"] for f in files if f.get("pywebviewFullPath")]
+        if paths:
+            window.evaluate_js(f"window.snipscoutDropped && window.snipscoutDropped({json.dumps(paths)})")
+
+    def bind() -> None:
+        doc = window.dom.document
+        doc.events.dragover += DOMEventHandler(lambda e: None, prevent_default=True)
+        doc.events.drop += DOMEventHandler(on_drop, prevent_default=True)
+
+    window.events.loaded += bind
+
+
 def _open_window(url: str) -> bool:
     """Try the native window. Returns False when no GUI backend is usable (then use the browser)."""
     try:
@@ -75,6 +98,7 @@ def _open_window(url: str) -> bool:
         bridge.window = webview.create_window(
             "SnipScout", url, js_api=bridge, width=1440, height=900, min_size=(1000, 680), text_select=True
         )
+        _bind_native_drop(bridge.window)
         webview.start()  # blocks until the window closes
     except webview.errors.WebViewException as exc:
         log.warning("Native window unavailable (%s); falling back to the browser.", exc)
