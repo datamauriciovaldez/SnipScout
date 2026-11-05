@@ -585,28 +585,30 @@ def create_app(ctx: Context) -> FastAPI:  # noqa: C901 - one place that lists th
         return FileResponse(p.source.path)  # Starlette answers Range requests with 206
 
     @app.get("/api/v1/projects/{pid}/waveform")
-    def waveform(pid: str, points: int = 800) -> dict[str, Any]:
+    def waveform(pid: str, points: int = 800, start: float = 0.0, end: float | None = None) -> dict[str, Any]:
+        """Waveform peaks for the whole file or for [start, end) (zoomed timeline).
+        Heights are normalised on the whole file so they don't change with zoom."""
+        import numpy as np
+
         ctx.store.load(pid)
-        points = max(50, min(points, 4000))
+        points = max(10, min(points, 6000))
         wav = ctx.store.audio_path(pid)
         if not wav.exists():
             raise ApiError("Analyze the video first.", details="no audio extracted yet")
-        cache = ctx.store.project_dir(pid) / f"waveform_{points}.json"
+        cache = ctx.store.project_dir(pid) / f"envelope_{wav.stat().st_mtime_ns}.npy"
         if cache.exists():
-            return dict(json.loads(cache.read_text(encoding="utf-8")))
-        env = audio.rms_envelope_file(wav)
-        import numpy as np
-
-        if len(env) == 0:
-            peaks: list[float] = []
+            env = np.load(cache)
         else:
-            buckets = np.array_split(env, min(points, len(env)))
-            raw = np.array([float(np.max(b)) for b in buckets])
-            top = float(np.percentile(raw, 99)) or 1.0
-            peaks = [round(min(1.0, v / top), 3) for v in raw]
-        data = {"duration": audio.wav_duration(wav), "points": len(peaks), "peaks": peaks}
-        cache.write_text(json.dumps(data), encoding="utf-8")
-        return data
+            env = audio.rms_envelope_file(wav)
+            for old in ctx.store.project_dir(pid).glob("envelope_*.npy"):
+                old.unlink(missing_ok=True)
+            np.save(cache, env)
+        duration = audio.wav_duration(wav)
+        start = max(0.0, min(start, duration))
+        stop = duration if end is None else max(start, min(end, duration))
+        top = float(np.percentile(env, 99)) if len(env) else 1.0
+        peaks = audio.envelope_peaks(env, points=points, start=start, end=stop, top=top or 1.0)
+        return {"duration": duration, "start": start, "end": stop, "points": len(peaks), "peaks": peaks}
 
     # --- export -----------------------------------------------------------------------------------
     def _export_dir(pid: str) -> Path:

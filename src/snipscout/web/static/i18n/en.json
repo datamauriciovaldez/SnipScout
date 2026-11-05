@@ -372,5 +372,12 @@
     "download": "Download",
     "copy_caption": "Copy title and description",
     "preview_of": "Preview of {title}"
+  },
+  "timeline": {
+    "zoom_in": "Zoom in",
+    "zoom_out": "Zoom out",
+    "fit": "Fit to clip",
+    "label": "Timeline: clip from {a} to {b}",
+    "hint": "Drag the handles to change the in and out points; they snap to the nearest sentence (hold Alt to move them freely). Click to move the playhead, Ctrl + wheel to zoom."
   }
 }

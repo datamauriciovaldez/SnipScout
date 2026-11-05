@@ -3,11 +3,12 @@
 import { useEffect, useMemo, useState } from "preact/hooks";
 import { html } from "../html.js";
 import { api } from "../api.js";
-import { Button, ErrorNotice, Segmented, Wave, toast } from "../components.js";
+import { Button, ErrorNotice, Segmented, toast } from "../components.js";
 import { fmt, t } from "../i18n.js";
 import { navigate } from "../router.js";
 import { useTopbar } from "../store.js";
 import { ClipPlayer, clipWords } from "./player.js";
+import { Timeline } from "./timeline.js";
 
 const STYLES = ["bold-pop", "classic", "karaoke", "minimal"];
 
@@ -24,13 +25,15 @@ export function Editor({ id, cid }) {
   const [draft, setDraft] = useState(null);
   const [editing, setEditing] = useState(null); // word index being edited
   const [saving, setSaving] = useState(false);
+  const [playhead, setPlayhead] = useState(0);
+  const [seek, setSeek] = useState(null); // { t, n } → player
 
   useEffect(() => {
-    Promise.all([api.project(id), api.clips(id), api.transcript(id), api.waveform(id, 2000).catch(() => ({ peaks: [] }))])
-      .then(([project, clips, tr, wf]) => {
+    Promise.all([api.project(id), api.clips(id), api.transcript(id)])
+      .then(([project, clips, tr]) => {
         const clip = clips.clips.find((c) => c.id === cid);
         if (!clip) throw Object.assign(new Error("clip"), { code: "project_not_found" });
-        setData({ project, clip, words: tr.words, sentences: tr.sentences, peaks: wf.peaks });
+        setData({ project, clip, words: tr.words, sentences: tr.sentences });
         setDraft({ start: clip.start, end: clip.end, title: clip.title, style: clip.subtitle_style || project.settings.subtitle_style,
                    overrides: { ...clip.text_overrides } });
       })
@@ -65,7 +68,7 @@ export function Editor({ id, cid }) {
   if (error) return html`<div class="page"><${ErrorNotice} error=${error} action=${html`<${Button} variant="primary" size="lg" onClick=${() => navigate(`/proyecto/${id}`)}>${t("editor.back")}<//>`} /></div>`;
   if (!data || !draft) return html`<div class="page"><div class="skeleton" style="height:28px;width:40%"></div></div>`;
 
-  const { project, sentences, words, peaks } = data;
+  const { project, sentences, words } = data;
   const dur = project.source.duration;
   const starts = sentences.map((s) => Math.max(0, s.start - 0.15));
   const ends = sentences.map((s) => Math.min(dur, s.end + 0.15));
@@ -90,15 +93,10 @@ export function Editor({ id, cid }) {
   const ctxStart = sFirst > 0 ? sentences[sFirst - 1].word_start : Math.max(0, firstIn);
   const ctxEnd = sLast >= 0 && sLast + 1 < sentences.length ? sentences[sLast + 1].word_end : Math.min(words.length, lastIn + 1);
   const inClip = new Set(cw.map((w) => w.index));
-  // Timeline window: clip ± 25 %.
-  const pad = (draft.end - draft.start) * 0.25, w0 = Math.max(0, draft.start - pad), w1 = Math.min(dur, draft.end + pad);
-  const slice = peaks.length ? peaks.slice(Math.floor((w0 / dur) * peaks.length), Math.ceil((w1 / dur) * peaks.length)) : [];
-  const bars = slice.length > 160 ? Array.from({ length: 160 }, (_, i) => slice[Math.floor((i * slice.length) / 160)]) : slice;
-  const a = (draft.start - w0) / (w1 - w0), b = (draft.end - w0) / (w1 - w0);
-
   return html`<div class="editor">
     <section class="editor__player" aria-label=${t("editor.preview")}>
-      <${ClipPlayer} projectId=${id} hasVideo=${project.source.has_video} start=${draft.start} end=${draft.end} words=${cw} style=${draft.style} big />
+      <${ClipPlayer} projectId=${id} hasVideo=${project.source.has_video} start=${draft.start} end=${draft.end} words=${cw} style=${draft.style} big
+        seek=${seek} onTime=${setPlayhead} />
       <p class="faint" style="font-size:12px;margin:0">${t("editor.approx")}</p>
     </section>
     <main class="editor__work" id="main">
@@ -106,10 +104,9 @@ export function Editor({ id, cid }) {
         <input class="input editor__title" aria-label=${t("editor.title_label")} value=${draft.title} maxlength="300"
           onInput=${(e) => setDraft({ ...draft, title: e.currentTarget.value })} /></div>
       <section class="timeline" aria-label=${t("editor.timeline")}>
-        <div class="label">${t("editor.timeline_range", { a: fmt.timecode(w0), b: fmt.timecode(w1) })}</div>
-        ${bars.length > 0 && html`<div class="tl"><${Wave} peaks=${bars} height=${84} barWidth=${3} classFor=${(i, n) => (i / n >= a && i / n <= b ? "in" : "")}>
-          <span class="wave__marker wave__marker--in" style=${`left:calc(${a * 100}% - 2px)`}></span>
-          <span class="wave__marker wave__marker--out" style=${`left:${b * 100}%`}></span><//></div>`}
+        <${Timeline} projectId=${id} duration=${dur} start=${draft.start} end=${draft.end} time=${playhead} sentences=${sentences}
+          onChange=${(r) => setDraft((d) => ({ ...d, start: r.start, end: r.end }))}
+          onSeek=${(tt) => { setPlayhead(tt); setSeek((x) => ({ t: tt, n: (x ? x.n : 0) + 1 })); }} />
         <div class="inout">
           ${["start", "end"].map((f) => html`<div class="field"><label class="label" for=${`t-${f}`}>${t(`editor.${f}`)}</label>
             <div class="stepper-input">

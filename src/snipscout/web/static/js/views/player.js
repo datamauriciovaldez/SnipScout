@@ -38,17 +38,23 @@ function subtitleAt(words, time, style) {
   });
 }
 
-export function ClipPlayer({ projectId, hasVideo, start, end, words, style, big }) {
+export function ClipPlayer({ projectId, hasVideo, start, end, words, style, big, seek, onTime: report }) {
   const video = useRef(null);
   const [time, setTime] = useState(start);
   const [playing, setPlaying] = useState(false);
   const [failed, setFailed] = useState(false);
 
-  useEffect(() => {
+  useEffect(() => { // moving the in-point shows its frame; moving the out-point doesn't jump
     const v = video.current;
     if (v && v.readyState >= 1) v.currentTime = start;
     setTime(start);
-  }, [start, end]);
+  }, [start]);
+  useEffect(() => { // external seek from the timeline: { t, n } (n changes on every request)
+    if (!seek) return;
+    const v = video.current;
+    if (v && v.readyState >= 1) v.currentTime = seek.t;
+    setTime(seek.t);
+  }, [seek && seek.n]);
 
   const toggle = () => {
     const v = video.current; if (!v) return;
@@ -67,11 +73,13 @@ export function ClipPlayer({ projectId, hasVideo, start, end, words, style, big 
   const onTime = (e) => {
     const v = e.currentTarget; // not the ref: events can arrive while the component unmounts
     if (!v) return;
-    if (v.currentTime >= end) { v.pause(); v.currentTime = start; }
+    if (!v.paused && v.currentTime >= end) { v.pause(); v.currentTime = start; } // loop only while playing
     setTime(v.currentTime);
+    if (report) report(v.currentTime);
   };
   const sub = subtitleAt(words, time, style);
   const frac = Math.max(0, Math.min(1, (time - start) / Math.max(0.1, end - start)));
+  const shown = Math.max(0, Math.min(end - start, time - start));
   return html`<div class=${`player${big ? " player--big" : ""}`}>
     <div class="thumb thumb--preview player__screen">
       ${hasVideo && !failed
@@ -84,7 +92,7 @@ export function ClipPlayer({ projectId, hasVideo, start, end, words, style, big 
     </div>
     <div class="player__bar">
       <${Button} variant="primary" icon=${playing ? "pause" : "play"} aria-label=${playing ? t("player.pause") : t("player.play")} onClick=${toggle} />
-      <span class="mono">${fmt.duration(time - start)} / ${fmt.duration(end - start)}</span>
+      <span class="mono">${fmt.duration(shown)} / ${fmt.duration(end - start)}</span>
       <div class="progress" style="flex:1"><div class="progress__fill" style=${`--p:${frac}`}></div></div>
     </div>
   </div>`;

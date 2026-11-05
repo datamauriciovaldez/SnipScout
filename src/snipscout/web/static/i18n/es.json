@@ -372,5 +372,12 @@
     "download": "Descargar",
     "copy_caption": "Copiar título y descripción",
     "preview_of": "Vista previa de {title}"
+  },
+  "timeline": {
+    "zoom_in": "Acercar",
+    "zoom_out": "Alejar",
+    "fit": "Ajustar al clip",
+    "label": "Línea de tiempo: clip de {a} a {b}",
+    "hint": "Arrastra las asas para cambiar la entrada y la salida; se ajustan a la frase más cercana (mantén Alt para moverlas libremente). Clic para mover el cabezal, Ctrl + rueda para acercar."
   }
 }

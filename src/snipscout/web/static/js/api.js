@@ -37,7 +37,8 @@ export const api = {
   render: (id, opts) => request("POST", `/projects/${id}/render`, opts || {}),
   reveal: (id) => request("POST", `/projects/${id}/reveal`),
   transcript: (id) => request("GET", `/projects/${id}/transcript`),
-  waveform: (id, points = 800) => request("GET", `/projects/${id}/waveform?points=${points}`),
+  waveform: (id, points = 800, start, end) => request("GET", `/projects/${id}/waveform?points=${Math.round(points)}`
+    + (start !== undefined ? `&start=${start.toFixed(3)}` : "") + (end !== undefined ? `&end=${end.toFixed(3)}` : "")),
   mediaUrl: (id) => `${BASE}/projects/${id}/media`,
   thumbUrl: (id, cid) => `${BASE}/projects/${id}/clips/${cid}/thumbnail`,
   zipUrl: (id) => `${BASE}/projects/${id}/export.zip`,

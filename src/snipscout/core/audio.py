@@ -98,3 +98,32 @@ def rms_envelope_file(path: Path, hop_s: float = 0.05, block_s: float = 300.0) -
         parts.append(rms_envelope(read_wav_range(path, pos, end), hop_s))
         pos = end
     return np.concatenate(parts) if parts else np.zeros(0, dtype=np.float32)
+
+
+def envelope_peaks(
+    env: npt.NDArray[np.float32],
+    *,
+    points: int,
+    start: float = 0.0,
+    end: float | None = None,
+    hop_s: float = 0.05,
+    top: float | None = None,
+) -> list[float]:
+    """Max-of-bucket peaks of an RMS envelope for [start, end), normalised to 0..1.
+
+    ``top`` is the normalisation level; pass one computed on the whole file so bar heights stay
+    the same at every zoom level (default: 99th percentile of the whole envelope)."""
+    if len(env) == 0 or points <= 0:
+        return []
+    level = top if top is not None else float(np.percentile(env, 99)) or 1.0
+    a = max(0, int(start / hop_s))
+    b = len(env) if end is None else min(len(env), max(a + 1, int(np.ceil(end / hop_s))))
+    window = env[a:b]
+    if len(window) == 0:
+        return []
+    n = min(points, len(window))
+    edges = np.linspace(0, len(window), n + 1).astype(int)
+    return [
+        round(min(1.0, float(np.max(window[edges[i] : max(edges[i] + 1, edges[i + 1])])) / level), 3)
+        for i in range(n)
+    ]

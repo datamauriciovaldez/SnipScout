@@ -129,3 +129,13 @@ def test_rms_envelope() -> None:
     quiet = np.zeros(sr, dtype=np.float32)
     env = audio.rms_envelope(np.concatenate([loud, quiet]), hop_s=0.5)
     assert env.tolist() == pytest.approx([0.5, 0.5, 0.0, 0.0])
+
+
+def test_envelope_peaks_range_and_stable_scale() -> None:
+    env = np.concatenate([np.full(100, 0.1), np.full(100, 0.5), np.full(100, 0.2)]).astype(np.float32)  # 15 s
+    whole = audio.envelope_peaks(env, points=3, top=0.5)
+    assert whole == pytest.approx([0.2, 1.0, 0.4])
+    zoom = audio.envelope_peaks(env, points=10, start=5.0, end=10.0, top=0.5)  # only the loud part
+    assert len(zoom) == 10 and zoom == pytest.approx([1.0] * 10)
+    assert audio.envelope_peaks(env, points=4, start=14.0, end=99.0, top=0.5) == pytest.approx([0.4] * 4)
+    assert audio.envelope_peaks(np.zeros(0, dtype=np.float32), points=5) == []

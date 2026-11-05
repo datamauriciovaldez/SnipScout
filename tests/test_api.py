@@ -169,6 +169,8 @@ def test_analyze_events_clips_render_zip(
 
     w = client.get(f"/api/v1/projects/{pid}/waveform", params={"points": 100}).json()
     assert 1 <= w["points"] <= 100 and max(w["peaks"]) <= 1.0
+    z = client.get(f"/api/v1/projects/{pid}/waveform", params={"points": 50, "start": 1, "end": 2}).json()
+    assert (z["start"], z["end"], z["points"]) == (1, 2, 20)  # 1 s = 20 envelope frames < 50 requested
     thumb = client.get(f"/api/v1/projects/{pid}/clips/{cid}/thumbnail")
     assert thumb.status_code == 200 and thumb.content[:2] == b"\xff\xd8"  # JPEG
 
