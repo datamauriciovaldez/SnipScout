@@ -171,6 +171,7 @@ class Project(_Model):
     settings: ProjectSettings = Field(default_factory=ProjectSettings)
     status: ProjectStatus = ProjectStatus.NEW
     error_code: str | None = None
+    export_dir: Path | None = None  # folder of the last successful export
 
 
 # --- Progress events -------------------------------------------------------------------------------

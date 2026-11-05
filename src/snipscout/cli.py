@@ -130,6 +130,12 @@ def _run(args: argparse.Namespace) -> int:
     return 0
 
 
+def _ui(args: argparse.Namespace) -> int:
+    from snipscout.desktop import run_ui
+
+    return run_ui(browser=args.browser, port=args.port)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="snipscout", description="Local video-to-clips tool.")
     parser.add_argument("--version", action="version", version=f"snipscout {__version__}")
@@ -163,6 +169,11 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--hardware", action="store_true", help="Try a hardware H.264 encoder first.")
     run.add_argument("--loudnorm", action="store_true", help="Normalize loudness (-14 LUFS).")
     run.set_defaults(func=_run)
+
+    ui = sub.add_parser("ui", help="Open the SnipScout window (or your browser if no window is available).")
+    ui.add_argument("--browser", action="store_true", help="Use the default browser instead of a window.")
+    ui.add_argument("--port", type=int, default=0, help="Port for the local server (default: a free one).")
+    ui.set_defaults(func=_ui)
     return parser
 
 

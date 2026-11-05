@@ -1,0 +1,139 @@
+{
+  "nav": {
+    "label": "Main",
+    "new": "New",
+    "settings": "Settings"
+  },
+  "status": {
+    "local": "Local · offline",
+    "offline": "No-internet mode"
+  },
+  "common": {
+    "ok": "Good",
+    "copy": "Copy",
+    "back_home": "Back to start",
+    "skip": "Skip to content",
+    "cancel": "Cancel",
+    "retry": "Try again"
+  },
+  "languages": {
+    "es": "Español",
+    "en": "English"
+  },
+  "models": {
+    "fast": "Fast",
+    "balanced": "Balanced",
+    "accurate": "Accurate"
+  },
+  "home": {
+    "eyebrow": "New project",
+    "title": "Which video are we cutting today?",
+    "lead": "We listen to the whole thing on your computer and suggest the parts that work on their own.",
+    "system": "Your computer",
+    "video_engine": "Video engine (ffmpeg)",
+    "speech_model": "Speech model",
+    "computer": "Computer",
+    "hardware": "{cpu} threads · {ram} GB of memory",
+    "installed": "Downloaded",
+    "not_installed": "Not downloaded",
+    "recent": "Recent projects",
+    "no_projects": "No projects yet. Drop a video to start."
+  },
+  "project_status": {
+    "new": "New",
+    "analyzing": "Analyzing",
+    "analyzed": "Not exported",
+    "rendering": "Exporting",
+    "done": "Exported",
+    "error": "Failed",
+    "cancelled": "Cancelled"
+  },
+  "settings": {
+    "eyebrow": "Preferences",
+    "title": "Settings",
+    "language": "App language",
+    "theme": "Theme",
+    "theme_light": "Light",
+    "theme_dark": "Dark",
+    "theme_system": "System"
+  },
+  "placeholder": {
+    "eyebrow": "Coming next",
+    "welcome": "Welcome",
+    "project": "Project results",
+    "clip": "Clip editor",
+    "not_found": "This page doesn't exist",
+    "body": "This screen arrives in the next step of version 0.1."
+  },
+  "error": {
+    "label": "Error",
+    "copy_details": "Copy technical details"
+  },
+  "stage": {
+    "prepare_audio": "Preparing the audio",
+    "transcribe": "Listening to your video",
+    "understand": "Working out what it's about",
+    "find_moments": "Finding the best moments",
+    "render": "Making your clips",
+    "done": "Done",
+    "exported": "Clips exported"
+  },
+  "errors": {
+    "ffmpeg_missing": {
+      "title": "The video engine is missing",
+      "body": "We couldn't find an ffmpeg build with subtitle support. Reinstall SnipScout or install full ffmpeg, then reopen the app."
+    },
+    "unsupported_media": {
+      "title": "We can't open this file",
+      "body": "It isn't a supported video or audio file, or it's damaged. Try MP4, MOV, MKV, WEBM, MP3, WAV or M4A."
+    },
+    "no_speech": {
+      "title": "We found no speech in this file",
+      "body": "There's only music or silence, so there are no sentences to make clips from."
+    },
+    "model_download": {
+      "title": "The speech model couldn't be downloaded",
+      "body": "Check your connection and try again. The download resumes where it stopped."
+    },
+    "offline": {
+      "title": "You're in no-internet mode",
+      "body": "This needs a one-time download. Turn off no-internet mode and try again."
+    },
+    "ffmpeg_failed": {
+      "title": "We couldn't create the video",
+      "body": "The video engine failed on this part. Copy the technical details if you want to report it."
+    },
+    "cancelled": {
+      "title": "Cancelled",
+      "body": "Everything done so far has been saved."
+    },
+    "project_not_found": {
+      "title": "We can't find this project",
+      "body": "It may have been deleted. Go back to the start to see your projects."
+    },
+    "storage": {
+      "title": "We couldn't save your data",
+      "body": "The disk may be full or read-only. Free up space and try again."
+    },
+    "job_busy": {
+      "title": "We're already working on this",
+      "body": "Wait for it to finish or cancel it before starting again."
+    },
+    "bad_request": {
+      "title": "Something doesn't add up",
+      "body": "Check the values and try again."
+    },
+    "unauthorized": {
+      "title": "Open SnipScout from its window",
+      "body": "This page only works when opened from the app."
+    },
+    "server_unreachable": {
+      "title": "The app isn't responding",
+      "body": "Close SnipScout and open it again."
+    },
+    "unknown": {
+      "title": "Something went wrong",
+      "body": "Copy the technical details if you want to report it."
+    }
+  }
+}

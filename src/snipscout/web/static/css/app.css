@@ -1,0 +1,15 @@
+/* App shell layout (no colours: everything comes from tokens.css via components.css). */
+html, body, .app-root { height: 100%; }
+.app-root { display: flex; flex-direction: column; }
+.app-main { flex: 1; min-height: 0; overflow: auto; }
+.boot { padding: var(--s-6); }
+.page { max-width: 1180px; padding: 26px var(--s-8) var(--s-10); }
+.page h1 { margin: 6px 0 4px; }
+.section { margin-top: var(--s-8); }
+.section > .label { margin-bottom: var(--s-2); }
+.kv { display: flex; gap: var(--s-4); align-items: center; }
+.kv .row__main { font-size: var(--fs-body); }
+.status-ok { color: var(--ok); font-family: var(--font-mono); font-size: var(--fs-mono); }
+.status-bad { color: var(--danger); font-family: var(--font-mono); font-size: var(--fs-mono); }
+.skip-link { position: absolute; left: -999px; top: 0; }
+.skip-link:focus { left: var(--s-2); top: var(--s-2); z-index: 60; background: var(--panel); padding: var(--s-2) var(--s-3); }

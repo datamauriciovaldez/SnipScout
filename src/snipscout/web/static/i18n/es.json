@@ -1,0 +1,139 @@
+{
+  "nav": {
+    "label": "Principal",
+    "new": "Nuevo",
+    "settings": "Ajustes"
+  },
+  "status": {
+    "local": "Local · sin conexión",
+    "offline": "Modo sin internet"
+  },
+  "common": {
+    "ok": "Bien",
+    "copy": "Copiar",
+    "back_home": "Volver al inicio",
+    "skip": "Saltar al contenido",
+    "cancel": "Cancelar",
+    "retry": "Reintentar"
+  },
+  "languages": {
+    "es": "Español",
+    "en": "English"
+  },
+  "models": {
+    "fast": "Rápido",
+    "balanced": "Equilibrado",
+    "accurate": "Preciso"
+  },
+  "home": {
+    "eyebrow": "Nuevo proyecto",
+    "title": "¿Qué vídeo recortamos hoy?",
+    "lead": "Lo escuchamos entero en tu ordenador y te proponemos los tramos que mejor funcionan solos.",
+    "system": "Tu equipo",
+    "video_engine": "Motor de vídeo (ffmpeg)",
+    "speech_model": "Modelo de voz",
+    "computer": "Ordenador",
+    "hardware": "{cpu} hilos · {ram} GB de memoria",
+    "installed": "Descargado",
+    "not_installed": "Sin descargar",
+    "recent": "Proyectos recientes",
+    "no_projects": "Todavía no hay proyectos. Arrastra un vídeo para empezar."
+  },
+  "project_status": {
+    "new": "Nuevo",
+    "analyzing": "Analizando",
+    "analyzed": "Sin exportar",
+    "rendering": "Exportando",
+    "done": "Exportado",
+    "error": "Con error",
+    "cancelled": "Cancelado"
+  },
+  "settings": {
+    "eyebrow": "Preferencias",
+    "title": "Ajustes",
+    "language": "Idioma de la app",
+    "theme": "Tema",
+    "theme_light": "Claro",
+    "theme_dark": "Oscuro",
+    "theme_system": "Sistema"
+  },
+  "placeholder": {
+    "eyebrow": "En camino",
+    "welcome": "Bienvenida",
+    "project": "Resultados del proyecto",
+    "clip": "Editor de clip",
+    "not_found": "Esta página no existe",
+    "body": "Esta pantalla llega en la siguiente fase de la versión 0.1."
+  },
+  "error": {
+    "label": "Error",
+    "copy_details": "Copiar detalles técnicos"
+  },
+  "stage": {
+    "prepare_audio": "Preparando el audio",
+    "transcribe": "Escuchando tu vídeo",
+    "understand": "Entendiendo de qué habla",
+    "find_moments": "Buscando los mejores momentos",
+    "render": "Creando tus clips",
+    "done": "Listo",
+    "exported": "Clips exportados"
+  },
+  "errors": {
+    "ffmpeg_missing": {
+      "title": "Falta el motor de vídeo",
+      "body": "No encontramos una versión de ffmpeg con subtítulos. Reinstala SnipScout o instala ffmpeg completo y vuelve a abrir la app."
+    },
+    "unsupported_media": {
+      "title": "No podemos abrir este archivo",
+      "body": "No es un vídeo o audio compatible, o está dañado. Prueba con MP4, MOV, MKV, WEBM, MP3, WAV o M4A."
+    },
+    "no_speech": {
+      "title": "No encontramos voz en este archivo",
+      "body": "Solo hay música o silencio, así que no hay frases con las que hacer clips."
+    },
+    "model_download": {
+      "title": "No se pudo descargar el modelo de voz",
+      "body": "Revisa tu conexión y vuelve a intentarlo. La descarga seguirá donde se quedó."
+    },
+    "offline": {
+      "title": "Estás en modo sin internet",
+      "body": "Esta acción necesita descargar algo una sola vez. Desactiva el modo sin internet y vuelve a intentarlo."
+    },
+    "ffmpeg_failed": {
+      "title": "No pudimos crear el vídeo",
+      "body": "El motor de vídeo ha fallado con este tramo. Copia los detalles técnicos si quieres avisarnos."
+    },
+    "cancelled": {
+      "title": "Cancelado",
+      "body": "Lo hecho hasta ahora se ha guardado."
+    },
+    "project_not_found": {
+      "title": "No encontramos este proyecto",
+      "body": "Puede que se haya borrado. Vuelve al inicio para ver tus proyectos."
+    },
+    "storage": {
+      "title": "No pudimos guardar los datos",
+      "body": "Puede que el disco esté lleno o sin permisos. Libera espacio y vuelve a intentarlo."
+    },
+    "job_busy": {
+      "title": "Ya estamos trabajando en esto",
+      "body": "Espera a que termine o cancélalo antes de empezar otra vez."
+    },
+    "bad_request": {
+      "title": "Algo no cuadra",
+      "body": "Revisa los valores e inténtalo de nuevo."
+    },
+    "unauthorized": {
+      "title": "Abre SnipScout desde su ventana",
+      "body": "Esta página solo funciona abierta desde la aplicación."
+    },
+    "server_unreachable": {
+      "title": "La aplicación no responde",
+      "body": "Cierra SnipScout y vuelve a abrirlo."
+    },
+    "unknown": {
+      "title": "Algo ha fallado",
+      "body": "Copia los detalles técnicos si quieres avisarnos."
+    }
+  }
+}

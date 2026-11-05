@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-TOKENS = ROOT / "design" / "css" / "tokens.css"
+TOKENS = ROOT / "src" / "snipscout" / "web" / "static" / "css" / "tokens.css"
 
 # (foreground, background, minimum ratio, what it is)
 PAIRS: list[tuple[str, str, float, str]] = [

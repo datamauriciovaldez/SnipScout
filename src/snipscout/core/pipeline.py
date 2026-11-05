@@ -229,6 +229,7 @@ class Pipeline:
             self._fail(project, exc, on_event)
             raise
         project.status = ProjectStatus.DONE
+        project.export_dir = result.folder
         self.store.save(project)
         if on_event:
             on_event(
