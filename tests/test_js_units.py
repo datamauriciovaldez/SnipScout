@@ -11,7 +11,9 @@ JS_TESTS = sorted((Path(__file__).parent / "js").glob("*.test.mjs"))
 
 @pytest.mark.skipif(shutil.which("node") is None, reason="node is not installed")
 def test_js_units() -> None:
+    node = shutil.which("node")
+    assert node is not None
     r = subprocess.run(
-        ["node", "--test", *map(str, JS_TESTS)], capture_output=True, text=True, timeout=120, check=False
+        [node, "--test", *map(str, JS_TESTS)], capture_output=True, text=True, timeout=120, check=False
     )
     assert r.returncode == 0, r.stdout[-3000:] + r.stderr[-2000:]
