@@ -5,6 +5,7 @@ const ROUTES = [
   ["home", /^\/?$/],
   ["welcome", /^\/bienvenida$/],
   ["settings", /^\/ajustes$/],
+  ["projects", /^\/proyectos$/],
   ["project", /^\/proyecto\/([a-f0-9]{12})$/],
   ["clip", /^\/proyecto\/([a-f0-9]{12})\/clip\/(c\d{2})$/],
   ["export", /^\/proyecto\/([a-f0-9]{12})\/exportar$/],

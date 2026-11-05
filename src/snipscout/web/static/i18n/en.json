@@ -2,7 +2,8 @@
   "nav": {
     "label": "Main",
     "new": "New",
-    "settings": "Settings"
+    "settings": "Settings",
+    "projects": "Projects"
   },
   "status": {
     "local": "Local · offline",
@@ -102,7 +103,39 @@
     "theme": "Theme",
     "theme_light": "Light",
     "theme_dark": "Dark",
-    "theme_system": "System"
+    "theme_system": "System",
+    "theme_help": "“System” follows your computer's light or dark mode.",
+    "output": "Output folder",
+    "change": "Change…",
+    "use_default": "Use the default folder",
+    "save": "Save",
+    "saved": "Setting saved",
+    "quality": "Export quality",
+    "quality_light": "Light",
+    "quality_standard": "Standard",
+    "quality_high": "High",
+    "quality_help_light": "Smaller files; good enough for phones.",
+    "quality_help_standard": "A good balance of quality and size.",
+    "quality_help_high": "Sharper picture, bigger files.",
+    "extras": "Export",
+    "hardware": "Use the graphics card when available",
+    "loudnorm": "Even out the volume of all clips",
+    "models": "Speech models",
+    "default_model": "Default",
+    "make_default": "Make default",
+    "download": "Download",
+    "delete": "Delete",
+    "delete_model": "Delete the {name} model",
+    "delete_model_body": "This frees {size}. You can download it again at any time.",
+    "disk": "Disk space",
+    "used": "used by SnipScout",
+    "free_on_disk": "{size} free on disk",
+    "disk_models": "Models {size}",
+    "disk_projects": "Projects {size}",
+    "disk_cache": "Temporary {size}",
+    "free_up": "Free up space",
+    "free_up_help": "Deletes thumbnails, previews and caches. Your clips and projects are not touched.",
+    "freed": "We freed {size}"
   },
   "placeholder": {
     "eyebrow": "404",
@@ -394,5 +427,34 @@
     "fit": "Fit to clip",
     "label": "Timeline: clip from {a} to {b}",
     "hint": "Drag the handles to change the in and out points; they snap to the nearest sentence (hold Alt to move them freely). Click to move the playhead, Ctrl + wheel to zoom."
+  },
+  "projects": {
+    "eyebrow": "History",
+    "title": "Your projects",
+    "search": "Search by name or file",
+    "new": "New project",
+    "col_name": "Project",
+    "col_length": "Length",
+    "col_clips": "Clips",
+    "col_date": "Last change",
+    "col_state": "Status",
+    "clips_count": "{n} of {total}",
+    "rename": "Rename",
+    "delete": "Delete project",
+    "delete_named": "Delete {name}",
+    "delete_title": "Delete “{name}”?",
+    "delete_body": "This deletes the project's analysis and settings. Your original video and exported clips are not touched.",
+    "delete_confirm": "Delete",
+    "deleted": "Project “{name}” deleted",
+    "empty_title": "No projects yet",
+    "empty_lead": "Add a video and it will show up here with its history.",
+    "no_match": "No project matches your search."
+  },
+  "resume": {
+    "title": "Continue where you left off",
+    "continue": "Continue",
+    "results": "Results",
+    "clip": "Editing clip {n}",
+    "export": "Export"
   }
 }

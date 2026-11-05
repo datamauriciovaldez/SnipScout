@@ -11,6 +11,9 @@ import { Welcome } from "./views/welcome.js";
 import { Project } from "./views/project.js";
 import { Editor } from "./views/editor.js";
 import { Export } from "./views/export.js";
+import { Projects } from "./views/projects.js";
+import { Settings } from "./views/settings.js";
+import { rememberLocation } from "./views/resume.js";
 import { store, useStore } from "./store.js";
 
 function Topbar({ route }) {
@@ -25,34 +28,13 @@ function Topbar({ route }) {
             <a class="crumb__name" href=${bar.crumb.href || "#/"} style="color:inherit;text-decoration:none">${bar.crumb.name}</a>
             ${bar.crumb.duration && html`<span class="mono faint" style="font-size:12px">${bar.crumb.duration}</span>`}
             ${bar.crumb.sub && html`<span class="crumb__sep" aria-hidden="true">/</span><span style="color:var(--text)">${bar.crumb.sub}</span>`}</div>`
-        : html`<nav class="nav" aria-label=${t("nav.label")}>${tab("home", "#/", "nav.new")}${tab("settings", "#/ajustes", "nav.settings")}</nav>`}
+        : html`<nav class="nav" aria-label=${t("nav.label")}>${tab("home", "#/", "nav.new")}${tab("projects", "#/proyectos", "nav.projects")}${tab("settings", "#/ajustes", "nav.settings")}</nav>`}
     </div>
     <div class="topbar__right">
       <span class="label status-dot">${status && status.offline ? t("status.offline") : t("status.local")}</span>
       ${bar && bar.actions}
     </div>
   </header>`;
-}
-
-function Settings() {
-  const lang = useStore((s) => s.lang);
-  useEffect(() => { window.SnipScoutTheme && window.SnipScoutTheme.bind(); }, []);
-  return html`<main class="page" id="main">
-    <div class="label">${t("settings.eyebrow")}</div>
-    <h1 class="title-1">${t("settings.title")}</h1>
-    <div class="settings" style="margin-top:24px">
-      <div class="settings__row"><span class="label" id="l-lang">${t("settings.language")}</span>
-        <div class="seg seg--sans" role="group" aria-labelledby="l-lang">
-          ${["es", "en"].map((code) => html`<button type="button" aria-pressed=${String(lang === code)} onClick=${() => setLang(code)}>${t(`languages.${code}`)}</button>`)}
-        </div></div>
-      <div class="settings__row"><span class="label" id="l-theme">${t("settings.theme")}</span>
-        <div class="seg seg--sans" data-theme-switch role="group" aria-labelledby="l-theme">
-          <button type="button" data-mode="light">${t("settings.theme_light")}</button>
-          <button type="button" data-mode="dark">${t("settings.theme_dark")}</button>
-          <button type="button" data-mode="system">${t("settings.theme_system")}</button>
-        </div></div>
-    </div>
-  </main>`;
 }
 
 function Placeholder({ titleKey }) {
@@ -69,13 +51,15 @@ function App() {
   useStore((s) => s.lang); // re-render on language change
   const error = useStore((s) => s.error);
   const status = useStore((s) => s.status);
+  useEffect(() => rememberLocation(route), [route.name, route.params.join("/")]);
   useEffect(() => {
     if (status && status.first_run && route.name === "home") navigate("/bienvenida");
   }, [status, route.name]);
   const ready = (view) => (status ? view() : html`<div class="page"><div class="skeleton" style="height:28px;width:40%"></div></div>`);
   const views = {
     home: () => ready(() => html`<${Home} />`),
-    settings: () => html`<${Settings} />`,
+    settings: () => ready(() => html`<${Settings} />`),
+    projects: () => html`<${Projects} />`,
     welcome: () => ready(() => html`<${Welcome} />`),
     project: () => ready(() => html`<${Project} key=${route.params[0]} id=${route.params[0]} />`),
     clip: () => ready(() => html`<${Editor} key=${route.params.join("/")} id=${route.params[0]} cid=${route.params[1]} />`),

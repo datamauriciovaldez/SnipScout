@@ -121,8 +121,8 @@ def _run(args: argparse.Namespace) -> int:
         project.id,
         out_dir=Path(args.out) if args.out else None,
         on_event=show,
-        hardware=args.hardware,
-        loudnorm=args.loudnorm,
+        hardware=args.hardware or None,
+        loudnorm=args.loudnorm or None,
     )
     print(f"\nDone. {len(result.clips)} clip(s) in: {result.folder}")
     for ec in result.clips:

@@ -18,6 +18,7 @@ from snipscout.core.binaries import FfmpegBinaries
 from snipscout.core.errors import CancelledError, SnipScoutError
 from snipscout.core.export import ExportResult, export_clips
 from snipscout.core.models import ClipSet, JobEvent, JobState, Project, ProjectStatus, Sentence
+from snipscout.core.preferences import load_preferences
 from snipscout.core.procs import CancelToken
 from snipscout.core.reframe import default_mode, output_size
 from snipscout.core.render import RenderOptions
@@ -172,16 +173,20 @@ class Pipeline:
 
     # -- render ------------------------------------------------------------------------------------
     def render_options(
-        self, project: Project, *, hardware: bool = False, loudnorm: bool = False
+        self, project: Project, *, hardware: bool | None = None, loudnorm: bool | None = None
     ) -> RenderOptions:
+        """Geometry from the project; quality, hardware and loudness from the user's preferences
+        unless given explicitly."""
+        prefs = load_preferences()
         w, h = output_size(project.source, project.settings.aspect)
         return RenderOptions(
             width=w,
             height=h,
             mode=default_mode(project.source, project.settings.aspect),
+            crf=prefs.quality.crf,
             audio_track=project.settings.audio_track,
-            hardware=hardware,
-            loudnorm=loudnorm,
+            hardware=prefs.hardware if hardware is None else hardware,
+            loudnorm=prefs.loudnorm if loudnorm is None else loudnorm,
         )
 
     def render(
@@ -191,8 +196,8 @@ class Pipeline:
         out_dir: Path | None = None,
         on_event: EventSink | None = None,
         cancel: CancelToken | None = None,
-        hardware: bool = False,
-        loudnorm: bool = False,
+        hardware: bool | None = None,
+        loudnorm: bool | None = None,
         clip_ids: list[str] | None = None,
     ) -> ExportResult:
         """Render included clips (or exactly ``clip_ids``) into ``out_dir``

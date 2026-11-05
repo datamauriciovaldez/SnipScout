@@ -2,7 +2,8 @@
   "nav": {
     "label": "Principal",
     "new": "Nuevo",
-    "settings": "Ajustes"
+    "settings": "Ajustes",
+    "projects": "Proyectos"
   },
   "status": {
     "local": "Local · sin conexión",
@@ -102,7 +103,39 @@
     "theme": "Tema",
     "theme_light": "Claro",
     "theme_dark": "Oscuro",
-    "theme_system": "Sistema"
+    "theme_system": "Sistema",
+    "theme_help": "“Sistema” sigue el modo claro u oscuro de tu ordenador.",
+    "output": "Carpeta de salida",
+    "change": "Cambiar…",
+    "use_default": "Usar la carpeta por defecto",
+    "save": "Guardar",
+    "saved": "Ajuste guardado",
+    "quality": "Calidad de exportación",
+    "quality_light": "Ligera",
+    "quality_standard": "Estándar",
+    "quality_high": "Alta",
+    "quality_help_light": "Archivos más pequeños; suficiente para el móvil.",
+    "quality_help_standard": "Buen equilibrio entre calidad y tamaño.",
+    "quality_help_high": "Más nitidez y archivos más grandes.",
+    "extras": "Exportación",
+    "hardware": "Usar la tarjeta gráfica si está disponible",
+    "loudnorm": "Igualar el volumen de todos los clips",
+    "models": "Modelos de voz",
+    "default_model": "Predeterminado",
+    "make_default": "Usar por defecto",
+    "download": "Descargar",
+    "delete": "Borrar",
+    "delete_model": "Borrar el modelo {name}",
+    "delete_model_body": "Liberarás {size}. Podrás volver a descargarlo cuando quieras.",
+    "disk": "Espacio en disco",
+    "used": "usados por SnipScout",
+    "free_on_disk": "{size} libres en el disco",
+    "disk_models": "Modelos {size}",
+    "disk_projects": "Proyectos {size}",
+    "disk_cache": "Temporales {size}",
+    "free_up": "Liberar espacio",
+    "free_up_help": "Borra miniaturas, vistas previas y cachés. Tus clips y proyectos no se tocan.",
+    "freed": "Hemos liberado {size}"
   },
   "placeholder": {
     "eyebrow": "404",
@@ -394,5 +427,34 @@
     "fit": "Ajustar al clip",
     "label": "Línea de tiempo: clip de {a} a {b}",
     "hint": "Arrastra las asas para cambiar la entrada y la salida; se ajustan a la frase más cercana (mantén Alt para moverlas libremente). Clic para mover el cabezal, Ctrl + rueda para acercar."
+  },
+  "projects": {
+    "eyebrow": "Historial",
+    "title": "Tus proyectos",
+    "search": "Buscar por nombre o archivo",
+    "new": "Nuevo proyecto",
+    "col_name": "Proyecto",
+    "col_length": "Duración",
+    "col_clips": "Clips",
+    "col_date": "Último cambio",
+    "col_state": "Estado",
+    "clips_count": "{n} de {total}",
+    "rename": "Renombrar",
+    "delete": "Borrar proyecto",
+    "delete_named": "Borrar {name}",
+    "delete_title": "¿Borrar «{name}»?",
+    "delete_body": "Se borran el análisis y los ajustes de este proyecto. Tu vídeo original y los clips ya exportados no se tocan.",
+    "delete_confirm": "Borrar",
+    "deleted": "Proyecto «{name}» borrado",
+    "empty_title": "Aún no tienes proyectos",
+    "empty_lead": "Añade un vídeo y aparecerá aquí con su historial.",
+    "no_match": "Ningún proyecto coincide con la búsqueda."
+  },
+  "resume": {
+    "title": "Continuar donde lo dejaste",
+    "continue": "Continuar",
+    "results": "Resultados",
+    "clip": "Editando el clip {n}",
+    "export": "Exportación"
   }
 }

@@ -25,6 +25,11 @@ async function request(method, path, body) {
 
 export const api = {
   status: () => request("GET", "/system/status"),
+  settings: () => request("GET", "/settings"),
+  patchSettings: (patch) => request("PATCH", "/settings", patch),
+  storage: () => request("GET", "/system/storage"),
+  freeStorage: () => request("POST", "/system/storage/free"),
+  deleteModel: (name) => request("DELETE", `/system/models/${name}`),
   projects: () => request("GET", "/projects"),
   project: (id) => request("GET", `/projects/${id}`),
   createProject: (path, settings) => request("POST", "/projects", { path, settings }),

@@ -37,7 +37,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from snipscout import __version__
-from snipscout.config import data_dir, is_offline, output_dir
+from snipscout.config import cache_dir, data_dir, default_output_dir, is_offline, models_dir, output_dir
 from snipscout.core import audio, ingest, modelstore
 from snipscout.core.binaries import FfmpegBinaries
 from snipscout.core.errors import (
@@ -58,6 +58,7 @@ from snipscout.core.models import (
     ProjectSettings,
 )
 from snipscout.core.pipeline import Pipeline
+from snipscout.core.preferences import Preferences, Quality, load_preferences, save_preferences
 from snipscout.core.procs import CancelToken, run_ffmpeg
 from snipscout.core.scoring import ScoringConfig
 from snipscout.core.segment import segment
@@ -153,8 +154,8 @@ class ClipPatch(BaseModel):
 class RenderRequest(BaseModel):
     out_dir: str | None = None
     clip_ids: list[str] | None = Field(default=None, max_length=100)
-    hardware: bool = False
-    loudnorm: bool = False
+    hardware: bool | None = None  # None = use the user's preference
+    loudnorm: bool | None = None
 
 
 class PreviewFrameRequest(BaseModel):
@@ -163,6 +164,13 @@ class PreviewFrameRequest(BaseModel):
     end: float | None = Field(default=None, ge=0)
     subtitle_style: str | None = None
     text_overrides: dict[int, str] | None = None
+
+
+class SettingsUpdate(BaseModel):
+    output_dir: str | None = None  # "" resets to the default folder
+    quality: Quality | None = None
+    hardware: bool | None = None
+    loudnorm: bool | None = None
 
 
 class DownloadRequest(BaseModel):
@@ -188,6 +196,9 @@ def _project_json(ctx: Context, p: Project) -> dict[str, Any]:
     job = ctx.jobs.get(p.id)
     if job and job.running:
         out["job"] = {"kind": job.kind, "last": job.last.model_dump(mode="json") if job.last else None}
+    clips = ctx.store.load_clips(p.id)
+    out["clips_total"] = len(clips.clips) if clips else 0
+    out["clips_included"] = sum(c.included for c in clips.clips) if clips else 0
     out["estimate_s"] = round(
         estimate_seconds(
             min(p.source.duration, 600) if p.settings.quick_analysis else p.source.duration, p.settings.model
@@ -363,6 +374,96 @@ def create_app(ctx: Context) -> FastAPI:  # noqa: C901 - one place that lists th
         return StreamingResponse(
             stream(), media_type="text/event-stream", headers={"Cache-Control": "no-store"}
         )
+
+    # --- settings & storage ---------------------------------------------------------------------
+    def _settings_json(prefs: Preferences) -> dict[str, Any]:
+        return {
+            **prefs.model_dump(mode="json"),
+            "output_dir_resolved": str(output_dir()),
+            "output_dir_default": str(default_output_dir()),
+            "output_dir_locked": bool(os.environ.get("SNIPSCOUT_OUTPUT_DIR")),
+        }
+
+    @app.get("/api/v1/settings")
+    def get_settings() -> dict[str, Any]:
+        return _settings_json(load_preferences())
+
+    @app.patch("/api/v1/settings")
+    def patch_settings(body: SettingsUpdate) -> dict[str, Any]:
+        prefs = load_preferences()
+        changes = body.model_dump(exclude_unset=True)
+        if "output_dir" in changes:
+            raw = (changes.pop("output_dir") or "").strip()
+            if raw:
+                folder = Path(raw).expanduser()
+                if not folder.is_absolute():
+                    raise ApiError("Choose a full folder path.", details=raw)
+                try:
+                    folder.mkdir(parents=True, exist_ok=True)
+                    probe = folder / ".snipscout-write-test"
+                    probe.write_text("ok", encoding="utf-8")
+                    probe.unlink()
+                except OSError as exc:
+                    raise ApiError(
+                        "SnipScout can't write to that folder.", details=f"{folder}: {exc}"
+                    ) from exc
+                prefs.output_dir = str(folder)
+            else:
+                prefs.output_dir = None
+        for key, value in changes.items():
+            if value is not None:
+                setattr(prefs, key, value)
+        save_preferences(prefs)
+        return _settings_json(prefs)
+
+    def _size(path: Path) -> int:
+        if path.is_file():
+            return path.stat().st_size
+        return sum(f.stat().st_size for f in path.rglob("*") if f.is_file()) if path.is_dir() else 0
+
+    def _cache_items() -> list[Path]:
+        """Regenerable data: thumbnails, preview frames, waveform caches, the app cache folder and
+        uploads that no project uses any more. Never clips, projects or extracted audio."""
+        items: list[Path] = []
+        for d in ctx.store.root.iterdir() if ctx.store.root.is_dir() else []:
+            if d.is_dir():
+                items += [d / "thumbs", d / "preview", *d.glob("envelope_*.npy"), *d.glob("waveform_*.json")]
+        used = {str(p.source.path.parent) for p in ctx.store.list()}
+        if ctx.uploads_dir.is_dir():
+            items += [u for u in ctx.uploads_dir.iterdir() if u.is_dir() and str(u) not in used]
+        items.append(cache_dir())
+        return [i for i in items if i.exists()]
+
+    @app.get("/api/v1/system/storage")
+    def storage() -> dict[str, Any]:
+        cache = sum(_size(i) for i in _cache_items())
+        projects = _size(ctx.store.root) + (_size(ctx.uploads_dir) if ctx.uploads_dir.is_dir() else 0)
+        base = data_dir() if data_dir().exists() else Path.home()
+        return {
+            "models_bytes": _size(models_dir()),
+            "projects_bytes": max(0, projects - cache + _size(cache_dir())),
+            "cache_bytes": cache,
+            "free_bytes": shutil.disk_usage(base).free,
+            "data_dir": str(data_dir()),
+        }
+
+    @app.post("/api/v1/system/storage/free")
+    def free_storage() -> dict[str, Any]:
+        freed = 0
+        for item in _cache_items():
+            size = _size(item)
+            if item.is_dir():
+                shutil.rmtree(item, ignore_errors=True)
+            else:
+                item.unlink(missing_ok=True)
+            freed += size - _size(item)
+        return {"freed_bytes": freed}
+
+    @app.delete("/api/v1/system/models/{name}", status_code=204)
+    def delete_model(name: str) -> Response:
+        modelstore.get_spec(name)  # validates the name
+        modelstore.remove_model(name)
+        return Response(status_code=204)
 
     # --- projects ---------------------------------------------------------------------------------
     @app.get("/api/v1/projects")

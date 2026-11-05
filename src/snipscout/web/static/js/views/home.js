@@ -5,6 +5,7 @@ import { api, native } from "../api.js";
 import { Button, Checkbox, ErrorNotice, Progress, Segmented, Tag, Thumb, Wave, toast } from "../components.js";
 import { fmt, t } from "../i18n.js";
 import { navigate } from "../router.js";
+import { ResumeBanner } from "./resume.js";
 import { store, useStore } from "../store.js";
 
 const ACCEPT = ".mp4,.mov,.mkv,.webm,.avi,.m4v,.mp3,.wav,.m4a";
@@ -211,6 +212,7 @@ export function Home() {
   return html`<div class="home">
     <main class="home__left" id="main">
       <div><div class="label">${t("home.eyebrow")}</div><h1 class="title-1">${t("home.title")}</h1><p class="lead">${t("home.lead")}</p></div>
+      <${ResumeBanner} />
       <${DropZone} />
       <${Queue} selected=${sel && sel.key} onSelect=${setSelected} />
       <${Recent} />

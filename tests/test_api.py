@@ -324,3 +324,50 @@ def test_preview_frame_real_subtitles(client: TestClient, video_mp4: Path) -> No
     assert without.status_code == 200 and without.content != with_subs.content
     assert client.post(url, json={"at": 9999}).status_code == 400
     assert client.post(url, json={"at": at, "subtitle_style": "comic"}).status_code == 400
+
+
+def test_settings_storage_and_models(
+    client: TestClient, ctx: Context, video_mp4: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.delenv("SNIPSCOUT_OUTPUT_DIR", raising=False)
+    monkeypatch.setenv("SNIPSCOUT_DATA_DIR", str(tmp_path / "data"))
+    s = client.get("/api/v1/settings").json()
+    assert s["quality"] == "standard" and s["output_dir"] is None and not s["output_dir_locked"]
+    target = tmp_path / "Mis clips"
+    s = client.patch(
+        "/api/v1/settings", json={"output_dir": str(target), "quality": "high", "loudnorm": True}
+    ).json()
+    assert (
+        s["output_dir_resolved"] == str(target)
+        and target.is_dir()
+        and s["quality"] == "high"
+        and s["loudnorm"]
+    )
+    assert client.patch("/api/v1/settings", json={"output_dir": "relativo/carpeta"}).status_code == 400
+    assert client.patch("/api/v1/settings", json={"quality": "ultra"}).status_code == 422
+    # Render uses the preferences: output folder and CRF 17 (high).
+    pid = client.post("/api/v1/projects", json={"path": str(video_mp4)}).json()["id"]
+    client.post(f"/api/v1/projects/{pid}/analyze")
+    _events_until_done(client, pid)
+    from snipscout.core.pipeline import Pipeline
+
+    assert Pipeline(ctx.store, ctx.require_ffmpeg()).render_options(ctx.store.load(pid)).crf == 17
+    client.post(f"/api/v1/projects/{pid}/render")
+    _events_until_done(client, pid)
+    assert Path(client.get(f"/api/v1/projects/{pid}").json()["export_dir"]).parent == target
+    listed = client.get("/api/v1/projects").json()[0]
+    assert listed["clips_total"] >= 1 and listed["clips_included"] >= 1
+    # Storage: caches are counted and freed; projects and audio survive.
+    client.get(f"/api/v1/projects/{pid}/waveform", params={"points": 100})
+    st = client.get("/api/v1/system/storage").json()
+    assert st["cache_bytes"] > 0 and st["projects_bytes"] > 0 and st["free_bytes"] > 0
+    freed = client.post("/api/v1/system/storage/free").json()["freed_bytes"]
+    assert freed > 0 and ctx.store.audio_path(pid).exists()
+    assert (
+        client.get(f"/api/v1/projects/{pid}/waveform", params={"points": 100}).status_code == 200
+    )  # regenerated
+    # Models: unknown name rejected; deleting a model that isn't installed is harmless.
+    assert client.delete("/api/v1/system/models/huge").status_code == 502
+    assert client.delete("/api/v1/system/models/small").status_code == 204
+    s = client.patch("/api/v1/settings", json={"output_dir": ""}).json()
+    assert s["output_dir"] is None and s["output_dir_resolved"] == s["output_dir_default"]

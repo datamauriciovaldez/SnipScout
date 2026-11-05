@@ -1,5 +1,6 @@
 """App-wide paths and environment flags."""
 
+import json
 import os
 from pathlib import Path
 
@@ -24,10 +25,21 @@ def data_dir() -> Path:
     return _env_path("SNIPSCOUT_DATA_DIR", Path(_dirs.user_data_dir))
 
 
-def output_dir() -> Path:
-    """Where exported clips go by default. Override with ``SNIPSCOUT_OUTPUT_DIR``."""
+def default_output_dir() -> Path:
     downloads = _dirs.user_downloads_dir or str(Path.home() / "Downloads")
-    return _env_path("SNIPSCOUT_OUTPUT_DIR", Path(downloads) / APP_NAME)
+    return Path(downloads) / APP_NAME
+
+
+def output_dir() -> Path:
+    """Exported clips go to ``SNIPSCOUT_OUTPUT_DIR``, else the user's preference, else Downloads/SnipScout."""
+    env = os.environ.get("SNIPSCOUT_OUTPUT_DIR")
+    if env:
+        return Path(env)
+    try:  # read the preference without importing the core (config stays dependency-free)
+        chosen = json.loads((data_dir() / "preferences.json").read_text(encoding="utf-8")).get("output_dir")
+    except (OSError, ValueError, AttributeError):
+        chosen = None
+    return Path(chosen) if chosen else default_output_dir()
 
 
 def models_dir() -> Path:

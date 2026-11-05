@@ -3,6 +3,26 @@
 All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.2.0] - 2026-11-05
+
+"Editor" release.
+
+### Added
+- Canvas timeline in the clip editor: waveform computed by the server for the visible range, draggable in/out
+  handles that snap to sentence boundaries (Alt for free movement), click/drag scrubbing, zoom (Ctrl+wheel, buttons).
+- Word-level transcript synced with playback: the spoken word is highlighted, click a word to jump to it,
+  double-click to fix it.
+- "See real frame": one frame rendered by the export engine (same reframe and libass subtitles) for the current,
+  even unsaved, edit.
+- Keyboard shortcuts (Space, ←/→, Shift+←/→, I/O, Ctrl/Cmd+Z, Ctrl/Cmd+Shift+Z, Ctrl/Cmd+Enter), undo/redo
+  history and autosave with a status indicator.
+- Projects screen (search, rename, delete, show exported folder) and "Continue where you left off" on Home.
+- Full settings: output folder, export quality (CRF 24/20/17), hardware encoder and loudness options, speech model
+  management (download, default, delete) and disk usage with "Free up space" (caches only).
+
+### Changed
+- Exports default to the folder chosen in Settings (still overridable with `SNIPSCOUT_OUTPUT_DIR`).
+
 ## [0.1.0] - 2026-11-05
 
 First public version ("it works").

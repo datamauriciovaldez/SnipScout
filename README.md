@@ -20,7 +20,9 @@ video, proposes the moments that work on their own, and renders vertical clips w
 
 - Drag a video (or audio) file in; analysis runs on a normal laptop CPU — a GPU is used only if present.
 - 10–15 suggested moments, each with a score and the reasons behind it ("opens with a question", "ends with a punchline"…).
-- Simple editor: snap in/out points to sentence boundaries, fix any subtitle word, pick a subtitle style.
+- Clip editor with a waveform timeline: drag in/out handles that snap to sentences, scrub, zoom, fix any subtitle
+  word (synced with playback), preview the exact exported frame, undo/redo and autosave.
+- Projects history, "continue where you left off", and settings for output folder, quality and speech models.
 - Export to 9:16, 1:1, 16:9 or original, with word-by-word highlighted subtitles (4 styles), plus `.srt`/`.vtt`,
   `metadata.json` and a ready-to-paste title and description per clip.
 - Spanish and English interface, light and dark themes, keyboard friendly.
@@ -93,7 +95,6 @@ speed and adjusts its estimates after the first analysis.
 - Reframing is center-crop or blurred background; no face tracking.
 - The preview in the app approximates the subtitle rendering; the exported file is the reference.
 - Windows double-click launch verified on a real machine; the native window on macOS is **not yet verified**.
-- v0.2: waveform timeline with draggable handles, full transcript editing, undo, projects history.
 - v0.3: polish, accessibility review, optional local-LLM re-ranking (Ollama, if you already run it), packaging.
 
 ## Responsible use
