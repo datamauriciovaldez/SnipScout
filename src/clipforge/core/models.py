@@ -68,6 +68,28 @@ class Transcript(_Model):
     words: list[Word] = Field(default_factory=list)
 
 
+class Sentence(_Model):
+    """A sentence-like unit built from words (punctuation or pause boundaries) with prosody features."""
+
+    index: int
+    start: float
+    end: float
+    text: str
+    word_start: int  # index of first word in Transcript.words
+    word_end: int  # exclusive
+    words_per_sec: float
+    pause_before: float
+    pause_after: float
+    confidence: float  # mean word probability
+    rms_mean: float = 0.0
+    rms_variation: float = 0.0  # coefficient of variation of RMS (vocal dynamics)
+    fillers: int = 0
+
+    @property
+    def duration(self) -> float:
+        return self.end - self.start
+
+
 # --- Settings & project ----------------------------------------------------------------------------
 
 

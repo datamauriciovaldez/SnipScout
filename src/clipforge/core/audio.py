@@ -59,6 +59,25 @@ def load_wav(path: Path) -> npt.NDArray[np.float32]:
     return (np.frombuffer(raw, dtype="<i2").astype(np.float32) / 32768.0).astype(np.float32)
 
 
+def wav_duration(path: Path) -> float:
+    with wave.open(str(path), "rb") as w:
+        return w.getnframes() / w.getframerate()
+
+
+def read_wav_range(path: Path, start_s: float, end_s: float) -> npt.NDArray[np.float32]:
+    """Read only [start_s, end_s) of a mono 16 kHz s16 WAV (bounded memory for long files)."""
+    with wave.open(str(path), "rb") as w:
+        if w.getnchannels() != 1 or w.getframerate() != SAMPLE_RATE or w.getsampwidth() != 2:
+            raise ValueError(f"expected mono 16 kHz s16 WAV, got {w.getparams()}")
+        first = max(0, int(start_s * SAMPLE_RATE))
+        last = min(w.getnframes(), int(end_s * SAMPLE_RATE))
+        if last <= first:
+            return np.zeros(0, dtype=np.float32)
+        w.setpos(first)
+        raw = w.readframes(last - first)
+    return (np.frombuffer(raw, dtype="<i2").astype(np.float32) / 32768.0).astype(np.float32)
+
+
 def rms_envelope(samples: npt.NDArray[np.float32], hop_s: float = 0.05) -> npt.NDArray[np.float32]:
     """RMS energy per ``hop_s`` window (used for vocal-energy scoring and the waveform)."""
     hop = max(1, int(SAMPLE_RATE * hop_s))
