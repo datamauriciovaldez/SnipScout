@@ -1,0 +1,158 @@
+/* ClipForge design tokens — the ONLY source of colour, type, spacing, radii, borders and motion.
+   Themes change values only. Light = paper, dark = warm graphite.
+   Theme selection: <html data-theme="light|dark">; without the attribute, prefers-color-scheme decides.
+   Every text/background pair used by components is listed in scripts/check_contrast.py (AA). */
+
+:root {
+  /* --- Colour: surfaces --- */
+  --bg: #F1F0EB;
+  --panel: #FAF9F6;
+  --sunken: #F6F5F1;              /* wells: drop zone, inputs on bg */
+  --line: #D9D7CE;                /* 1px separators (decorative) */
+  --line-strong: #85827A;         /* control borders (≥3:1 against bg/panel) */
+  --rule: #17171A;                /* table top rule */
+
+  /* --- Colour: text --- */
+  --text: #17171A;
+  --text-2: #58564F;
+  --text-3: #6F6D65;
+  --text-inverse: #FAF9F6;
+
+  /* --- Colour: accent (scores high, active word, wave markers/handles, active row, Download) --- */
+  --accent: #D93A12;
+  --accent-text: #B5300C;         /* accent used as small text; #D93A12 is 4.0:1 on bg (fails AA) */
+  --on-accent: #FFFFFF;
+  --accent-wash: #D93A1214;       /* tinted backgrounds (drop "release here", selected word) */
+
+  /* --- Colour: status --- */
+  --ok: #2F6B4F;
+  --warn: #8A5A00;
+  --danger: #B42318;
+  --danger-wash: #B4231810;
+
+  /* --- Colour: controls --- */
+  --btn-primary-bg: #17171A;
+  --btn-primary-text: #FAF9F6;
+  --btn-primary-hover: #34343A;
+  --btn-outline-border: #17171A;
+  --btn-outline-hover: #17171A0D;
+  --check-bg: #17171A;
+  --check-mark: #FAF9F6;
+  --focus: #D93A12;
+  --hover: #17171A08;
+  --selected: #17171A0F;
+
+  /* --- Colour: data viz --- */
+  --score-track: #DDDBD2;
+  --score-low: #17171A;
+  --score-high: #D93A12;
+  --wave-in: #17171A;
+  --wave-out: #C9C7BD;
+  --wave-done: #17171A;
+  --wave-todo: #C9C7BD;
+  --progress-track: #DDDBD2;
+  --progress-fill: #17171A;
+
+  /* --- Colour: media frames --- */
+  --frame-default-a: #4A5B60;      /* placeholder frame when a clip has no thumbnail yet */
+  --frame-default-b: #1B2326;
+  --frame-shade: rgba(0, 0, 0, 0.55);
+  --frame-glow: rgba(255, 255, 255, 0.16);
+  --subtitle-text: #FFFFFF;
+  --subtitle-active-text: #FFFFFF; /* word on accent highlight */
+  --subtitle-shadow: rgba(0, 0, 0, 0.6);
+  --grain-opacity: 0.5;
+  --overlay: rgba(23, 23, 26, 0.32);
+  --shadow-pop: 0 1px 2px rgba(23, 23, 26, 0.08), 0 12px 32px -8px rgba(23, 23, 26, 0.22);
+
+  /* --- Type --- */
+  --font-sans: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Consolas, monospace;
+  --fs-label: 11px;               /* mono, uppercase, tracking .08em */
+  --fs-mono: 12.5px;
+  --fs-small: 13px;
+  --fs-body: 14px;
+  --fs-lead: 14.5px;
+  --fs-row: 15px;
+  --fs-h2: 20px;
+  --fs-h1: 30px;
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --lh-tight: 1.2;
+  --lh-body: 1.5;
+  --tracking-label: 0.08em;
+  --tracking-title: -0.02em;
+  --tracking-row: -0.005em;
+
+  /* --- Space (base 4px) --- */
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 20px; --s-6: 24px;
+  --s-7: 28px; --s-8: 32px; --s-10: 40px; --s-12: 48px; --s-16: 64px;
+
+  /* --- Size --- */
+  --topbar-h: 48px;
+  --row-h: 60px;
+  --row-head-h: 34px;
+  --statusbar-h: 34px;
+  --control-h: 40px;
+  --control-h-sm: 34px;
+  --check-size: 18px;
+  --thumb-w: 34px;
+  --thumb-h: 60px;
+  --side-w: 480px;
+
+  /* --- Shape --- */
+  --r-1: 3px;   /* checkbox, thumbnails, tags */
+  --r-2: 4px;   /* inputs, segmented, subtitle highlight */
+  --r-3: 6px;   /* buttons, preview, panels */
+  --bw: 1px;
+  --bw-control: 1.5px;
+
+  /* --- Motion --- */
+  --dur-fast: 120ms;
+  --dur-base: 220ms;
+  --dur-theme: 150ms;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  color-scheme: light;
+}
+
+/* Dark: warm graphite. No pure black, no blue cast. Primary button becomes bone. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #151513; --panel: #1C1C1A; --sunken: #11110F; --line: #34332E; --line-strong: #77746B; --rule: #EDEBE4;
+    --text: #EDEBE4; --text-2: #ABA89E; --text-3: #8F8C82; --text-inverse: #151513;
+    --accent: #FF6A3D; --accent-text: #FF6A3D; --on-accent: #17120F; --subtitle-active-text: #17120F; --accent-wash: #FF6A3D1F;
+    --ok: #6FCF9F; --warn: #E3B04B; --danger: #FF8A7A; --danger-wash: #FF8A7A14;
+    --btn-primary-bg: #EDEBE4; --btn-primary-text: #151513; --btn-primary-hover: #FFFFFF;
+    --btn-outline-border: #EDEBE4; --btn-outline-hover: #EDEBE40F;
+    --check-bg: #EDEBE4; --check-mark: #151513; --focus: #FF6A3D; --hover: #EDEBE40A; --selected: #EDEBE412;
+    --score-track: #34332E; --score-low: #EDEBE4; --score-high: #FF6A3D;
+    --wave-in: #EDEBE4; --wave-out: #3B3A35; --wave-done: #EDEBE4; --wave-todo: #3B3A35;
+    --progress-track: #34332E; --progress-fill: #EDEBE4;
+    --overlay: rgba(0, 0, 0, 0.5);
+    --shadow-pop: 0 1px 2px rgba(0, 0, 0, 0.4), 0 16px 40px -8px rgba(0, 0, 0, 0.6);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #151513; --panel: #1C1C1A; --sunken: #11110F; --line: #34332E; --line-strong: #77746B; --rule: #EDEBE4;
+  --text: #EDEBE4; --text-2: #ABA89E; --text-3: #8F8C82; --text-inverse: #151513;
+  --accent: #FF6A3D; --accent-text: #FF6A3D; --on-accent: #17120F; --subtitle-active-text: #17120F; --accent-wash: #FF6A3D1F;
+  --ok: #6FCF9F; --warn: #E3B04B; --danger: #FF8A7A; --danger-wash: #FF8A7A14;
+  --btn-primary-bg: #EDEBE4; --btn-primary-text: #151513; --btn-primary-hover: #FFFFFF;
+  --btn-outline-border: #EDEBE4; --btn-outline-hover: #EDEBE40F;
+  --check-bg: #EDEBE4; --check-mark: #151513; --focus: #FF6A3D; --hover: #EDEBE40A; --selected: #EDEBE412;
+  --score-track: #34332E; --score-low: #EDEBE4; --score-high: #FF6A3D;
+  --wave-in: #EDEBE4; --wave-out: #3B3A35; --wave-done: #EDEBE4; --wave-todo: #3B3A35;
+  --progress-track: #34332E; --progress-fill: #EDEBE4;
+  --overlay: rgba(0, 0, 0, 0.5);
+  --shadow-pop: 0 1px 2px rgba(0, 0, 0, 0.4), 0 16px 40px -8px rgba(0, 0, 0, 0.6);
+  color-scheme: dark;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur-fast: 0ms; --dur-base: 0ms; --dur-theme: 0ms; }
+}

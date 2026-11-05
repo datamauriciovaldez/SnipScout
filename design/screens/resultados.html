@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Resultados · ClipForge</title>
+<script src="../js/theme.js"></script>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<style>
+  /* Screen layout only (no colours here). */
+  .screen { display: flex; height: calc(100% - var(--topbar-h)); }
+  .results { flex: 1; min-width: 0; padding: 26px 0 0 var(--s-8); position: relative; display: flex; flex-direction: column; }
+  .results__intro h1 { margin: 6px 0 4px; }
+  .results .table { margin-top: var(--s-6); flex: 1; overflow: auto; }
+  .results .statusbar { flex: none; }
+  .head-spacer-check { width: 56px; } .head-num { width: 36px; } .head-thumb { width: 54px; } .head-clip { flex: 1; }
+  .gap-20 { width: 20px; flex: none; }
+  .side { width: var(--side-w); flex: none; background: var(--panel); border-left: var(--bw) solid var(--line); padding: var(--s-6) var(--s-7) 0;
+    position: relative; display: flex; flex-direction: column; }
+  .side__head { display: flex; justify-content: space-between; align-items: baseline; }
+  .side__top { display: flex; gap: var(--s-5); margin-top: 14px; }
+  .why__text { font-size: 13.5px; color: var(--text-2); }
+  .why__list { margin-top: var(--s-4); font-family: var(--font-mono); font-size: 12px; color: var(--text-2); }
+  .why__list div { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: var(--bw) solid var(--line); }
+  .why__list b { color: var(--text); font-weight: var(--fw-medium); }
+  .side .wave { margin-top: 22px; }
+  .side__times { display: flex; justify-content: space-between; font-size: var(--fs-label); color: var(--text-3); margin-top: 6px; }
+  .side .transcript { margin-top: 18px; }
+  .side__actions { margin-top: auto; padding: var(--s-5) 0 22px; display: flex; gap: 10px; }
+  .side__actions .btn { flex: 1; }
+  .is-hidden { display: none !important; }
+  @media (max-width: 1180px) { :root { --side-w: 380px; } .thumb--preview { width: 168px; height: 299px; } .c-in-out { width: 170px; } }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar__left">
+    <a class="brand" href="index.html" aria-label="ClipForge, inicio">
+      <span class="brand__mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><path d="M8 7.5L20 18M8 16.5L20 6"/></svg></span>ClipForge</a>
+    <div class="crumb"><span class="crumb__sep" aria-hidden="true">/</span><span class="crumb__name">Cómo aprendí a programar sin título</span><span class="mono faint" style="font-size:12px">58:12</span></div>
+  </div>
+  <div class="topbar__right">
+    <span class="label status-dot">Local · sin conexión</span>
+    <button class="btn btn--primary" type="button" id="render">Renderizar 3 clips</button>
+  </div>
+</header>
+
+<div class="screen">
+  <section class="results" aria-labelledby="r-title">
+    <div class="results__intro">
+      <div class="label">Resultados del análisis</div>
+      <h1 class="title-1" id="r-title">Hemos encontrado 9 momentos con tirón</h1>
+      <p class="lead" id="r-lead">Ordenados por puntuación. Marca los que quieras exportar; puedes ajustar cada uno antes.</p>
+    </div>
+
+    <div class="table" id="table" role="listbox" aria-label="Clips propuestos" aria-multiselectable="false">
+      <div class="table__head label" aria-hidden="true">
+        <span class="head-spacer-check"></span><span class="head-num">Nº</span><span class="head-thumb"></span><span class="head-clip">Clip</span>
+        <span class="c-in-out">Entrada → salida</span><span class="c-dur">Dur.</span><span class="c-score">Puntuación</span>
+      </div>
+      <div id="rows"></div>
+    </div>
+
+    <!-- Empty state -->
+    <div class="empty is-hidden" id="empty">
+      <div class="label">Sin momentos</div>
+      <h2 class="title-2">No hemos encontrado tramos que funcionen solos</h2>
+      <p class="lead">Pasa con vídeos muy cortos o con mucha música. Prueba con clips más largos o revisa el idioma del vídeo.</p>
+      <div style="display:flex;gap:8px;margin-top:8px"><button class="btn btn--primary btn--lg" type="button">Probar con clips medios</button><button class="btn btn--outline btn--lg" type="button">Cambiar idioma</button></div>
+    </div>
+
+    <div class="statusbar">
+      <span><b id="sel-count">3 de 9</b> seleccionados</span><span id="sel-total">2:05 en total</span><span>Formato 9:16 · Subtítulos “Pop”</span>
+      <span class="statusbar__end">Salida → Descargas/ClipForge</span>
+    </div>
+  </section>
+
+  <aside class="side" aria-label="Vista previa del clip">
+    <div class="side__head"><span class="label" id="pv-label">Vista previa · Clip 01</span><span class="mono faint" style="font-size:12px" id="pv-dur">0:42</span></div>
+    <div class="side__top">
+      <div class="thumb thumb--preview" id="pv" style="--fa:#4a5b60;--fb:#1b2326">
+        <div class="thumb__glow"></div><div class="thumb__shade"></div>
+        <div class="subtitle" id="pv-sub">¿Y si lo que <mark>estudias</mark><br>no es lo que necesitas?</div>
+      </div>
+      <div style="padding-top:2px;min-width:0">
+        <div class="label" style="margin-bottom:8px">Por qué sube</div>
+        <div class="why__text" id="pv-why">Engancha con una pregunta en los primeros 3 s y termina con una idea completa.</div>
+        <div class="why__list" id="pv-list"></div>
+      </div>
+    </div>
+    <div class="wave" id="wf" aria-hidden="true"></div>
+    <div class="side__times mono"><span id="pv-in">00:14:32</span><span id="pv-out">00:15:14</span></div>
+    <div class="transcript" id="pv-tr"></div>
+    <div class="side__actions">
+      <a class="btn btn--outline btn--lg" href="editor.html">Editar clip</a>
+      <button class="btn btn--accent btn--lg" type="button">Descargar</button>
+    </div>
+  </aside>
+</div>
+
+<script>
+const CLIPS = [
+  ["El día que dejé la carrera", "¿Y si lo que estudias no es lo que necesitas?", "00:14:32", "00:15:14", "0:42", 94, true, "#4a5b60", "#1b2326",
+    "¿Y si lo que <mark>estudias</mark><br>no es lo que necesitas?", "Engancha con una pregunta en los primeros 3 s y termina con una idea completa.",
+    [["Pregunta inicial", 18], ["Energía de voz", 14], ["Tema coherente", 12], ["Cierre limpio", 9]],
+    [["14:32", "¿Y si lo que estudias no es lo que necesitas?"], ["14:38", "Yo pasé tres años intentando encajar en algo que…"]]],
+  ["Mi primer error en producción", "Borré la base de datos un viernes a las seis de la tarde.", "00:31:05", "00:31:41", "0:36", 89, true, "#5e4435", "#241812",
+    "Borré la <mark>base</mark> de datos<br>un viernes", "Empieza con una confesión concreta y la cuenta con buen ritmo.",
+    [["Gancho concreto", 16], ["Energía de voz", 15], ["Buen ritmo", 11], ["Cierre limpio", 7]],
+    [["31:05", "Borré la base de datos un viernes a las seis de la tarde."], ["31:11", "Y nadie se dio cuenta hasta el lunes…"]]],
+  ["Lo que nadie cuenta del código", "Programar es leer, leer y leer. Escribir es lo de menos.", "00:22:18", "00:23:09", "0:51", 85, true, "#3f4d3f", "#171d17",
+    "Programar es <mark>leer</mark>,<br>leer y leer", "Una idea fuerte y repetida que se entiende sin contexto.",
+    [["Afirmación fuerte", 15], ["Tema coherente", 13], ["Se entiende solo", 10], ["Cierre limpio", 8]],
+    [["22:18", "Programar es leer, leer y leer. Escribir es lo de menos."], ["22:25", "El código que más tocas no lo has escrito tú."]]],
+  ["Aprender solo, sin tutoriales", "Los tutoriales te dan la sensación de avanzar sin avanzar.", "00:08:47", "00:09:15", "0:28", 78, false, "#43505e", "#161b22",
+    "Te dan la sensación<br>de <mark>avanzar</mark>", "Contraste claro entre lo que parece y lo que pasa.", [["Contraste", 12], ["Buen ritmo", 10], ["Tema coherente", 9]],
+    [["08:47", "Los tutoriales te dan la sensación de avanzar sin avanzar."]]],
+  ["Cómo conseguí mi primer cliente", "No le escribí a nadie. Enseñé lo que había hecho.", "00:44:10", "00:44:57", "0:47", 72, false, "#5a4d38", "#1f1a12",
+    "No le <mark>escribí</mark><br>a nadie", "Historia personal con un final que se puede copiar.", [["Historia", 11], ["Cierre limpio", 9], ["Energía de voz", 7]],
+    [["44:10", "No le escribí a nadie. Enseñé lo que había hecho."]]],
+  ["La pregunta que hace todo junior", "¿Cómo sé si lo estoy haciendo bien? Nadie te lo dice.", "00:37:52", "00:38:31", "0:39", 69, false, "#4d3f4f", "#1a151b",
+    "¿Cómo sé si lo estoy<br>haciendo <mark>bien</mark>?", "Pregunta que muchos se hacen, aunque el final queda abierto.", [["Pregunta inicial", 14], ["Cierre abierto", -4], ["Tema coherente", 8]],
+    [["37:52", "¿Cómo sé si lo estoy haciendo bien? Nadie te lo dice."]]],
+  ["Por qué dejé de usar frameworks", "Durante un año lo hice todo a mano. Esto es lo que cambió.", "00:12:03", "00:12:44", "0:41", 66, false, "#3d5456", "#131c1c",
+    "Lo hice todo<br>a <mark>mano</mark>", "Buen arranque; la explicación se alarga en el centro.", [["Gancho concreto", 10], ["Silencios largos", -5], ["Tema coherente", 9]],
+    [["12:03", "Durante un año lo hice todo a mano. Esto es lo que cambió."]]],
+  ["Lo que haría distinto hoy", "Empezaría por terminar cosas pequeñas, no por aprender más.", "00:52:20", "00:53:02", "0:42", 63, false, "#58493b", "#1d1710",
+    "Terminar cosas<br><mark>pequeñas</mark>", "Consejo claro, con un arranque algo lento.", [["Cierre limpio", 10], ["Arranque lento", -6], ["Se entiende solo", 8]],
+    [["52:20", "Empezaría por terminar cosas pequeñas, no por aprender más."]]],
+  ["Consejos para tu primera entrevista", "La mayoría de entrevistas se pierden en los primeros cinco minutos.", "00:02:11", "00:02:49", "0:38", 62, false, "#3e4a5c", "#151a22",
+    "Los primeros<br><mark>cinco</mark> minutos", "Empieza con una cifra; depende algo de lo dicho antes.", [["Cifra inicial", 12], ["Depende del contexto", -7], ["Buen ritmo", 6]],
+    [["02:11", "La mayoría de entrevistas se pierden en los primeros cinco minutos."]]],
+];
+const HIGH = 85;
+const rows = document.getElementById("rows");
+const secs = (d) => { const [m, s] = d.split(":").map(Number); return m * 60 + s; };
+const fmt = (t) => `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}`;
+let active = 0;
+
+function renderRows() {
+  rows.innerHTML = CLIPS.map((c, i) => `
+  <div class="row" role="option" tabindex="${i === active ? 0 : -1}" aria-selected="${i === active}" data-i="${i}">
+    <label class="check-hit"><input class="check" type="checkbox" ${c[6] ? "checked" : ""} aria-label="Exportar «${c[0]}»" data-check="${i}"></label>
+    <div class="row__num mono">${String(i + 1).padStart(2, "0")}</div>
+    <div class="thumb" style="--fa:${c[7]};--fb:${c[8]}"></div><div class="gap-20"></div>
+    <div class="row__main"><div class="row__title">${c[0]}</div><div class="row__sub">${c[1]}</div></div>
+    <div class="row__cell mono c-in-out">${c[2]} → ${c[3]}</div>
+    <div class="row__cell mono c-dur" style="color:var(--text)">${c[4]}</div>
+    <div class="c-score"><div class="score ${c[5] >= HIGH ? "score--high" : ""}" style="--v:${c[5]}"><div class="score__track"><div class="score__fill"></div></div><span class="score__value">${c[5]}</span></div></div>
+  </div>`).join("");
+}
+
+function wave(container, from, to) {
+  let html = "";
+  for (let i = 0; i < 86; i++) {
+    const h = 8 + Math.abs(Math.sin(i * .7) * 18 + Math.sin(i * 1.9) * 10 + Math.sin(i * .23) * 6);
+    html += `<i class="${i >= from && i <= to ? "in" : ""}" style="--h:${h.toFixed(1)}"></i>`;
+  }
+  const pct = (i) => `${(i / 85) * 100}%`;
+  container.innerHTML = html + `<span class="wave__marker wave__marker--in" style="left:calc(${pct(from)} - 4px)"></span><span class="wave__marker wave__marker--out" style="left:calc(${pct(to)} + 2px)"></span>`;
+}
+
+function preview(i) {
+  const c = CLIPS[i];
+  document.getElementById("pv-label").textContent = `Vista previa · Clip ${String(i + 1).padStart(2, "0")}`;
+  document.getElementById("pv-dur").textContent = c[4];
+  document.getElementById("pv").style.cssText = `--fa:${c[7]};--fb:${c[8]}`;
+  document.getElementById("pv-sub").innerHTML = c[9];
+  document.getElementById("pv-why").textContent = c[10];
+  document.getElementById("pv-list").innerHTML = c[11].map(([k, v]) => `<div><span>${k}</span><b>${v > 0 ? "+" : "−"}${Math.abs(v)}</b></div>`).join("");
+  document.getElementById("pv-in").textContent = c[2];
+  document.getElementById("pv-out").textContent = c[3];
+  document.getElementById("pv-tr").innerHTML = c[12].map(([t, s], k) => `<div class="transcript__line"><span class="transcript__time">${t}</span><span class="${k ? "transcript__text--dim" : ""}">${s}</span></div>`).join("");
+  wave(document.getElementById("wf"), 8, 72);
+}
+
+function updateCount() {
+  const sel = CLIPS.filter((c) => c[6]);
+  const total = sel.reduce((a, c) => a + secs(c[4]), 0);
+  document.getElementById("sel-count").textContent = `${sel.length} de ${CLIPS.length}`;
+  document.getElementById("sel-total").textContent = `${fmt(total)} en total`;
+  const r = document.getElementById("render");
+  r.textContent = sel.length ? `Renderizar ${sel.length} ${sel.length === 1 ? "clip" : "clips"}` : "Marca algún clip";
+  r.disabled = !sel.length;
+}
+
+function select(i, focus) {
+  active = i;
+  rows.querySelectorAll(".row").forEach((r, k) => { r.setAttribute("aria-selected", String(k === i)); r.tabIndex = k === i ? 0 : -1; });
+  if (focus) rows.children[i].focus();
+  preview(i);
+}
+
+rows.addEventListener("click", (e) => {
+  const cb = e.target.closest("[data-check]");
+  if (cb) { CLIPS[+cb.dataset.check][6] = cb.checked; updateCount(); return; }
+  const row = e.target.closest(".row"); if (row) select(+row.dataset.i);
+});
+rows.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); select(Math.max(0, Math.min(CLIPS.length - 1, active + (e.key === "ArrowDown" ? 1 : -1))), true); }
+  if (e.key === " " && e.target.classList.contains("row")) { e.preventDefault(); const cb = e.target.querySelector(".check"); cb.checked = !cb.checked; CLIPS[active][6] = cb.checked; updateCount(); }
+});
+
+/* States via hash: #vacio, #cargando */
+function state() {
+  const s = location.hash.slice(1);
+  const table = document.getElementById("table"), empty = document.getElementById("empty");
+  if (s === "vacio") {
+    table.classList.add("is-hidden"); empty.classList.remove("is-hidden");
+    document.querySelector(".side").classList.add("is-hidden");
+    document.getElementById("r-title").textContent = "Este vídeo no nos ha dado clips";
+    document.getElementById("r-lead").textContent = "Lo hemos escuchado entero, pero ningún tramo se sostiene solo.";
+    return;
+  }
+  if (s === "cargando") {
+    document.getElementById("r-title").textContent = "Preparando los resultados…";
+    rows.innerHTML = Array.from({ length: 7 }, () => `<div class="row"><span class="check-hit"><span class="skeleton" style="width:18px;height:18px"></span></span><span class="row__num"></span><span class="skeleton" style="width:34px;height:60px"></span><span class="gap-20"></span><div class="row__main"><div class="skeleton" style="height:14px;width:42%"></div><div class="skeleton" style="height:11px;width:66%;margin-top:8px"></div></div><span class="c-in-out"><span class="skeleton" style="display:block;height:11px;width:150px"></span></span><span class="c-dur"></span><span class="c-score"><span class="skeleton" style="height:5px;width:56px"></span></span></div>`).join("");
+    return;
+  }
+  renderRows(); select(active); updateCount();
+}
+state();
+</script>
+</body>
+</html>
