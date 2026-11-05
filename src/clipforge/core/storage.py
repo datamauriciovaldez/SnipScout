@@ -43,6 +43,7 @@ def atomic_write_text(path: Path, text: str) -> None:
             f.write(text)
             f.flush()
             os.fsync(f.fileno())
+        Path(tmp).chmod(0o644)  # mkstemp creates 0600; exported files must be readable like normal files
         Path(tmp).replace(path)
     except OSError as exc:
         Path(tmp).unlink(missing_ok=True)

@@ -86,3 +86,15 @@ def rms_envelope(samples: npt.NDArray[np.float32], hop_s: float = 0.05) -> npt.N
         return np.zeros(0, dtype=np.float32)
     frames = samples[: n * hop].reshape(n, hop).astype(np.float64)
     return np.sqrt((frames**2).mean(axis=1)).astype(np.float32)
+
+
+def rms_envelope_file(path: Path, hop_s: float = 0.05, block_s: float = 300.0) -> npt.NDArray[np.float32]:
+    """RMS envelope of a WAV file, read in blocks (bounded memory for multi-hour audio)."""
+    total = wav_duration(path)
+    parts = []
+    pos = 0.0
+    while pos < total:
+        end = min(total, pos + block_s)
+        parts.append(rms_envelope(read_wav_range(path, pos, end), hop_s))
+        pos = end
+    return np.concatenate(parts) if parts else np.zeros(0, dtype=np.float32)
