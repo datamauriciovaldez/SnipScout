@@ -41,6 +41,8 @@ export const api = {
   mediaUrl: (id) => `${BASE}/projects/${id}/media`,
   thumbUrl: (id, cid) => `${BASE}/projects/${id}/clips/${cid}/thumbnail`,
   zipUrl: (id) => `${BASE}/projects/${id}/export.zip`,
+  exports: (id) => request("GET", `/projects/${id}/exports`),
+  exportUrl: (id, name, download) => `${BASE}/projects/${id}/exports/${encodeURIComponent(name)}${download ? "?download=true" : ""}`,
 
   /** Browser mode: stream a File object to the server. */
   async upload(file, onProgress) {

@@ -10,6 +10,7 @@ import { Home } from "./views/home.js";
 import { Welcome } from "./views/welcome.js";
 import { Project } from "./views/project.js";
 import { Editor } from "./views/editor.js";
+import { Export } from "./views/export.js";
 import { store, useStore } from "./store.js";
 
 function Topbar({ route }) {
@@ -58,7 +59,7 @@ function Placeholder({ titleKey }) {
   return html`<main class="page" id="main"><div class="empty">
     <div class="label">${t("placeholder.eyebrow")}</div>
     <h1 class="title-2">${t(titleKey)}</h1>
-    <p class="lead">${t("placeholder.body")}</p>
+    <p class="lead">${t("placeholder.not_found_body")}</p>
     <div><${Button} size="lg" onClick=${() => (location.hash = "#/")}>${t("common.back_home")}<//></div>
   </div></main>`;
 }
@@ -78,7 +79,7 @@ function App() {
     welcome: () => ready(() => html`<${Welcome} />`),
     project: () => ready(() => html`<${Project} key=${route.params[0]} id=${route.params[0]} />`),
     clip: () => ready(() => html`<${Editor} key=${route.params.join("/")} id=${route.params[0]} cid=${route.params[1]} />`),
-    export: () => html`<${Placeholder} titleKey="placeholder.export" />`,
+    export: () => ready(() => html`<${Export} key=${route.params[0]} id=${route.params[0]} />`),
     notFound: () => html`<${Placeholder} titleKey="placeholder.not_found" />`,
   };
   return html`<a class="skip-link" href="#main">${t("common.skip")}</a>

@@ -210,14 +210,24 @@ class Pipeline:
         project.status = ProjectStatus.RENDERING
         self.store.save(project)
 
+        to_render = [c for c in selected if c.included]
+
         def on_clip(i: int, n: int, f: float) -> None:
             if on_event:
+                clip = to_render[i - 1]
                 on_event(
                     JobEvent(
                         stage="render",
                         progress=round(((i - 1) + f) / n, 4),
                         message="stage.render",
-                        params={"clip": i, "clips": n, "clip_progress": round(f, 4)},
+                        params={
+                            "clip": i,
+                            "clips": n,
+                            "clip_progress": round(f, 4),
+                            "clip_id": clip.id,
+                            "title": clip.title,
+                            "duration": round(clip.end - clip.start, 2),
+                        },
                     )
                 )
 

@@ -94,6 +94,7 @@ def _open_window(url: str) -> bool:
     except ImportError:
         return False
     bridge = Bridge()
+    webview.settings["ALLOW_DOWNLOADS"] = True  # Download buttons on the export screen
     try:
         bridge.window = webview.create_window(
             "SnipScout", url, js_api=bridge, width=1440, height=900, min_size=(1000, 680), text_select=True

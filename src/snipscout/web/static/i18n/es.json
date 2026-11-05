@@ -105,13 +105,9 @@
     "theme_system": "Sistema"
   },
   "placeholder": {
-    "eyebrow": "En camino",
-    "welcome": "Bienvenida",
-    "project": "Resultados del proyecto",
-    "clip": "Editor de clip",
+    "eyebrow": "404",
     "not_found": "Esta página no existe",
-    "body": "Esta pantalla llega en la siguiente fase de la versión 0.1.",
-    "export": "Exportación"
+    "not_found_body": "Puede que el enlace sea antiguo. Vuelve al inicio para seguir."
   },
   "error": {
     "label": "Error",
@@ -182,6 +178,10 @@
     "unknown": {
       "title": "Algo ha fallado",
       "body": "Copia los detalles técnicos si quieres avisarnos."
+    },
+    "reveal_failed": {
+      "title": "No pudimos abrir la carpeta",
+      "body": "Tu sistema no tiene un explorador de archivos que podamos abrir. La ruta está arriba: cópiala y ábrela a mano."
     }
   },
   "components": {
@@ -343,5 +343,34 @@
     "closure": "Cierre limpio",
     "autonomy": "Se entiende solo",
     "confidence": "Audio claro"
+  },
+  "export": {
+    "crumb": "Exportación",
+    "eyebrow": "Exportación",
+    "rendering_title": "Creando tus clips",
+    "rendering_lead": "Cada clip se corta, se reencuadra y lleva sus subtítulos palabra a palabra.",
+    "count": "{done} de {total} listos",
+    "preparing": "Preparando…",
+    "queued": "En cola",
+    "state_queued": "En cola",
+    "state_done": "Listo",
+    "cancel_eyebrow": "Cancelar exportación",
+    "cancel_title": "¿Paramos la exportación?",
+    "cancel_body": "Los clips que ya estén terminados se quedan en la carpeta de salida.",
+    "cancel_confirm": "Cancelar exportación",
+    "keep_going": "Seguir exportando",
+    "stopped_title": "La exportación se detuvo",
+    "stopped_lead": "Vuelve a los resultados para lanzarla otra vez.",
+    "back_results": "Volver a resultados",
+    "done_one": "Tu clip está listo",
+    "done_many": "Tus {n} clips están listos",
+    "done_lead": "Pasa el ratón por encima para verlos. También tienes los subtítulos sueltos y un texto para publicarlos.",
+    "folder": "Carpeta",
+    "reveal": "Mostrar en carpeta",
+    "revealed": "Abriendo la carpeta…",
+    "zip": "Descargar todo (ZIP)",
+    "download": "Descargar",
+    "copy_caption": "Copiar título y descripción",
+    "preview_of": "Vista previa de {title}"
   }
 }

@@ -263,3 +263,42 @@ def test_job_not_running_after_terminal_event() -> None:
     assert not jobs.running("abcdef123456")
     release.set()
     jobs.wait("abcdef123456", timeout=5)
+
+
+def test_exports_listing_and_files(client: TestClient, video_mp4: Path) -> None:
+    pid = client.post("/api/v1/projects", json={"path": str(video_mp4)}).json()["id"]
+    assert client.get(f"/api/v1/projects/{pid}/exports").status_code == 400  # nothing yet
+    client.post(f"/api/v1/projects/{pid}/analyze")
+    _events_until_done(client, pid)
+    client.post(f"/api/v1/projects/{pid}/render")
+    events = _events_until_done(client, pid)
+    renders = [e for e in events if e["stage"] == "render"]
+    assert renders and renders[0]["params"]["clip_id"].startswith("c") and renders[0]["params"]["title"]
+    ex = client.get(f"/api/v1/projects/{pid}/exports").json()
+    clip = ex["clips"][0]
+    assert clip["exists"] and clip["size_bytes"] > 0 and clip["caption"].startswith(clip["title"])
+    r = client.get(f"/api/v1/projects/{pid}/exports/{clip['file']}", headers={"Range": "bytes=0-99"})
+    assert r.status_code == 206 and len(r.content) == 100
+    srt = client.get(f"/api/v1/projects/{pid}/exports/{clip['subtitles']['srt']}", params={"download": True})
+    assert srt.status_code == 200 and "attachment" in srt.headers["content-disposition"]
+    for bad in ["..%2Fproject.json", "metadata.json.bak", "x.exe"]:
+        assert client.get(f"/api/v1/projects/{pid}/exports/{bad}").status_code == 404
+
+
+def test_reveal_without_file_manager_is_typed(
+    client: TestClient, ctx: Context, video_mp4: Path, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    import subprocess as sp
+
+    pid = client.post("/api/v1/projects", json={"path": str(video_mp4)}).json()["id"]
+    p = ctx.store.load(pid)
+    p.export_dir = tmp_path
+    ctx.store.save(p)
+
+    def missing(*a: Any, **k: Any) -> None:
+        raise FileNotFoundError("xdg-open")
+
+    monkeypatch.setattr(sp, "Popen", missing)
+    monkeypatch.setattr("sys.platform", "linux")
+    r = client.post(f"/api/v1/projects/{pid}/reveal")
+    assert r.status_code == 500 and r.json()["error"]["code"] == "reveal_failed"

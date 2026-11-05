@@ -105,13 +105,9 @@
     "theme_system": "System"
   },
   "placeholder": {
-    "eyebrow": "Coming next",
-    "welcome": "Welcome",
-    "project": "Project results",
-    "clip": "Clip editor",
+    "eyebrow": "404",
     "not_found": "This page doesn't exist",
-    "body": "This screen arrives in the next step of version 0.1.",
-    "export": "Export"
+    "not_found_body": "The link may be out of date. Go back to the start to continue."
   },
   "error": {
     "label": "Error",
@@ -182,6 +178,10 @@
     "unknown": {
       "title": "Something went wrong",
       "body": "Copy the technical details if you want to report it."
+    },
+    "reveal_failed": {
+      "title": "We couldn't open the folder",
+      "body": "Your system has no file manager we can open. The path is shown above: copy it and open it yourself."
     }
   },
   "components": {
@@ -343,5 +343,34 @@
     "closure": "Clean ending",
     "autonomy": "Stands on its own",
     "confidence": "Clear audio"
+  },
+  "export": {
+    "crumb": "Export",
+    "eyebrow": "Export",
+    "rendering_title": "Making your clips",
+    "rendering_lead": "Each clip is cut, reframed and gets its word-by-word subtitles.",
+    "count": "{done} of {total} ready",
+    "preparing": "Preparing…",
+    "queued": "Queued",
+    "state_queued": "Queued",
+    "state_done": "Ready",
+    "cancel_eyebrow": "Cancel export",
+    "cancel_title": "Stop the export?",
+    "cancel_body": "Clips that are already finished stay in the output folder.",
+    "cancel_confirm": "Cancel export",
+    "keep_going": "Keep exporting",
+    "stopped_title": "The export stopped",
+    "stopped_lead": "Go back to the results to start it again.",
+    "back_results": "Back to results",
+    "done_one": "Your clip is ready",
+    "done_many": "Your {n} clips are ready",
+    "done_lead": "Hover to watch them. You also get the subtitle files and a text to post them with.",
+    "folder": "Folder",
+    "reveal": "Show in folder",
+    "revealed": "Opening the folder…",
+    "zip": "Download all (ZIP)",
+    "download": "Download",
+    "copy_caption": "Copy title and description",
+    "preview_of": "Preview of {title}"
   }
 }

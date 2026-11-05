@@ -64,8 +64,9 @@ export function ClipPlayer({ projectId, hasVideo, start, end, words, style, big 
     return () => removeEventListener("keydown", onKey);
   }, [start, end]);
 
-  const onTime = () => {
-    const v = video.current;
+  const onTime = (e) => {
+    const v = e.currentTarget; // not the ref: events can arrive while the component unmounts
+    if (!v) return;
     if (v.currentTime >= end) { v.pause(); v.currentTime = start; }
     setTime(v.currentTime);
   };

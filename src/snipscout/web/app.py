@@ -193,14 +193,21 @@ def _sse(event: JobEvent | dict[str, Any], name: str = "progress") -> str:
     return f"event: {name}\ndata: {data}\n\n"
 
 
+class RevealError(SnipScoutError):
+    code = "reveal_failed"
+
+
 def _reveal(path: Path) -> None:
     """Open a folder in the OS file manager (argument list, never a shell)."""
-    if sys.platform == "win32":
-        os.startfile(path)  # type: ignore[attr-defined]  # noqa: S606 - opens a folder the app created
-    elif sys.platform == "darwin":
-        subprocess.Popen(["open", str(path)])  # noqa: S607
-    else:
-        subprocess.Popen(["xdg-open", str(path)])  # noqa: S607
+    try:
+        if sys.platform == "win32":
+            os.startfile(path)  # type: ignore[attr-defined]  # noqa: S606 - opens a folder the app created
+        elif sys.platform == "darwin":
+            subprocess.Popen(["open", str(path)])  # noqa: S607
+        else:
+            subprocess.Popen(["xdg-open", str(path)])  # noqa: S607
+    except OSError as exc:  # no file manager available (e.g. a minimal Linux install)
+        raise RevealError("Could not open the folder.", details=f"{path}: {exc}") from exc
 
 
 def _safe_filename(name: str) -> str:
@@ -632,6 +639,51 @@ def create_app(ctx: Context) -> FastAPI:  # noqa: C901 - one place that lists th
             media_type="application/zip",
             headers={"Content-Disposition": f'attachment; filename="{name}"'},
         )
+
+    @app.get("/api/v1/projects/{pid}/exports")
+    def list_exports(pid: str) -> dict[str, Any]:
+        """Exported clips of the last render (from metadata.json) with their caption text."""
+        folder = _export_dir(pid)
+        meta_file = folder / "metadata.json"
+        if not meta_file.is_file():
+            raise ApiError("Nothing exported yet.", details=str(folder))
+        meta = json.loads(meta_file.read_text(encoding="utf-8"))
+        captions = (
+            (folder / "captions.txt").read_text(encoding="utf-8")
+            if (folder / "captions.txt").is_file()
+            else ""
+        )
+        blocks = {
+            b.split(" ===\n", 1)[0].strip("= \n"): b.split(" ===\n", 1)[1].strip()
+            for b in captions.split("=== ")[1:]
+            if " ===\n" in b
+        }
+        files = []
+        for c in meta["clips"]:
+            video = folder / c["file"]
+            files.append(
+                {
+                    **c,
+                    "exists": video.is_file(),
+                    "size_bytes": video.stat().st_size if video.is_file() else 0,
+                    "caption": blocks.get(c["file"], c["title"]),
+                }
+            )
+        return {"folder": str(folder), "clips": files}
+
+    @app.get("/api/v1/projects/{pid}/exports/{name}")
+    def export_file(pid: str, name: str, download: bool = False) -> FileResponse:
+        """One exported file. Only names present in the export folder are served (no traversal)."""
+        folder = _export_dir(pid)
+        allowed = {
+            f.name: f
+            for f in folder.iterdir()
+            if f.is_file() and f.suffix.lower() in {".mp4", ".srt", ".vtt", ".txt", ".json"}
+        }
+        if name not in allowed:
+            raise ProjectNotFoundError("Unknown file.", details=name)
+        disposition = "attachment" if download else "inline"
+        return FileResponse(allowed[name], filename=name, content_disposition_type=disposition)
 
     @app.post("/api/v1/projects/{pid}/reveal", status_code=204)
     def reveal(pid: str) -> Response:
