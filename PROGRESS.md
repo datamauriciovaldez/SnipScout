@@ -20,5 +20,5 @@
 - CI not yet run on GitHub (no remote). Windows/macOS behaviour unverified until first push.
 
 ## Next
-- **D0** (mandatory pause): static HTML mockups (Inicio, Resultados, Editor; dark + light) → author approval.
+- **D0** (mandatory pause): first mockups (violet, later rejected) — WAITING for author approval before U1.
 - Author: create empty public GitHub repo and share `owner/repo` so work can be pushed (container is ephemeral).
