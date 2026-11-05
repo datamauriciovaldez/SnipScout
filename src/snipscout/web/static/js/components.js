@@ -77,7 +77,7 @@ export function Field({ id, label, hint, error, children }) {
 }
 
 /** Modal dialog: focus trap, Esc closes, focus returns to the opener. */
-export function Modal({ open, title, eyebrow, onClose, children, actions }) {
+export function Modal({ open, title, eyebrow, onClose, children, actions, wide }) {
   const box = useRef(null);
   const opener = useRef(null);
   // Capture the opener during the render that opens the dialog: effects run after paint, when the
@@ -107,7 +107,7 @@ export function Modal({ open, title, eyebrow, onClose, children, actions }) {
   }, [open]);
   return html`<div class=${cx("scrim", open && "is-open")} aria-hidden=${open ? "false" : "true"}
       onClick=${(e) => e.target === e.currentTarget && onClose()}>
-    ${open && html`<div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" ref=${box} tabindex="-1">
+    ${open && html`<div class=${cx("modal", wide && "modal--wide")} role="dialog" aria-modal="true" aria-labelledby="modal-title" ref=${box} tabindex="-1">
       ${eyebrow && html`<div class="label">${eyebrow}</div>`}
       <h2 class="title-2" id="modal-title" style="margin-top:6px">${title}</h2>
       <div class="muted" style="margin-top:8px">${children}</div>

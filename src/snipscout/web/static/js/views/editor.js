@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "preact/hooks";
 import { html } from "../html.js";
 import { api } from "../api.js";
-import { Button, ErrorNotice, Segmented, toast } from "../components.js";
+import { Button, ErrorNotice, Modal, Segmented, toast } from "../components.js";
 import { fmt, t } from "../i18n.js";
 import { navigate } from "../router.js";
 import { useTopbar } from "../store.js";
@@ -27,6 +27,8 @@ export function Editor({ id, cid }) {
   const [saving, setSaving] = useState(false);
   const [playhead, setPlayhead] = useState(0);
   const [seek, setSeek] = useState(null); // { t, n } → player
+  const [frame, setFrame] = useState(null); // { url, at } real preview frame
+  const [framing, setFraming] = useState(false);
 
   useEffect(() => {
     Promise.all([api.project(id), api.clips(id), api.transcript(id)])
@@ -64,7 +66,23 @@ export function Editor({ id, cid }) {
     return () => removeEventListener("keydown", onKey);
   });
 
+  const seekTo = (tt) => { setPlayhead(tt); setSeek((x) => ({ t: tt, n: (x ? x.n : 0) + 1 })); };
+  const realFrame = async () => {
+    const at = playhead >= draft.start && playhead <= draft.end ? playhead : draft.start + 0.5;
+    setFraming(true);
+    try {
+      const url = await api.previewFrame(id, cid, { at, start: draft.start, end: draft.end, subtitle_style: draft.style,
+        text_overrides: draft.overrides });
+      if (frame) URL.revokeObjectURL(frame.url);
+      setFrame({ url, at });
+    } catch (err) { toast(t(`errors.${err.code}.title`)); }
+    setFraming(false);
+  };
   const cw = useMemo(() => (data && draft ? clipWords(data.words, draft.start, draft.end, draft.overrides) : []), [data, draft]);
+  useEffect(() => { // keep the spoken word visible while playing
+    const el = document.querySelector(".words__body .word.is-active");
+    if (el) el.scrollIntoView({ block: "nearest" });
+  }, [Math.round(playhead * 4)]);
   if (error) return html`<div class="page"><${ErrorNotice} error=${error} action=${html`<${Button} variant="primary" size="lg" onClick=${() => navigate(`/proyecto/${id}`)}>${t("editor.back")}<//>`} /></div>`;
   if (!data || !draft) return html`<div class="page"><div class="skeleton" style="height:28px;width:40%"></div></div>`;
 
@@ -93,10 +111,18 @@ export function Editor({ id, cid }) {
   const ctxStart = sFirst > 0 ? sentences[sFirst - 1].word_start : Math.max(0, firstIn);
   const ctxEnd = sLast >= 0 && sLast + 1 < sentences.length ? sentences[sLast + 1].word_end : Math.min(words.length, lastIn + 1);
   const inClip = new Set(cw.map((w) => w.index));
+  // Word under the playhead (last word that has started; cleared during long pauses).
+  let activeWord = -1;
+  for (let lo = 0, hi = words.length - 1; lo <= hi;) {
+    const mid = (lo + hi) >> 1;
+    if (words[mid].start <= playhead) { activeWord = mid; lo = mid + 1; } else hi = mid - 1;
+  }
+  if (activeWord >= 0 && playhead > words[activeWord].end + 0.4) activeWord = -1;
   return html`<div class="editor">
     <section class="editor__player" aria-label=${t("editor.preview")}>
       <${ClipPlayer} projectId=${id} hasVideo=${project.source.has_video} start=${draft.start} end=${draft.end} words=${cw} style=${draft.style} big
         seek=${seek} onTime=${setPlayhead} />
+      <${Button} icon="image" loading=${framing} onClick=${realFrame} class="real-frame-btn">${t("editor.real_frame")}<//>
       <p class="faint" style="font-size:12px;margin:0">${t("editor.approx")}</p>
     </section>
     <main class="editor__work" id="main">
@@ -106,7 +132,7 @@ export function Editor({ id, cid }) {
       <section class="timeline" aria-label=${t("editor.timeline")}>
         <${Timeline} projectId=${id} duration=${dur} start=${draft.start} end=${draft.end} time=${playhead} sentences=${sentences}
           onChange=${(r) => setDraft((d) => ({ ...d, start: r.start, end: r.end }))}
-          onSeek=${(tt) => { setPlayhead(tt); setSeek((x) => ({ t: tt, n: (x ? x.n : 0) + 1 })); }} />
+          onSeek=${seekTo} />
         <div class="inout">
           ${["start", "end"].map((f) => html`<div class="field"><label class="label" for=${`t-${f}`}>${t(`editor.${f}`)}</label>
             <div class="stepper-input">
@@ -132,9 +158,11 @@ export function Editor({ id, cid }) {
                   if (v === w.text) delete o[i]; else o[i] = v; setDraft({ ...draft, overrides: o }); setEditing(null); }} /> `;
             }
             const edited = draft.overrides[i] !== undefined;
+            const active = i === activeWord;
             const shown = edited ? draft.overrides[i] : w.text;
-            return html`<span class=${`word${edited ? " is-edited" : ""}${shown === "" ? " is-out" : ""}`} tabindex="0"
-              onDblClick=${() => setEditing(i)} onKeyDown=${(e) => e.key === "Enter" && setEditing(i)}>${shown === "" ? `(${w.text})` : shown}</span> `;
+            return html`<span class=${`word${edited ? " is-edited" : ""}${shown === "" ? " is-out" : ""}${active ? " is-active" : ""}`}
+              tabindex="0" data-wi=${i} aria-current=${active ? "true" : undefined}
+              onClick=${() => seekTo(w.start + 0.01)} onDblClick=${() => setEditing(i)} onKeyDown=${(e) => e.key === "Enter" && setEditing(i)}>${shown === "" ? `(${w.text})` : shown}</span> `;
           })}
         </div>
       </section>
@@ -146,6 +174,10 @@ export function Editor({ id, cid }) {
       <div><div class="label" style="margin-bottom:10px">${t("editor.shortcuts")}</div>
         <div class="keys"><div><span>${t("editor.key_play")}</span><span class="kbd">${t("editor.key_space")}</span></div>
           <div><span>${t("editor.key_save")}</span><span class="kbd">Ctrl ↵</span></div></div></div>
+      <${Modal} open=${Boolean(frame)} wide eyebrow=${t("editor.real_frame")} title=${frame ? t("editor.real_frame_title", { t: fmt.precise(frame.at) }) : ""}
+        onClose=${() => setFrame(null)} actions=${html`<${Button} variant="primary" size="lg" onClick=${() => setFrame(null)}>${t("editor.close")}<//>`}>
+        ${frame && html`<img class="real-frame" src=${frame.url} alt=${t("editor.real_frame_alt")} />`}
+        <p class="faint" style="font-size:12px">${t("editor.real_frame_note")}</p><//>
       <div style="display:flex;gap:8px;margin-top:auto">
         <${Button} variant="ghost" disabled=${!dirty} onClick=${() => setDraft({ start: data.clip.start, end: data.clip.end, title: data.clip.title,
           style: data.clip.subtitle_style || project.settings.subtitle_style, overrides: { ...data.clip.text_overrides } })}>${t("editor.reset")}<//>

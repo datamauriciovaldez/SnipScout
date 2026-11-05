@@ -322,7 +322,12 @@
     "unsaved": "Unsaved changes",
     "all_saved": "Saved",
     "reset": "Reset",
-    "back": "Back to results"
+    "back": "Back to results",
+    "real_frame": "See real frame",
+    "real_frame_title": "How it will look at {t}",
+    "real_frame_alt": "Exported frame with the real subtitles",
+    "real_frame_note": "Made with the same video and subtitle engine as the export, including unsaved changes.",
+    "close": "Close"
   },
   "reasons": {
     "question_hook": "Opens with a question",

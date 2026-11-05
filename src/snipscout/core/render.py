@@ -145,3 +145,42 @@ def render_clip(
         raise last_error
     finally:
         tmp.unlink(missing_ok=True)
+
+
+def render_still(
+    ffmpeg: Path,
+    media: MediaInfo,
+    at: float,
+    work_dir: Path,
+    out_path: Path,
+    ass_name: str | None,
+    opts: RenderOptions,
+) -> Path:
+    """One JPEG frame at absolute time ``at`` with the same reframe and libass subtitles as the export.
+
+    The ASS file must already be timed so that its 0 s is ``at`` (see ``subtitles.shift_words``)."""
+    work_dir.mkdir(parents=True, exist_ok=True)
+    if ass_name:
+        ensure_fonts(work_dir)
+    if media.has_video:
+        args = ["-ss", f"{max(0.0, at):.3f}", "-i", str(media.path)]
+        graph = video_filter(opts.width, opts.height, opts.mode)
+    else:
+        args = ["-f", "lavfi", "-i", f"color=c={AUDIO_ONLY_BG}:s={opts.width}x{opts.height}:r=30"]
+        graph = "[0:v]format=yuv420p[base]"
+    graph += f";[base]ass={ass_name}:fontsdir=fonts[v]" if ass_name else ";[base]null[v]"
+    args += [
+        "-filter_complex",
+        graph,
+        "-map",
+        "[v]",
+        "-frames:v",
+        "1",
+        "-q:v",
+        "3",
+        "-update",
+        "1",
+        str(out_path.resolve()),
+    ]
+    run_ffmpeg(ffmpeg, args, cwd=work_dir, timeout=60)
+    return out_path

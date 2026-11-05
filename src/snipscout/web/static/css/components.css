@@ -216,6 +216,7 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
 .modal { width: min(440px, calc(100vw - 32px)); background: var(--panel); border: var(--bw) solid var(--line); border-radius: var(--r-3);
   box-shadow: var(--shadow-pop); padding: var(--s-6); transform: translateY(8px); transition: transform var(--dur-base) var(--ease-out); }
 .scrim.is-open .modal { transform: none; }
+.modal--wide { width: min(760px, calc(100vw - 32px)); }
 .modal__actions { display: flex; justify-content: flex-end; gap: var(--s-2); margin-top: var(--s-6); }
 
 /* ---------- Notice / error ---------- */

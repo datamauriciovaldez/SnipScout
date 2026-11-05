@@ -322,7 +322,12 @@
     "unsaved": "Cambios sin guardar",
     "all_saved": "Guardado",
     "reset": "Restablecer",
-    "back": "Volver a resultados"
+    "back": "Volver a resultados",
+    "real_frame": "Ver fotograma real",
+    "real_frame_title": "Así quedará en {t}",
+    "real_frame_alt": "Fotograma exportado con los subtítulos reales",
+    "real_frame_note": "Generado con el mismo motor de vídeo y subtítulos que la exportación, con tus cambios aunque no estén guardados.",
+    "close": "Cerrar"
   },
   "reasons": {
     "question_hook": "Empieza con una pregunta",

@@ -157,6 +157,14 @@ class RenderRequest(BaseModel):
     loudnorm: bool = False
 
 
+class PreviewFrameRequest(BaseModel):
+    at: float = Field(ge=0)
+    start: float | None = Field(default=None, ge=0)
+    end: float | None = Field(default=None, ge=0)
+    subtitle_style: str | None = None
+    text_overrides: dict[int, str] | None = None
+
+
 class DownloadRequest(BaseModel):
     model: str = modelstore.DEFAULT_MODEL
 
@@ -571,10 +579,48 @@ def create_app(ctx: Context) -> FastAPI:  # noqa: C901 - one place that lists th
             )
         return FileResponse(out, media_type="image/jpeg", headers={"Cache-Control": "private, max-age=3600"})
 
-    @app.post("/api/v1/projects/{pid}/clips/{cid}/preview-frame", status_code=501)
-    def preview_frame(pid: str, cid: str) -> dict[str, Any]:
-        ctx.store.project_dir(pid)
-        return {"error": {"code": "not_available", "message": "Real-frame preview arrives in v0.2."}}
+    @app.post("/api/v1/projects/{pid}/clips/{cid}/preview-frame")
+    def preview_frame(pid: str, cid: str, body: PreviewFrameRequest) -> FileResponse:
+        """One real frame (ffmpeg + libass, same reframe as the export) for the editor's current draft."""
+        from snipscout.core.render import render_still
+        from snipscout.core.subtitles import PRESETS, build_ass, clip_words, shift_words
+
+        p = ctx.store.load(pid)
+        clips = ctx.store.load_clips(pid) or ClipSet()
+        clip = next((c for c in clips.clips if c.id == cid), None)
+        tr = ctx.store.load_transcript(pid)
+        if clip is None or tr is None:
+            raise ProjectNotFoundError("Unknown clip.", details=cid)
+        changes = body.model_dump(exclude_unset=True, exclude={"at"})
+        if changes.get("subtitle_style") is not None and changes["subtitle_style"] not in PRESETS:
+            raise ApiError("Unknown subtitle style.", details=changes["subtitle_style"])
+        draft = clip.model_copy(update={k: v for k, v in changes.items() if v is not None})
+        if not 0 <= body.at <= p.source.duration:
+            raise ApiError("Time outside the video.", details=str(body.at))
+        pipe = ctx.pipeline()
+        opts = pipe.render_options(p)
+        words = shift_words(clip_words(tr.words, draft), draft.start - body.at)  # ASS 0 s == `at`
+        work = ctx.store.project_dir(pid) / "preview"
+        for old in work.glob("frame_*.jpg"):
+            old.unlink(missing_ok=True)
+        tag = uuid.uuid4().hex[:8]
+        ass_name = f"frame_{tag}.ass"
+        work.mkdir(parents=True, exist_ok=True)
+        (work / ass_name).write_text(
+            build_ass(
+                words,
+                draft.subtitle_style or p.settings.subtitle_style,
+                opts.width,
+                opts.height,
+                vertical=opts.height > opts.width,
+            ),
+            encoding="utf-8",
+        )
+        out = render_still(
+            ctx.require_ffmpeg().ffmpeg, p.source, body.at, work, work / f"frame_{tag}.jpg", ass_name, opts
+        )
+        (work / ass_name).unlink(missing_ok=True)
+        return FileResponse(out, media_type="image/jpeg", headers={"Cache-Control": "no-store"})
 
     # --- media ------------------------------------------------------------------------------------
     @app.get("/api/v1/projects/{pid}/media")

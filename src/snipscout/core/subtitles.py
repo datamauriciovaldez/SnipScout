@@ -121,6 +121,14 @@ def clip_words(words: list[Word], clip: Clip) -> list[Word]:
     return out
 
 
+def shift_words(words: list[Word], offset: float) -> list[Word]:
+    """Move word times by ``offset`` seconds (used to time a single preview frame)."""
+    return [
+        w.model_copy(update={"start": round(w.start + offset, 3), "end": round(w.end + offset, 3)})
+        for w in words
+    ]
+
+
 def group_words(words: list[Word]) -> list[list[Word]]:
     groups: list[list[Word]] = []
     cur: list[Word] = []

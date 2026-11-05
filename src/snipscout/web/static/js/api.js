@@ -36,6 +36,14 @@ export const api = {
   patchClip: (id, cid, patch) => request("PATCH", `/projects/${id}/clips/${cid}`, patch),
   render: (id, opts) => request("POST", `/projects/${id}/render`, opts || {}),
   reveal: (id) => request("POST", `/projects/${id}/reveal`),
+  /** Real exported-look frame for the editor draft → object URL of a JPEG. */
+  async previewFrame(id, cid, body) {
+    const res = await fetch(`${BASE}/projects/${id}/clips/${cid}/preview-frame`, {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new ApiError(res.status, await res.json().catch(() => null));
+    return URL.createObjectURL(await res.blob());
+  },
   transcript: (id) => request("GET", `/projects/${id}/transcript`),
   waveform: (id, points = 800, start, end) => request("GET", `/projects/${id}/waveform?points=${Math.round(points)}`
     + (start !== undefined ? `&start=${start.toFixed(3)}` : "") + (end !== undefined ? `&end=${end.toFixed(3)}` : "")),

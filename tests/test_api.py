@@ -304,3 +304,23 @@ def test_reveal_without_file_manager_is_typed(
     monkeypatch.setattr("sys.platform", "linux")
     r = client.post(f"/api/v1/projects/{pid}/reveal")
     assert r.status_code == 500 and r.json()["error"]["code"] == "reveal_failed"
+
+
+def test_preview_frame_real_subtitles(client: TestClient, video_mp4: Path) -> None:
+    pid = client.post(
+        "/api/v1/projects", json={"path": str(video_mp4), "settings": {"aspect": "1:1"}}
+    ).json()["id"]
+    client.post(f"/api/v1/projects/{pid}/analyze")
+    _events_until_done(client, pid)
+    clip = client.get(f"/api/v1/projects/{pid}/clips").json()["clips"][0]
+    words = client.get(f"/api/v1/projects/{pid}/transcript").json()["words"]
+    w = next(w for w in words if clip["start"] <= w["start"] < clip["end"])
+    at = w["start"] + 0.05
+    url = f"/api/v1/projects/{pid}/clips/{clip['id']}/preview-frame"
+    with_subs = client.post(url, json={"at": at, "subtitle_style": "bold-pop"})
+    assert with_subs.status_code == 200 and with_subs.content[:2] == b"\xff\xd8"
+    hidden = {str(i): "" for i in range(len(words))}  # every word hidden → no subtitle drawn
+    without = client.post(url, json={"at": at, "text_overrides": hidden})
+    assert without.status_code == 200 and without.content != with_subs.content
+    assert client.post(url, json={"at": 9999}).status_code == 400
+    assert client.post(url, json={"at": at, "subtitle_style": "comic"}).status_code == 400
