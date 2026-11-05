@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bienvenida · ClipForge</title>
+<script src="../js/theme.js"></script>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<style>
+  .wrap { max-width: 760px; margin: 0 auto; padding: var(--s-10) var(--s-8) var(--s-8); }
+  .count { font-family: var(--font-mono); font-size: 13px; color: var(--text-3); letter-spacing: .04em; }
+  .count b { color: var(--text); font-weight: var(--fw-medium); }
+  .stepper { margin-top: var(--s-4); }
+  .step { margin-top: var(--s-8); }
+  .step h1 { margin: 6px 0 6px; }
+  .checks { margin-top: var(--s-6); }
+  .checks .row { min-height: 48px; padding-left: 0; }
+  .checks .row__main { font-size: 14px; }
+  .ok { color: var(--ok); font-family: var(--font-mono); font-size: 12.5px; }
+  .models { margin-top: var(--s-6); }
+  .model { display: grid; grid-template-columns: 32px minmax(0, 1fr) 110px 130px; align-items: center; min-height: 64px; border-bottom: var(--bw) solid var(--line); cursor: pointer; position: relative; }
+  .model:hover { background: var(--hover); }
+  .model.is-selected { background: var(--panel); }
+  .model.is-selected::before { content: ""; position: absolute; left: -12px; top: 0; bottom: 0; width: 3px; background: var(--accent); }
+  .radio { appearance: none; width: 18px; height: 18px; border-radius: 50%; border: var(--bw-control) solid var(--text); margin: 0; display: grid; place-items: center; }
+  .radio:checked::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--text); }
+  .model b { font-weight: var(--fw-semibold); font-size: var(--fs-row); }
+  .model small { display: block; color: var(--text-2); font-size: 13px; }
+  .model .mono { font-size: 12.5px; color: var(--text-2); text-align: right; }
+  .dl { margin-top: var(--s-6); border-top: var(--bw) solid var(--rule); padding-top: var(--s-5); }
+  .dl__nums { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+  .dl__pct { font-family: var(--font-mono); font-size: 34px; font-weight: var(--fw-medium); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .dl .progress { height: 6px; }
+  .once { margin-top: var(--s-5); padding: var(--s-4); border: var(--bw) solid var(--line); border-radius: var(--r-2); display: flex; gap: var(--s-3); align-items: flex-start; background: var(--panel); }
+  .once svg { width: 18px; height: 18px; color: var(--ok); flex: none; margin-top: 2px; }
+  .nav-steps { display: flex; justify-content: space-between; margin-top: var(--s-8); padding-top: var(--s-5); border-top: var(--bw) solid var(--line); }
+  .lang { margin-top: var(--s-6); display: grid; gap: 0; border-top: var(--bw) solid var(--rule); }
+  .lang label { display: flex; align-items: center; gap: var(--s-4); min-height: 56px; border-bottom: var(--bw) solid var(--line); cursor: pointer; font-size: var(--fs-row); }
+  .lang label:hover { background: var(--hover); }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar__left"><span class="brand"><span class="brand__mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><path d="M8 7.5L20 18M8 16.5L20 6"/></svg></span>ClipForge</span></div>
+  <div class="topbar__right"><span class="label status-dot">Local · sin cuentas</span></div>
+</header>
+
+<main class="wrap">
+  <div class="count" aria-live="polite"><b id="n">02</b> / 03</div>
+  <nav class="stepper" aria-label="Pasos">
+    <span class="stepper__item" data-step="1"><span class="mono">01</span> Idioma</span>
+    <span class="stepper__item" data-step="2"><span class="mono">02</span> Tu equipo</span>
+    <span class="stepper__item" data-step="3"><span class="mono">03</span> Modelo de voz</span>
+  </nav>
+
+  <section class="step" data-panel="1" hidden>
+    <div class="label">Antes de empezar</div>
+    <h1 class="title-1">¿En qué idioma te hablamos?</h1>
+    <p class="lead">Es el idioma de la aplicación. El de tus vídeos lo detectamos solos.</p>
+    <div class="lang" role="radiogroup" aria-label="Idioma">
+      <label><input class="radio" type="radio" name="lang" checked> Español</label>
+      <label><input class="radio" type="radio" name="lang"> English</label>
+    </div>
+  </section>
+
+  <section class="step" data-panel="2">
+    <div class="label">Revisión del equipo</div>
+    <h1 class="title-1">Tu ordenador está listo</h1>
+    <p class="lead">Hemos medido lo que hace falta. No necesitas tarjeta gráfica.</p>
+    <div class="table checks">
+      <div class="row"><div class="row__main">Procesador</div><span class="row__cell mono" style="width:260px">Intel Core i5-1135G7 · 8 hilos</span><span class="ok" style="width:60px;text-align:right">Bien</span></div>
+      <div class="row"><div class="row__main">Memoria</div><span class="row__cell mono" style="width:260px">16 GB · 11 GB libres</span><span class="ok" style="width:60px;text-align:right">Bien</span></div>
+      <div class="row"><div class="row__main">Gráfica</div><span class="row__cell mono" style="width:260px">Integrada · no hace falta</span><span class="mono faint" style="width:60px;text-align:right;font-size:12.5px">—</span></div>
+      <div class="row"><div class="row__main">Editor de vídeo (ffmpeg)</div><span class="row__cell mono" style="width:260px">incluido · subtítulos y H.264</span><span class="ok" style="width:60px;text-align:right">Bien</span></div>
+    </div>
+    <div class="label" style="margin-top:28px">Elige cómo quieres que escuche</div>
+    <div class="models" role="radiogroup" aria-label="Modelo de transcripción" id="models">
+      <label class="model"><input class="radio" type="radio" name="m"><span><b>Rápido</b><small>Para probar o vídeos con voz muy clara.</small></span><span class="mono">78 MB</span><span class="mono">≈ 8 min / hora</span></label>
+      <label class="model is-selected"><input class="radio" type="radio" name="m" checked><span><b>Equilibrado <span class="tag" style="margin-left:6px">Recomendado</span></b><small>Buena precisión en español e inglés para tu equipo.</small></span><span class="mono">148 MB</span><span class="mono">≈ 11 min / hora</span></label>
+      <label class="model"><input class="radio" type="radio" name="m"><span><b>Preciso</b><small>Para acentos, ruido o vocabulario técnico. Más lento.</small></span><span class="mono">486 MB</span><span class="mono">≈ 23 min / hora</span></label>
+    </div>
+  </section>
+
+  <section class="step" data-panel="3" hidden>
+    <div class="label">Modelo de voz · Equilibrado</div>
+    <h1 class="title-1">Descargando el modelo</h1>
+    <p class="lead">Es el que transcribe tus vídeos en este ordenador.</p>
+    <div class="dl" aria-live="polite">
+      <div class="dl__nums"><span class="dl__pct" id="pct">36 %</span><span class="mono muted" id="bytes">53 MB de 148 MB · 6,2 MB/s · quedan 15 s</span></div>
+      <div class="progress"><div class="progress__fill" id="bar" style="--p:.36"></div></div>
+      <div style="display:flex;gap:8px;margin-top:14px"><button class="btn btn--outline" type="button" id="pause">Pausar</button><span class="faint" style="font-size:13px;align-self:center">Si se corta la conexión, seguirá donde lo dejó.</span></div>
+    </div>
+    <div class="once"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+      <div><b style="font-weight:600">Solo una vez; después funciona sin internet.</b><div class="muted" style="font-size:13.5px">Tus vídeos nunca salen de tu ordenador. No hay cuentas ni claves.</div></div></div>
+  </section>
+
+  <div class="nav-steps"><button class="btn btn--ghost btn--lg" type="button" id="back">Atrás</button><button class="btn btn--primary btn--lg" type="button" id="next">Descargar y continuar</button></div>
+</main>
+<script>
+  let step = { "#paso1": 1, "#paso3": 3 }[location.hash] || 2, prog = 0.36, paused = false, timer;
+  const nextLabel = { 1: "Continuar", 2: "Descargar y continuar", 3: "Empezar" };
+  function go(s) {
+    step = Math.max(1, Math.min(3, s));
+    document.getElementById("n").textContent = String(step).padStart(2, "0");
+    document.querySelectorAll("[data-panel]").forEach((p) => (p.hidden = +p.dataset.panel !== step));
+    document.querySelectorAll(".stepper__item").forEach((it) => {
+      const n = +it.dataset.step;
+      it.classList.toggle("is-done", n < step);
+      if (n === step) it.setAttribute("aria-current", "step"); else it.removeAttribute("aria-current");
+    });
+    document.getElementById("next").textContent = nextLabel[step];
+    document.getElementById("next").disabled = step === 3 && prog < 1;
+    document.getElementById("back").style.visibility = step === 1 ? "hidden" : "visible";
+    clearInterval(timer);
+    if (step === 3) timer = setInterval(tick, 300);
+  }
+  function tick() {
+    if (paused || prog >= 1) return;
+    prog = Math.min(1, prog + 0.012);
+    const mb = Math.round(prog * 148);
+    document.getElementById("pct").textContent = `${Math.round(prog * 100)} %`;
+    document.getElementById("bar").style.setProperty("--p", prog.toFixed(3));
+    document.getElementById("bytes").textContent = prog >= 1 ? "148 MB · verificado" : `${mb} MB de 148 MB · 6,2 MB/s · quedan ${Math.ceil((148 - mb) / 6.2)} s`;
+    if (prog >= 1) document.getElementById("next").disabled = false;
+  }
+  document.getElementById("next").addEventListener("click", () => (step < 3 ? go(step + 1) : (location.href = "inicio.html")));
+  document.getElementById("back").addEventListener("click", () => go(step - 1));
+  document.getElementById("pause").addEventListener("click", (e) => { paused = !paused; e.currentTarget.textContent = paused ? "Reanudar" : "Pausar"; });
+  document.getElementById("models").addEventListener("change", () => document.querySelectorAll(".model").forEach((m) => m.classList.toggle("is-selected", m.querySelector("input").checked)));
+  go(step);
+</script>
+</body>
+</html>

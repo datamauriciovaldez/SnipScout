@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nuevo proyecto · ClipForge</title>
+<script src="../js/theme.js"></script>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<style>
+  .page { display: grid; grid-template-columns: minmax(0, 1fr) 520px; height: calc(100% - var(--topbar-h)); }
+  .left { padding: 26px var(--s-8) var(--s-6); overflow: auto; display: flex; flex-direction: column; gap: var(--s-5); }
+  .left h1 { margin: 6px 0 4px; }
+  .drop { min-height: 260px; padding-bottom: 76px; }
+  .drop__wave { bottom: 12px; }
+  .drop__title { font-size: var(--fs-h2); font-weight: var(--fw-semibold); letter-spacing: var(--tracking-title); }
+  .drop .wave { height: 40px; gap: 3px; }
+  .files .row { min-height: 64px; }
+  .files .thumb--wide { margin: 0 var(--s-4) 0 var(--s-4); }
+  .meta { font-family: var(--font-mono); font-size: 12px; color: var(--text-2); margin-top: 3px; }
+  .recent .row { min-height: 52px; padding-left: var(--s-2); }
+  .recent .thumb { --thumb-w: 22px; --thumb-h: 38px; margin-right: var(--s-4); }
+  .right { background: var(--panel); border-left: var(--bw) solid var(--line); padding: var(--s-6) var(--s-7); overflow: auto; display: flex; flex-direction: column; }
+  .settings__row { grid-template-columns: 120px minmax(0, 1fr); }
+  .style-preview { margin-top: 10px; display: flex; gap: var(--s-3); align-items: center; }
+  .style-preview .thumb { --thumb-w: 64px; --thumb-h: 112px; border-radius: var(--r-2); }
+  .style-preview .subtitle { font-size: 10px; left: 4px; right: 4px; bottom: 18px; line-height: 1.35; }
+  .style-preview .subtitle mark { padding: 0 3px; }
+  .adv summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: var(--s-2); min-height: var(--control-h); color: var(--text-2); }
+  .adv summary::before { content: "+"; font-family: var(--font-mono); width: 12px; }
+  .adv[open] summary::before { content: "–"; }
+  .adv { border-bottom: var(--bw) solid var(--line); }
+  .go { margin-top: auto; padding-top: var(--s-6); display: grid; gap: 10px; }
+  .go .btn { min-height: 48px; font-size: var(--fs-row); }
+  .go p { margin: 0; font-size: 12px; color: var(--text-2); text-align: center; }
+  .inline-check { display: flex; align-items: center; gap: 10px; min-height: var(--control-h); }
+  @media (max-width: 1180px) { .page { grid-template-columns: minmax(0, 1fr) 400px; } .right { padding: var(--s-5); } .right .settings__row { grid-template-columns: minmax(0, 1fr); gap: 8px; } }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar__left">
+    <a class="brand" href="index.html" aria-label="ClipForge, inicio"><span class="brand__mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><path d="M8 7.5L20 18M8 16.5L20 6"/></svg></span>ClipForge</a>
+    <nav class="nav" aria-label="Principal"><a href="inicio.html" aria-current="page">Nuevo</a><a href="resultados.html">Proyectos</a><a href="ajustes.html">Ajustes</a></nav>
+  </div>
+  <div class="topbar__right"><span class="label status-dot">Local · sin conexión</span></div>
+</header>
+
+<div class="page">
+  <main class="left">
+    <div>
+      <div class="label">Nuevo proyecto</div>
+      <h1 class="title-1">¿Qué vídeo recortamos hoy?</h1>
+      <p class="lead">Lo escuchamos entero en tu ordenador y te proponemos los tramos que mejor funcionan solos.</p>
+    </div>
+
+    <div class="drop" id="drop">
+      <div class="drop__wave wave" id="drop-wave" aria-hidden="true"></div>
+      <div class="drop__body">
+        <div class="drop__idle">
+          <div class="drop__title">Arrastra aquí un vídeo o un audio</div>
+          <p class="muted" style="margin:4px 0 14px">o elígelo desde una carpeta</p>
+          <button class="btn btn--outline btn--lg" type="button" id="pick">Elegir archivo <kbd>Ctrl O</kbd></button>
+          <div class="label" style="margin-top:14px">MP4 · MOV · MKV · WEBM · AVI · M4V · MP3 · WAV · M4A</div>
+        </div>
+        <div class="drop__over drop__title">Suelta aquí para añadirlo</div>
+      </div>
+    </div>
+
+    <section aria-label="Archivos" class="files">
+      <div class="table">
+        <div class="table__head label"><span style="width:56px"></span><span style="flex:1">Archivo</span><span style="width:120px">Estado</span><span style="width:40px"></span></div>
+        <div class="row" aria-selected="true">
+          <span style="width:16px"></span><div class="thumb thumb--wide" style="--fa:#4a5b60;--fb:#1b2326"><span class="thumb__badge">58:12</span></div>
+          <div class="row__main"><div class="row__title">Cómo aprendí a programar sin título.mp4</div><div class="meta">58:12 · 1920×1080 · 30 fps · 1,4 GB · 1 pista de audio</div></div>
+          <span class="tag" style="width:auto;margin-right:46px">Listo</span>
+          <button class="btn btn--ghost btn--icon" type="button" aria-label="Quitar de la lista"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+        </div>
+        <div class="row">
+          <span style="width:16px"></span><div class="thumb thumb--wide" style="--fa:#5e4435;--fb:#241812"><span class="thumb__badge">1:12:40</span></div>
+          <div class="row__main"><div class="row__title">Entrevista Laura Méndez – episodio 31.mov</div><div class="meta">1:12:40 · 1080×1920 · 2 pistas de audio · 3,4 GB</div></div>
+          <span class="tag" style="margin-right:46px">En cola</span>
+          <button class="btn btn--ghost btn--icon" type="button" aria-label="Quitar de la lista"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+        </div>
+      </div>
+    </section>
+
+    <section class="recent" aria-labelledby="recent-t">
+      <div class="label" id="recent-t" style="margin-bottom:8px">Proyectos recientes</div>
+      <div class="table">
+        <a class="row" href="resultados.html" style="color:inherit;text-decoration:none"><div class="thumb" style="--fa:#3f4d3f;--fb:#171d17"></div><div class="row__main"><div class="row__title" style="font-size:14px">Charla «Diseñar sin miedo»</div></div><span class="row__cell mono" style="width:120px">ayer · 18:40</span><span class="row__cell mono" style="width:80px">12 clips</span><span class="tag" style="width:auto">Exportado</span></a>
+        <a class="row" href="resultados.html" style="color:inherit;text-decoration:none"><div class="thumb" style="--fa:#43505e;--fb:#161b22"></div><div class="row__main"><div class="row__title" style="font-size:14px">Directo de los martes #14</div></div><span class="row__cell mono" style="width:120px">2 nov · 10:05</span><span class="row__cell mono" style="width:80px">7 clips</span><span class="tag">Sin exportar</span></a>
+      </div>
+    </section>
+  </main>
+
+  <aside class="right" aria-label="Ajustes del análisis">
+    <div class="label" style="margin-bottom:12px">Cómo quieres los clips</div>
+    <div class="settings">
+      <div class="settings__row"><span class="label" id="l-dur">Duración</span>
+        <div><div class="seg seg--sans" data-seg id="dur-seg" role="group" aria-labelledby="l-dur"><button type="button" data-value="short" aria-pressed="true">Cortos</button><button type="button" data-value="medium" aria-pressed="false">Medios</button><button type="button" data-value="long" aria-pressed="false">Largos</button></div>
+        <div class="settings__help" id="dur-help"><span class="mono">15–30 s</span> · lo habitual en Reels, TikTok y Shorts.</div></div></div>
+      <div class="settings__row"><span class="label" id="l-fmt">Formato</span>
+        <div><div class="seg" data-seg role="group" aria-labelledby="l-fmt"><button type="button" aria-pressed="true">9:16</button><button type="button" aria-pressed="false">1:1</button><button type="button" aria-pressed="false">16:9</button><button type="button" aria-pressed="false">Original</button></div>
+        <div class="settings__help">Vertical para Reels, TikTok y Shorts. El fondo se rellena con el propio vídeo desenfocado.</div></div></div>
+      <div class="settings__row"><span class="label" id="l-sub">Subtítulos</span>
+        <div><div class="seg seg--sans" data-seg id="sub-seg" role="group" aria-labelledby="l-sub"><button type="button" data-value="pop" aria-pressed="true">Pop</button><button type="button" data-value="classic" aria-pressed="false">Clásico</button><button type="button" data-value="karaoke" aria-pressed="false">Karaoke</button><button type="button" data-value="minimal" aria-pressed="false">Mínimo</button></div>
+        <div class="style-preview"><div class="thumb" style="--fa:#4a5b60;--fb:#1b2326"><div class="thumb__shade"></div><div class="subtitle" id="sub-sample">¿Y si lo que <mark>estudias</mark> no es lo que necesitas?</div></div>
+          <div class="settings__help" id="sub-help" style="margin:0">Palabra a palabra, la que suena resaltada. Es lo que mejor se lee sin sonido.</div></div></div></div>
+      <div class="settings__row"><label class="label" for="lang">Idioma</label>
+        <select class="select" id="lang"><option>Detectar automáticamente</option><option>Español</option><option>Inglés</option></select></div>
+    </div>
+    <details class="adv"><summary>Opciones avanzadas</summary>
+      <div class="settings" style="border-top:0">
+        <div class="settings__row"><span class="label" id="l-prec">Precisión</span><div><div class="seg seg--sans" data-seg role="group" aria-labelledby="l-prec"><button type="button" aria-pressed="false">Rápido</button><button type="button" aria-pressed="true">Equilibrado</button><button type="button" aria-pressed="false">Preciso</button></div></div></div>
+        <div class="settings__row"><span class="label">Prueba</span><label class="inline-check"><input class="check" type="checkbox" id="quick"> Analizar solo los 10 primeros minutos</label></div>
+      </div>
+    </details>
+    <div class="go">
+      <button class="btn btn--primary btn--block" type="button" id="go">Encontrar mis mejores clips</button>
+      <p class="mono">≈ 11 min en este equipo · medido con tu procesador</p>
+    </div>
+  </aside>
+</div>
+<script src="../js/ui.js"></script>
+<script>
+  UI.wave(document.getElementById("drop-wave"), 140, () => "todo", 0.8);
+  UI.bindSegs();
+  const drop = document.getElementById("drop");
+  let depth = 0;
+  drop.addEventListener("dragenter", (e) => { e.preventDefault(); depth++; drop.classList.add("is-over"); });
+  drop.addEventListener("dragover", (e) => e.preventDefault());
+  drop.addEventListener("dragleave", () => { if (--depth <= 0) { depth = 0; drop.classList.remove("is-over"); } });
+  drop.addEventListener("drop", (e) => { e.preventDefault(); depth = 0; drop.classList.remove("is-over"); UI.toast("Archivo añadido a la cola"); });
+  if (location.hash === "#arrastrando") drop.classList.add("is-over");
+  const samples = {
+    pop: ["¿Y si lo que <mark>estudias</mark> no es lo que necesitas?", "Palabra a palabra, la que suena resaltada. Es lo que mejor se lee sin sonido."],
+    classic: ["¿Y si lo que estudias no es lo que necesitas?", "Una línea limpia con contorno. Para charlas y contenido largo."],
+    karaoke: ["<mark>¿Y si lo que estudias</mark> no es lo que necesitas?", "Se va rellenando según se habla. Muy visual para frases cortas."],
+    minimal: ["¿Y si lo que estudias no es lo que necesitas?", "Texto pequeño y discreto, sin resaltado."],
+  };
+  const durHelp = { short: "<span class=\"mono\">15–30 s</span> · lo habitual en Reels, TikTok y Shorts.", medium: "<span class=\"mono\">30–60 s</span> · para explicar una idea completa.", long: "<span class=\"mono\">60–90 s</span> · historias y respuestas largas." };
+  document.getElementById("dur-seg").addEventListener("segchange", (e) => (document.getElementById("dur-help").innerHTML = durHelp[e.detail]));
+  document.getElementById("sub-seg").addEventListener("segchange", (e) => {
+    const [html, help] = samples[e.detail];
+    document.getElementById("sub-sample").innerHTML = html;
+    document.getElementById("sub-help").textContent = help;
+  });
+  document.getElementById("go").addEventListener("click", (e) => { e.currentTarget.classList.add("is-loading"); setTimeout(() => (location.href = "procesando.html"), 600); });
+</script>
+</body>
+</html>

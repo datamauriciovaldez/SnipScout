@@ -38,7 +38,7 @@
   --btn-outline-hover: #17171A0D;
   --check-bg: #17171A;
   --check-mark: #FAF9F6;
-  --focus: #D93A12;
+  --focus: #17171A;               /* ink: the accent is reserved for scores, active word, wave handles, active row, Download */
   --hover: #17171A08;
   --selected: #17171A0F;
 
@@ -128,7 +128,7 @@
     --ok: #6FCF9F; --warn: #E3B04B; --danger: #FF8A7A; --danger-wash: #FF8A7A14;
     --btn-primary-bg: #EDEBE4; --btn-primary-text: #151513; --btn-primary-hover: #FFFFFF;
     --btn-outline-border: #EDEBE4; --btn-outline-hover: #EDEBE40F;
-    --check-bg: #EDEBE4; --check-mark: #151513; --focus: #FF6A3D; --hover: #EDEBE40A; --selected: #EDEBE412;
+    --check-bg: #EDEBE4; --check-mark: #151513; --focus: #EDEBE4; --hover: #EDEBE40A; --selected: #EDEBE412;
     --score-track: #34332E; --score-low: #EDEBE4; --score-high: #FF6A3D;
     --wave-in: #EDEBE4; --wave-out: #3B3A35; --wave-done: #EDEBE4; --wave-todo: #3B3A35;
     --progress-track: #34332E; --progress-fill: #EDEBE4;
@@ -144,7 +144,7 @@
   --ok: #6FCF9F; --warn: #E3B04B; --danger: #FF8A7A; --danger-wash: #FF8A7A14;
   --btn-primary-bg: #EDEBE4; --btn-primary-text: #151513; --btn-primary-hover: #FFFFFF;
   --btn-outline-border: #EDEBE4; --btn-outline-hover: #EDEBE40F;
-  --check-bg: #EDEBE4; --check-mark: #151513; --focus: #FF6A3D; --hover: #EDEBE40A; --selected: #EDEBE412;
+  --check-bg: #EDEBE4; --check-mark: #151513; --focus: #EDEBE4; --hover: #EDEBE40A; --selected: #EDEBE412;
   --score-track: #34332E; --score-low: #EDEBE4; --score-high: #FF6A3D;
   --wave-in: #EDEBE4; --wave-out: #3B3A35; --wave-done: #EDEBE4; --wave-todo: #3B3A35;
   --progress-track: #34332E; --progress-fill: #EDEBE4;

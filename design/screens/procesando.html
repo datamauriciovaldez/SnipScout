@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Analizando · ClipForge</title>
+<script src="../js/theme.js"></script>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<style>
+  .page { display: grid; grid-template-columns: minmax(0, 1fr) var(--side-w); height: calc(100% - var(--topbar-h)); }
+  .main { padding: 26px var(--s-8) 0; display: flex; flex-direction: column; min-width: 0; }
+  .main h1 { margin: 6px 0 4px; }
+  .eta { display: flex; gap: var(--s-6); margin-top: var(--s-6); align-items: baseline; flex-wrap: wrap; }
+  .eta b { font-family: var(--font-mono); font-size: 28px; font-weight: var(--fw-medium); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .big-wave { margin-top: var(--s-8); }
+  .big-wave .wave { height: 96px; }
+  .big-wave .wave i { --bar-w: 3px; }
+  .ruler { display: flex; justify-content: space-between; margin-top: 8px; font-size: var(--fs-label); color: var(--text-3); }
+  .wave-wrap { position: relative; }
+  .stages { margin-top: var(--s-8); }
+  .main .statusbar { margin-top: auto; }
+  .side { background: var(--panel); border-left: var(--bw) solid var(--line); padding: var(--s-6) var(--s-7) 0; display: flex; flex-direction: column; min-height: 0; }
+  .side .transcript { flex: 1; overflow: hidden; margin-top: var(--s-4); mask-image: linear-gradient(to bottom, transparent, #000 18%); -webkit-mask-image: linear-gradient(to bottom, transparent, #000 18%); display: flex; flex-direction: column; justify-content: flex-end; }
+  .transcript__line { opacity: 1; transition: opacity var(--dur-base) linear, transform var(--dur-base) var(--ease-out); }
+  .transcript__line.is-new { opacity: 0; transform: translateY(6px); }
+  .side__foot { padding: var(--s-5) 0 22px; display: flex; gap: 10px; align-items: center; border-top: var(--bw) solid var(--line); margin-top: var(--s-4); }
+  @media (max-width: 1180px) { :root { --side-w: 340px; } .eta b { font-size: 22px; } }
+  .caret { display: inline-block; width: 7px; height: 14px; background: var(--text); vertical-align: -2px; margin-left: 2px; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar__left">
+    <a class="brand" href="index.html" aria-label="ClipForge, inicio"><span class="brand__mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><path d="M8 7.5L20 18M8 16.5L20 6"/></svg></span>ClipForge</a>
+    <div class="crumb"><span class="crumb__sep" aria-hidden="true">/</span><span class="crumb__name">Cómo aprendí a programar sin título</span><span class="mono faint" style="font-size:12px">58:12</span></div>
+  </div>
+  <div class="topbar__right"><span class="label status-dot status-dot--busy">Analizando · local</span></div>
+</header>
+
+<div class="page">
+  <main class="main">
+    <div class="label">Paso 2 de 2 · Análisis</div>
+    <h1 class="title-1" id="headline">Escuchando tu vídeo</h1>
+    <p class="lead">Puedes seguir usando el ordenador. Si cierras ClipForge, retomaremos desde aquí.</p>
+    <div class="eta" aria-live="polite">
+      <div><div class="label">Quedan unos</div><b id="eta">8 min 40 s</b></div>
+      <div><div class="label">Escuchado</div><b id="done">17:30</b> <span class="mono faint">/ 58:12</span></div>
+      <div><div class="label">Velocidad</div><b>3,4×</b> <span class="mono faint">tiempo real</span></div>
+    </div>
+
+    <div class="big-wave" aria-hidden="true">
+      <div class="wave-wrap"><div class="wave" id="wave"></div><span class="wave__playhead" id="ph" style="left:30%"></span></div>
+      <div class="ruler mono"><span>00:00</span><span>10:00</span><span>20:00</span><span>30:00</span><span>40:00</span><span>50:00</span><span>58:12</span></div>
+    </div>
+
+    <div class="stages" id="stages" role="list"></div>
+
+    <div class="statusbar"><span>Modelo <b>Equilibrado</b></span><span>Idioma detectado: <b>español</b></span><span>Formato 9:16 · Subtítulos “Pop”</span>
+      <span class="statusbar__end">Todo se procesa en este equipo</span></div>
+  </main>
+
+  <aside class="side" aria-label="Transcripción en directo">
+    <div style="display:flex;justify-content:space-between;align-items:baseline"><span class="label">Transcripción en directo</span><span class="mono faint" style="font-size:12px" id="lines">214 frases</span></div>
+    <div class="transcript" id="tr" aria-live="off"></div>
+    <div class="side__foot">
+      <button class="btn btn--outline btn--lg" type="button" id="cancel">Cancelar</button>
+      <span class="faint" style="font-size:13px">Lo ya escuchado se guarda.</span>
+    </div>
+  </aside>
+</div>
+
+<div class="scrim" id="confirm" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="c-title">
+    <div class="label">Cancelar análisis</div>
+    <h2 class="title-2" id="c-title" style="margin-top:6px">¿Paramos aquí?</h2>
+    <p class="muted" style="margin:8px 0 0">Guardamos los 17 minutos ya escuchados. Si vuelves a analizar, seguiremos desde ese punto.</p>
+    <div class="modal__actions"><button class="btn btn--outline btn--lg" type="button" data-close id="really">Cancelar análisis</button><button class="btn btn--primary btn--lg" type="button" data-close>Seguir analizando</button></div>
+  </div>
+</div>
+
+<script src="../js/ui.js"></script>
+<script>
+  const TOTAL = 58 * 60 + 12, N = 220;
+  const STAGES = [["Preparando el audio", 1, 6], ["Escuchando tu vídeo", 0.3, 84], ["Entendiendo de qué habla", 0, 4], ["Buscando los mejores momentos", 0, 6]];
+  const LINES = [
+    "Yo empecé a programar con veintiséis años, trabajando en una tienda.", "No tenía ni idea de qué era una variable.",
+    "Lo primero que hice fue copiar un tutorial entero, línea a línea.", "Y funcionó, pero no entendía por qué funcionaba.",
+    "Ahí me di cuenta de que copiar no es aprender.", "¿Y si lo que estudias no es lo que necesitas?",
+    "Yo pasé tres años intentando encajar en algo que no era para mí.", "Dejé la carrera en tercero, con todo el miedo del mundo.",
+    "Mi madre todavía me pregunta cuándo voy a terminarla.", "Pero el primer proyecto que hice solo me enseñó más que dos cursos.",
+    "Era una web para la tienda de mi tío, fea pero suya.", "La usaban de verdad, y eso lo cambió todo.",
+    "Cuando algo lo usa alguien, aprendes el doble de rápido.", "Ahí empecé a leer código de otros, no solo a escribirlo.",
+  ];
+  let p = 0.30, li = 0;
+  const wave = document.getElementById("wave"), stages = document.getElementById("stages"), tr = document.getElementById("tr");
+  const fmt = (s) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+
+  function render() {
+    UI.wave(wave, N, (i) => (i / N < p ? "done" : "todo"), 2.2);
+    document.getElementById("ph").style.left = `${p * 100}%`;
+    STAGES[1][1] = p;
+    const states = STAGES.map((s) => (s[1] >= 1 ? "is-done" : s[1] > 0 ? "is-active" : ""));
+    stages.innerHTML = STAGES.map(([name, prog], k) => `<div class="stage ${states[k]}" role="listitem"><span class="stage__dot" aria-hidden="true"></span><span>${name}</span><span class="stage__pct">${Math.round(prog * 100)} %</span></div>`).join("");
+    document.getElementById("done").textContent = fmt(p * TOTAL);
+    const left = Math.max(0, (1 - p) * TOTAL / 3.4);
+    document.getElementById("eta").textContent = `${Math.floor(left / 60)} min ${String(Math.round(left % 60)).padStart(2, "0")} s`;
+  }
+  function addLine(text, t) {
+    const line = document.createElement("div");
+    line.className = "transcript__line is-new";
+    line.innerHTML = `<span class="transcript__time">${fmt(t)}</span><span></span>`;
+    line.lastChild.textContent = text;
+    tr.querySelectorAll(".caret").forEach((c) => c.remove());
+    line.lastChild.insertAdjacentHTML("beforeend", '<span class="caret" aria-hidden="true"></span>');
+    tr.appendChild(line);
+    requestAnimationFrame(() => line.classList.remove("is-new"));
+    while (tr.children.length > 14) tr.firstChild.remove();
+  }
+  LINES.forEach((l, k) => addLine(l, p * TOTAL - (LINES.length - k) * 8));
+  render();
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const timer = setInterval(() => {
+    p = Math.min(0.995, p + 0.004);
+    if (Math.random() < 0.45) addLine(LINES[li++ % LINES.length], p * TOTAL);
+    render();
+  }, reduce ? 3000 : 900);
+  const cancel = document.getElementById("cancel");
+  cancel.addEventListener("click", () => UI.openModal("confirm", cancel));
+  document.getElementById("really").addEventListener("click", () => { clearInterval(timer); UI.toast("Análisis cancelado. Lo escuchado queda guardado."); });
+</script>
+</body>
+</html>

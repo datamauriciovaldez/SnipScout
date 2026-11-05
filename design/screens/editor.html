@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Editor de clip · ClipForge</title>
+<script src="../js/theme.js"></script>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<style>
+  .page { display: grid; grid-template-columns: 400px minmax(0, 1fr) 330px; height: calc(100% - var(--topbar-h)); }
+  .player { background: var(--panel); border-right: var(--bw) solid var(--line); padding: var(--s-6) var(--s-7); display: flex; flex-direction: column; align-items: center; gap: var(--s-4); }
+  .player .thumb--preview { width: 288px; height: 512px; }
+  .player .subtitle { font-size: 22px; bottom: 96px; }
+  .transport { width: 288px; display: flex; align-items: center; gap: var(--s-3); }
+  .transport .mono { font-size: 12.5px; color: var(--text-2); }
+  .note { width: 288px; font-size: 12px; color: var(--text-3); margin: 0; }
+  .work { padding: 26px var(--s-8) var(--s-6); overflow: auto; min-width: 0; display: flex; flex-direction: column; gap: var(--s-6); }
+  .work h1 { margin: 6px 0 0; }
+  .timeline { border-top: var(--bw) solid var(--rule); padding-top: var(--s-4); }
+  .tl { position: relative; height: 84px; margin-top: var(--s-3); }
+  .tl .wave { height: 84px; }
+  .tl .wave i { --bar-w: 3px; }
+  .tl .wave__marker { cursor: ew-resize; }
+  .tl .wave__marker::after { content: ""; position: absolute; inset: 0 -8px; }
+  .tl-ruler { display: flex; justify-content: space-between; font-size: var(--fs-label); color: var(--text-3); margin-top: 6px; }
+  .inout { display: flex; gap: var(--s-6); align-items: end; margin-top: var(--s-5); flex-wrap: wrap; }
+  .inout .field { grid-template-columns: auto; }
+  .stepper-input { display: flex; align-items: center; gap: 4px; }
+  .stepper-input .input { width: 128px; text-align: center; }
+  .dur { font-family: var(--font-mono); font-size: 28px; font-weight: var(--fw-medium); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .words { border-top: var(--bw) solid var(--rule); padding-top: var(--s-4); }
+  .words__body { margin-top: var(--s-3); font-size: 16px; line-height: 2; max-width: 72ch; }
+  .word[contenteditable="true"] { outline: 2px solid var(--focus); outline-offset: 1px; background: var(--panel); }
+  .side { background: var(--panel); border-left: var(--bw) solid var(--line); padding: var(--s-6) var(--s-6); display: flex; flex-direction: column; gap: var(--s-5); overflow: auto; }
+  .side .settings__row { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .keys { display: grid; gap: 8px; font-size: 13px; color: var(--text-2); }
+  .keys div { display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: var(--bw) solid var(--line); }
+  .saved { font-size: 12px; color: var(--text-3); }
+  @media (max-width: 1180px) { .page { grid-template-columns: 330px minmax(0, 1fr); } .side { display: none; } .player .thumb--preview { width: 240px; height: 427px; } .transport, .note { width: 240px; } }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar__left">
+    <a class="brand" href="index.html" aria-label="ClipForge, inicio"><span class="brand__mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><path d="M8 7.5L20 18M8 16.5L20 6"/></svg></span>ClipForge</a>
+    <div class="crumb"><span class="crumb__sep" aria-hidden="true">/</span><a class="crumb__name" href="resultados.html" style="color:inherit">Cómo aprendí a programar sin título</a><span class="crumb__sep" aria-hidden="true">/</span><span style="color:var(--text)">Clip 01</span></div>
+  </div>
+  <div class="topbar__right">
+    <span class="saved mono" id="saved" aria-live="polite">Guardado</span>
+    <span class="tip"><button class="btn btn--ghost btn--icon" type="button" id="undo" aria-label="Deshacer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg></button><span class="tip__bubble" role="tooltip">Deshacer<span class="kbd">Ctrl Z</span></span></span>
+    <button class="btn btn--accent" type="button">Descargar clip</button>
+  </div>
+</header>
+
+<div class="page">
+  <section class="player" aria-label="Vista previa">
+    <div class="thumb thumb--preview" style="--fa:#4a5b60;--fb:#1b2326"><div class="thumb__glow"></div><div class="thumb__shade"></div>
+      <div class="subtitle" id="sub" aria-live="off"></div></div>
+    <div class="transport">
+      <span class="tip"><button class="btn btn--primary btn--icon" type="button" id="play" aria-label="Reproducir"><svg viewBox="0 0 24 24" fill="currentColor" id="play-ico"><path d="M8 5v14l11-7z"/></svg></button><span class="tip__bubble" role="tooltip">Reproducir<span class="kbd">Espacio</span></span></span>
+      <span class="mono" id="clock">0:07 / 0:42</span>
+      <div class="progress" style="flex:1"><div class="progress__fill" id="pbar" style="--p:.17"></div></div>
+    </div>
+    <p class="note">Vista previa aproximada: el vídeo final usa el mismo motor de subtítulos que la exportación.</p>
+  </section>
+
+  <main class="work">
+    <div><div class="label">Clip 01 · Puntuación <span class="accent-text">94</span></div>
+      <h1 class="title-1">El día que dejé la carrera</h1></div>
+
+    <section class="timeline" aria-labelledby="tl-t">
+      <div style="display:flex;justify-content:space-between;align-items:baseline"><span class="label" id="tl-t">Línea de tiempo · 00:14:20 – 00:15:26</span><span class="faint" style="font-size:12px">Arrastra las asas. Se ajustan solas al principio o final de una frase.</span></div>
+      <div class="tl" id="tl">
+        <div class="wave__region" id="region"></div>
+        <div class="wave" id="wave" aria-hidden="true"></div>
+        <span class="wave__marker wave__marker--in" id="h-in" role="slider" tabindex="0" aria-label="Entrada" aria-valuetext="00:14:32"></span>
+        <span class="wave__marker wave__marker--out" id="h-out" role="slider" tabindex="0" aria-label="Salida" aria-valuetext="00:15:14"></span>
+        <span class="wave__playhead" id="ph"></span>
+      </div>
+      <div class="tl-ruler mono"><span>14:20</span><span>14:35</span><span>14:50</span><span>15:05</span><span>15:20</span></div>
+      <div class="inout">
+        <div class="field"><label class="label" for="in">Entrada <span class="kbd">I</span></label>
+          <div class="stepper-input"><button class="btn btn--outline btn--icon" type="button" aria-label="Frase anterior">‹</button><input class="input input--mono" id="in" value="00:14:32.4"><button class="btn btn--outline btn--icon" type="button" aria-label="Frase siguiente">›</button></div></div>
+        <div class="field"><label class="label" for="out">Salida <span class="kbd">O</span></label>
+          <div class="stepper-input"><button class="btn btn--outline btn--icon" type="button" aria-label="Frase anterior">‹</button><input class="input input--mono" id="out" value="00:15:14.1"><button class="btn btn--outline btn--icon" type="button" aria-label="Frase siguiente">›</button></div></div>
+        <div><div class="label">Duración</div><div class="dur">0:41,7</div></div>
+      </div>
+    </section>
+
+    <section class="words" aria-labelledby="w-t">
+      <div style="display:flex;justify-content:space-between;align-items:baseline"><span class="label" id="w-t">Texto del subtítulo</span><span class="faint" style="font-size:12px">Haz doble clic en una palabra para corregirla. Las atenuadas quedan fuera del clip.</span></div>
+      <div class="words__body" id="words"></div>
+    </section>
+  </main>
+
+  <aside class="side" aria-label="Estilo y atajos">
+    <div class="settings">
+      <div class="settings__row"><span class="label" id="l-st">Estilo de subtítulos</span>
+        <div class="seg seg--sans" data-seg role="group" aria-labelledby="l-st"><button type="button" aria-pressed="true">Pop</button><button type="button" aria-pressed="false">Clásico</button><button type="button" aria-pressed="false">Karaoke</button><button type="button" aria-pressed="false">Mínimo</button></div></div>
+      <div class="settings__row"><span class="label" id="l-pos">Posición</span>
+        <div class="seg seg--sans" data-seg role="group" aria-labelledby="l-pos"><button type="button" aria-pressed="false">Arriba</button><button type="button" aria-pressed="false">Centro</button><button type="button" aria-pressed="true">Abajo</button></div></div>
+      <div class="settings__row"><span class="label" id="l-sz">Tamaño</span>
+        <div class="seg" data-seg role="group" aria-labelledby="l-sz"><button type="button" aria-pressed="false">S</button><button type="button" aria-pressed="true">M</button><button type="button" aria-pressed="false">L</button></div></div>
+    </div>
+    <div><div class="label" style="margin-bottom:10px">Atajos</div>
+      <div class="keys">
+        <div><span>Reproducir / pausar</span><span class="kbd">Espacio</span></div>
+        <div><span>Marcar entrada</span><span class="kbd">I</span></div>
+        <div><span>Marcar salida</span><span class="kbd">O</span></div>
+        <div><span>Frase anterior / siguiente</span><span class="kbd">← →</span></div>
+        <div><span>Deshacer</span><span class="kbd">Ctrl Z</span></div>
+        <div><span>Guardar y volver</span><span class="kbd">Ctrl ↵</span></div>
+      </div></div>
+  </aside>
+</div>
+<script src="../js/ui.js"></script>
+<script>
+  UI.bindSegs();
+  const N = 150, IN = 0.18, OUT = 0.82;
+  const wave = document.getElementById("wave");
+  UI.wave(wave, N, (i) => (i / N >= IN && i / N <= OUT ? "in" : ""), 2);
+  const pct = (v) => `${v * 100}%`;
+  document.getElementById("region").style.cssText = `left:${pct(IN)};width:${pct(OUT - IN)}`;
+  document.getElementById("h-in").style.left = `calc(${pct(IN)} - 2px)`;
+  document.getElementById("h-out").style.left = pct(OUT);
+
+  const before = "y entonces me preguntaron qué estaba estudiando".split(" ");
+  const clip = "¿Y si lo que estudias no es lo que necesitas? Yo pasé tres años intentando encajar en algo que no era para mí. Dejé la carrera en tercero, con todo el miedo del mundo, y fue la mejor decisión que he tomado.".split(" ");
+  const after = "bueno, eso lo cuento luego".split(" ");
+  const words = document.getElementById("words");
+  words.innerHTML = [...before.map((w) => `<span class="word is-out">${w}</span>`),
+    ...clip.map((w, k) => `<span class="word${k === 25 ? " is-edited" : ""}" tabindex="0" data-k="${k}">${w}</span>`),
+    ...after.map((w) => `<span class="word is-out">${w}</span>`)].join(" ");
+
+  /* Subtitle groups of up to 4 words; the active word gets the accent background. */
+  const groups = [];
+  for (let k = 0; k < clip.length; k += 4) groups.push(clip.slice(k, k + 4).map((w, j) => k + j));
+  let k = 3, playing = false, timer;
+  function show() {
+    const g = groups.find((x) => x.includes(k));
+    document.getElementById("sub").innerHTML = g.map((i) => (i === k ? `<mark>${clip[i]}</mark>` : clip[i])).join(" ");
+    words.querySelectorAll(".word.is-active").forEach((w) => w.classList.remove("is-active"));
+    const el = words.querySelector(`[data-k="${k}"]`); if (el) el.classList.add("is-active");
+    const f = k / (clip.length - 1);
+    document.getElementById("ph").style.left = pct(IN + f * (OUT - IN));
+    document.getElementById("pbar").style.setProperty("--p", f.toFixed(3));
+    const s = Math.round(f * 42);
+    document.getElementById("clock").textContent = `0:${String(s).padStart(2, "0")} / 0:42`;
+  }
+  function toggle() {
+    playing = !playing;
+    document.getElementById("play").setAttribute("aria-label", playing ? "Pausar" : "Reproducir");
+    document.getElementById("play-ico").innerHTML = playing ? '<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>' : '<path d="M8 5v14l11-7z"/>';
+    clearInterval(timer);
+    if (playing) timer = setInterval(() => { k = (k + 1) % clip.length; show(); }, 380);
+  }
+  document.getElementById("play").addEventListener("click", toggle);
+  document.addEventListener("keydown", (e) => {
+    if (e.target.isContentEditable || e.target.tagName === "INPUT") return;
+    if (e.code === "Space") { e.preventDefault(); toggle(); }
+    if (e.key === "ArrowRight") { k = Math.min(clip.length - 1, k + 1); show(); }
+    if (e.key === "ArrowLeft") { k = Math.max(0, k - 1); show(); }
+    if ((e.ctrlKey || e.metaKey) && e.key === "z") { e.preventDefault(); UI.toast("Deshecho: corrección de «tercero»", "Rehacer"); }
+  });
+  words.addEventListener("dblclick", (e) => {
+    const w = e.target.closest(".word:not(.is-out)"); if (!w) return;
+    w.contentEditable = "true"; w.focus();
+    const done = () => { w.contentEditable = "false"; w.classList.add("is-edited"); const s = document.getElementById("saved"); s.textContent = "Guardando…"; setTimeout(() => (s.textContent = "Guardado"), 500); };
+    w.addEventListener("blur", done, { once: true });
+    w.addEventListener("keydown", (ev) => { if (ev.key === "Enter") { ev.preventDefault(); w.blur(); } });
+  });
+  show();
+</script>
+</body>
+</html>

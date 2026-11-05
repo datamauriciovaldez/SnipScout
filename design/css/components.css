@@ -42,7 +42,7 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
 .crumb__name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .status-dot { display: inline-flex; align-items: center; gap: 7px; }
 .status-dot::before { content: ""; width: 6px; height: 6px; border-radius: 99px; background: var(--ok); }
-.status-dot--busy::before { background: var(--accent); }
+.status-dot--busy::before { background: var(--text); animation: pulse 1.4s ease-in-out infinite; }
 .nav { display: flex; gap: var(--s-1); }
 .nav a { color: var(--text-2); text-decoration: none; padding: 6px 10px; border-radius: var(--r-2); }
 .nav a:hover { color: var(--text); background: var(--hover); }
@@ -101,7 +101,7 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
 /* ---------- Segmented selector ---------- */
 .seg { display: inline-flex; border: var(--bw) solid var(--line-strong); border-radius: var(--r-2); overflow: hidden; }
 .seg button { border: 0; background: transparent; min-height: var(--control-h-sm); padding: 0 12px; color: var(--text-2);
-  font-family: var(--font-mono); font-size: 12px; font-variant-numeric: tabular-nums; }
+  font-family: var(--font-mono); font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .seg button + button { border-left: var(--bw) solid var(--line); }
 .seg button:hover { color: var(--text); background: var(--hover); }
 .seg button[aria-pressed="true"], .seg button[aria-checked="true"] { background: var(--text); color: var(--bg); }
@@ -162,8 +162,8 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
 .subtitle mark { background: var(--accent); color: var(--subtitle-active-text); padding: 1px 6px; border-radius: var(--r-2); text-shadow: none; }
 
 /* ---------- Waveform ---------- */
-.wave { position: relative; height: 54px; display: flex; align-items: center; gap: 2.9px; }
-.wave i { flex: 1; min-width: 2px; max-width: 2px; height: calc(var(--h) * 1px); border-radius: 1px; background: var(--wave-out); }
+.wave { position: relative; height: 54px; display: flex; align-items: center; justify-content: space-between; gap: 1px; min-width: 0; }
+.wave i { flex: 0 1 var(--bar-w, 2px); min-width: 1px; height: calc(var(--h) * 1px); border-radius: 1px; background: var(--wave-out); }
 .wave i.in { background: var(--wave-in); }
 .wave i.done { background: var(--wave-done); }
 .wave i.todo { background: var(--wave-todo); }
@@ -171,7 +171,7 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
 .wave__marker::before { content: ""; position: absolute; top: -4px; width: 10px; height: 6px; background: var(--accent); }
 .wave__marker--in::before { left: -4px; } .wave__marker--out::before { right: -4px; }
 .wave__playhead { position: absolute; top: -6px; bottom: -6px; width: 1px; background: var(--text); }
-.wave__region { position: absolute; top: 0; bottom: 0; background: var(--accent-wash); }
+.wave__region { position: absolute; top: 0; bottom: 0; background: var(--selected); }
 
 /* ---------- Field ---------- */
 .field { display: grid; gap: 6px; }
@@ -190,6 +190,7 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
 .settings__row { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: var(--s-4); align-items: center; min-height: 56px;
   padding: var(--s-3) 0; border-bottom: var(--bw) solid var(--line); }
 .settings__row > .label { align-self: center; }
+.settings__row > .seg { justify-self: start; }
 .settings__help { font-size: var(--fs-small); color: var(--text-3); margin-top: 4px; }
 
 /* ---------- Tooltip with shortcut ---------- */
@@ -244,7 +245,7 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
 .stage.is-active { color: var(--text); }
 .stage.is-done { color: var(--text-2); }
 .stage__dot { width: 8px; height: 8px; border-radius: 99px; border: var(--bw-control) solid currentColor; justify-self: center; }
-.stage.is-active .stage__dot { background: var(--accent); border-color: var(--accent); }
+.stage.is-active .stage__dot { background: var(--text); border-color: var(--text); animation: pulse 1.4s ease-in-out infinite; }
 .stage.is-done .stage__dot { background: currentColor; }
 
 /* ---------- Transcript ---------- */
@@ -256,16 +257,16 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
 .word:hover { background: var(--hover); }
 .word.is-out { color: var(--text-3); }
 .word.is-active { background: var(--accent); color: var(--on-accent); }
-.word.is-edited { box-shadow: inset 0 -1px 0 var(--accent); }
+.word.is-edited { text-decoration: underline dotted var(--text-2); text-underline-offset: 4px; }
 
 /* ---------- Drop zone ---------- */
 .drop { position: relative; border: var(--bw-control) dashed var(--line-strong); border-radius: var(--r-3); background: var(--sunken);
   display: grid; place-items: center; text-align: center; padding: var(--s-12) var(--s-6); overflow: hidden;
   transition: border-color var(--dur-fast) linear, background-color var(--dur-fast) linear; }
-.drop.is-over { border-color: var(--accent); background: var(--accent-wash); }
+.drop.is-over { border-color: var(--text); border-style: solid; background: var(--selected); }
 .drop__wave { position: absolute; left: 0; right: 0; bottom: 18px; opacity: .5; pointer-events: none; }
 .drop__body { position: relative; display: grid; gap: var(--s-2); justify-items: center; }
-.drop__over { display: none; color: var(--accent-text); font-weight: var(--fw-semibold); }
+.drop__over { display: none; color: var(--text); font-weight: var(--fw-semibold); }
 .drop.is-over .drop__idle { display: none; }
 .drop.is-over .drop__over { display: block; }
 

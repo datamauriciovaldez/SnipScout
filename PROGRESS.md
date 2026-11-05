@@ -20,5 +20,5 @@
 - CI not yet run on GitHub (no remote). Windows/macOS behaviour unverified until first push.
 
 ## Next
-- **D0** redo per author brief (warm paper/graphite, vermilion accent, IBM Plex, no gradients/purple). First mockups (violet) REJECTED. Brief references design/reference/referencia-resultados{,-oscuro}.{html,png} — NOT in the repo yet; waiting for the author to upload them. Done so far: IBM Plex woff2 vendored in design/fonts (OFL verified), THIRD_PARTY_LICENSES.md. Contrast finding: light accent #D93A12 fails AA as small text (4.03 on bg) → add --accent-text token; control borders need --line-strong (3:1).
+- **D0** design system in `design/` (author brief: warm paper/graphite, vermilion, IBM Plex): tokens.css (2 themes, AA verified by scripts/check_contrast.py), components.css, theme.js (no-flash), 8 screens + index (resultados [+vacío/cargando], inicio, procesando, editor, primer-arranque, error, ajustes), NOTES.md, screenshots in design/screenshots. Resultados approved by author; the rest WAITING for author approval before U1.
 - Author: create empty public GitHub repo and share `owner/repo` so work can be pushed (container is ephemeral).

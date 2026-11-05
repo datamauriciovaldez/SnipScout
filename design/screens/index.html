@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockups D0 · ClipForge</title>
+<script src="../js/theme.js"></script>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<style>
+  .shell { display: grid; grid-template-columns: 260px minmax(0, 1fr); height: calc(100% - var(--topbar-h)); }
+  .list { border-right: var(--bw) solid var(--line); background: var(--panel); padding: var(--s-5) 0; overflow: auto; }
+  .list .label { padding: 0 var(--s-5) var(--s-2); }
+  .list a { display: flex; gap: var(--s-3); align-items: baseline; padding: 10px var(--s-5); color: var(--text-2); text-decoration: none; border-bottom: var(--bw) solid var(--line); position: relative; }
+  .list a:hover { background: var(--hover); color: var(--text); }
+  .list a[aria-current="page"] { color: var(--text); background: var(--bg); }
+  .list a[aria-current="page"]::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent); }
+  .list .mono { font-size: 12px; color: var(--text-3); }
+  .list small { display: block; font-size: 12px; color: var(--text-3); }
+  .stage { overflow: auto; padding: var(--s-6); display: grid; place-items: start center; background: var(--bg); }
+  .frame { border: var(--bw) solid var(--line-strong); border-radius: var(--r-3); overflow: hidden; background: var(--bg); transform-origin: top center; }
+  .frame iframe { display: block; border: 0; }
+  .controls { display: flex; gap: var(--s-4); align-items: center; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar__left"><span class="brand"><span class="brand__mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><path d="M8 7.5L20 18M8 16.5L20 6"/></svg></span>ClipForge</span><span class="label">Mockups D0</span></div>
+  <div class="topbar__right controls">
+    <div class="seg" data-size role="group" aria-label="Tamaño de ventana"><button type="button" data-w="1440" data-h="900" aria-pressed="true">1440×900</button><button type="button" data-w="1000" data-h="680" aria-pressed="false">1000×680</button></div>
+    <div class="seg seg--sans" data-theme-switch role="group" aria-label="Tema"><button type="button" data-mode="light">Claro</button><button type="button" data-mode="dark">Oscuro</button><button type="button" data-mode="system">Sistema</button></div>
+  </div>
+</header>
+<div class="shell">
+  <nav class="list" aria-label="Pantallas" id="list">
+    <div class="label">Pantallas</div>
+  </nav>
+  <main class="stage"><div class="frame" id="frame"><iframe id="view" title="Pantalla"></iframe></div></main>
+</div>
+<script>
+  const SCREENS = [
+    ["resultados", "Resultados", "Referencia aprobada"], ["resultados#vacio", "Resultados · vacío", "Sin clips"], ["resultados#cargando", "Resultados · cargando", "Esqueleto"],
+    ["inicio", "Inicio", "Nuevo proyecto"], ["inicio#arrastrando", "Inicio · arrastrando", "Suelta aquí"], ["procesando", "Procesando", "Análisis en curso"],
+    ["editor", "Editor de clip", "Línea de tiempo y texto"], ["primer-arranque#paso1", "Primer arranque · 01", "Idioma"],
+    ["primer-arranque", "Primer arranque · 02", "Tu equipo"], ["primer-arranque#paso3", "Primer arranque · 03", "Descarga del modelo"],
+    ["error", "Error", "No hay voz"], ["ajustes", "Ajustes", "Preferencias"],
+  ];
+  const list = document.getElementById("list"), view = document.getElementById("view"), frame = document.getElementById("frame");
+  list.insertAdjacentHTML("beforeend", SCREENS.map(([id, name, sub], i) => `<a href="#${id.replace("#", "-")}" data-src="${id.replace("#", ".html#").replace(/^([^.#]+)$/, "$1.html")}"><span class="mono">${String(i + 1).padStart(2, "0")}</span><span>${name}<small>${sub}</small></span></a>`).join(""));
+  let size = [1440, 900];
+  function sendTheme() { try { view.contentWindow.postMessage({ type: "theme", mode: ClipForgeTheme.get() }, "*"); } catch (e) { /* ignore */ } }
+  function fit() {
+    const avail = document.querySelector(".stage").clientWidth - 48;
+    const k = Math.min(1, avail / size[0]);
+    view.width = size[0]; view.height = size[1];
+    frame.style.width = `${size[0]}px`; frame.style.height = `${size[1]}px`;
+    frame.style.transform = `scale(${k})`; frame.style.marginBottom = `${-(1 - k) * size[1]}px`;
+  }
+  function open() {
+    const hash = location.hash.slice(1) || "resultados";
+    const a = [...list.querySelectorAll("a")].find((x) => x.getAttribute("href") === "#" + hash) || list.querySelector("a");
+    list.querySelectorAll("a").forEach((x) => x.removeAttribute("aria-current"));
+    a.setAttribute("aria-current", "page");
+    view.src = a.dataset.src;
+  }
+  view.addEventListener("load", sendTheme);
+  document.addEventListener("themechange", sendTheme);
+  document.querySelector("[data-size]").addEventListener("click", (e) => {
+    const b = e.target.closest("button"); if (!b) return;
+    document.querySelectorAll("[data-size] button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    size = [+b.dataset.w, +b.dataset.h]; fit();
+  });
+  addEventListener("hashchange", open); addEventListener("resize", fit);
+  ClipForgeTheme.bind(); fit(); open();
+</script>
+</body>
+</html>

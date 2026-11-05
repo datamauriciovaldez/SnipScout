@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sin voz · ClipForge</title>
+<script src="../js/theme.js"></script>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<style>
+  .wrap { display: grid; grid-template-columns: minmax(0, 560px) minmax(0, 1fr); gap: var(--s-16); padding: 72px var(--s-8) var(--s-8) 96px; align-items: start; }
+  .notice h1 { margin: var(--s-3) 0 var(--s-3); }
+  .actions { display: flex; gap: var(--s-2); margin-top: var(--s-6); flex-wrap: wrap; }
+  .file { border-top: var(--bw) solid var(--rule); padding-top: var(--s-5); display: grid; gap: var(--s-4); }
+  .file .wave { height: 64px; }
+  .file .wave i { --bar-w: 3px; }
+  .flat { display: flex; justify-content: space-between; font-size: var(--fs-label); color: var(--text-3); }
+  .copy-row { display: flex; justify-content: flex-end; }
+  @media (max-width: 1180px) { .wrap { grid-template-columns: minmax(0, 1fr); gap: var(--s-10); padding: 48px var(--s-8) var(--s-8); } }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar__left">
+    <a class="brand" href="index.html" aria-label="ClipForge, inicio"><span class="brand__mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><path d="M8 7.5L20 18M8 16.5L20 6"/></svg></span>ClipForge</a>
+    <div class="crumb"><span class="crumb__sep" aria-hidden="true">/</span><span class="crumb__name">intro-musical-sin-voz.mp4</span><span class="mono faint" style="font-size:12px">3:48</span></div>
+  </div>
+  <div class="topbar__right"><span class="label status-dot">Local · sin conexión</span></div>
+</header>
+<main class="wrap">
+  <section class="notice" role="alert" aria-labelledby="e-title">
+    <div class="notice__code">Error · no_speech</div>
+    <h1 class="title-1" id="e-title">No encontramos voz en este archivo</h1>
+    <p class="lead">Hemos escuchado los 3:48 y solo hay música o silencio, así que no hay frases con las que hacer clips.</p>
+    <div class="actions">
+      <a class="btn btn--primary btn--lg" href="inicio.html">Elegir otro archivo</a>
+      <button class="btn btn--outline btn--lg" type="button">Probar con otra pista de audio</button>
+    </div>
+    <details>
+      <summary>Copiar detalles técnicos</summary>
+      <pre id="details">code: no_speech
+file: intro-musical-sin-voz.mp4 (3:48, 1 pista AAC 48 kHz)
+model: base (int8, cpu) · vad: 0 tramos con voz de 228 s
+clipforge 0.1.0 · Windows 11 23H2</pre>
+      <div class="copy-row"><button class="btn btn--ghost" type="button" id="copy">Copiar</button></div>
+    </details>
+  </section>
+  <section class="file" aria-label="Lo que hemos oído">
+    <div class="label">Lo que hemos oído</div>
+    <div class="wave" id="wave" aria-hidden="true"></div>
+    <div class="flat mono"><span>00:00</span><span>Música · sin voz detectada</span><span>03:48</span></div>
+  </section>
+</main>
+<script src="../js/ui.js"></script>
+<script>
+  UI.wave(document.getElementById("wave"), 120, () => "todo", 1.6);
+  document.getElementById("copy").addEventListener("click", async () => {
+    const text = document.getElementById("details").textContent;
+    try { await navigator.clipboard.writeText(text); UI.toast("Detalles copiados"); }
+    catch (e) { const r = document.createRange(); r.selectNodeContents(document.getElementById("details")); getSelection().removeAllRanges(); getSelection().addRange(r); UI.toast("Selecciona y copia con Ctrl C"); }
+  });
+</script>
+</body>
+</html>
