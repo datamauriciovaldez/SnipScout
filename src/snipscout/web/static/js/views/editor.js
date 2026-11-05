@@ -1,6 +1,6 @@
 // Simple clip editor (v0.1): in/out snapped to sentences, title, per-word subtitle corrections, style.
 // The draggable timeline, undo and autosave arrive in v0.2 (E1–E3).
-import { useEffect, useMemo, useState } from "preact/hooks";
+import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import { html } from "../html.js";
 import { api } from "../api.js";
 import { Button, ErrorNotice, Modal, Segmented, toast } from "../components.js";
@@ -9,6 +9,7 @@ import { navigate } from "../router.js";
 import { useTopbar } from "../store.js";
 import { ClipPlayer, clipWords } from "./player.js";
 import { Timeline } from "./timeline.js";
+import { createHistory, nearest, record, redo, sameDraft, undo, wordStep } from "../editing.js";
 
 const STYLES = ["bold-pop", "classic", "karaoke", "minimal"];
 
@@ -24,7 +25,12 @@ export function Editor({ id, cid }) {
   const [error, setError] = useState(null);
   const [draft, setDraft] = useState(null);
   const [editing, setEditing] = useState(null); // word index being edited
-  const [saving, setSaving] = useState(false);
+  const [saveState, setSaveState] = useState("saved"); // saved | pending | saving | error
+  const history = useRef(createHistory());
+  const [, setHistTick] = useState(0);
+  const dragSnap = useRef(null); // draft before a handle drag (one undo step per drag)
+  const titleSnap = useRef(null);
+  const openedAs = useRef(null); // the clip as it was when the editor opened ("Reset")
   const [playhead, setPlayhead] = useState(0);
   const [seek, setSeek] = useState(null); // { t, n } → player
   const [frame, setFrame] = useState(null); // { url, at } real preview frame
@@ -36,8 +42,10 @@ export function Editor({ id, cid }) {
         const clip = clips.clips.find((c) => c.id === cid);
         if (!clip) throw Object.assign(new Error("clip"), { code: "project_not_found" });
         setData({ project, clip, words: tr.words, sentences: tr.sentences });
-        setDraft({ start: clip.start, end: clip.end, title: clip.title, style: clip.subtitle_style || project.settings.subtitle_style,
-                   overrides: { ...clip.text_overrides } });
+        const first = { start: clip.start, end: clip.end, title: clip.title, style: clip.subtitle_style || project.settings.subtitle_style,
+                        overrides: { ...clip.text_overrides } };
+        openedAs.current = first;
+        setDraft(first);
       })
       .catch((e) => setError({ code: e.code || "unknown", message: e.message }));
   }, [id, cid]);
@@ -46,22 +54,73 @@ export function Editor({ id, cid }) {
     || draft.style !== (data.clip.subtitle_style || data.project.settings.subtitle_style)
     || JSON.stringify(draft.overrides) !== JSON.stringify(data.clip.text_overrides));
 
-  const save = async () => {
-    setSaving(true);
+  const save = async (silent = true) => {
+    setSaveState("saving");
     try {
       const clip = await api.patchClip(id, cid, { start: draft.start, end: draft.end, title: draft.title,
         subtitle_style: draft.style, text_overrides: draft.overrides });
-      setData((d) => ({ ...d, clip })); toast(t("editor.saved"));
-    } catch (err) { toast(t(`errors.${err.code}.title`)); }
-    setSaving(false);
+      setData((d) => ({ ...d, clip }));
+      setSaveState("saved");
+      if (!silent) toast(t("editor.saved"));
+      return true;
+    } catch (err) {
+      setSaveState("error");
+      toast(t(`errors.${err.code}.title`));
+      return false;
+    }
   };
+  // Autosave shortly after the last change.
+  useEffect(() => {
+    if (!dirty) return undefined;
+    setSaveState("pending");
+    const timer = setTimeout(() => save(), 900);
+    return () => clearTimeout(timer);
+  }, [draft]);
+
+  const commit = (next) => { // a user change worth one undo step
+    if (sameDraft(next, draft)) return;
+    record(history.current, draft); setDraft(next); setHistTick((n) => n + 1);
+  };
+  const doUndo = () => { const prev = undo(history.current, draft); if (prev) { setDraft(prev); setHistTick((n) => n + 1); } };
+  const doRedo = () => { const next = redo(history.current, draft); if (next) { setDraft(next); setHistTick((n) => n + 1); } };
+  const done = async () => { if (!dirty || (await save())) navigate(`/proyecto/${id}`); };
+
+  const indicator = { saved: "editor.all_saved", pending: "editor.unsaved", saving: "editor.saving", error: "editor.save_error" }[saveState];
   useTopbar(data && {
     crumb: { name: data.project.name, duration: fmt.duration(data.project.source.duration), href: `#/proyecto/${id}`, sub: t("editor.crumb", { n: cid.slice(1) }) },
-    actions: html`<span class="mono faint" style="font-size:12px" aria-live="polite">${dirty ? t("editor.unsaved") : t("editor.all_saved")}</span>
-      <${Button} variant="primary" loading=${saving} disabled=${!dirty} onClick=${save} kbd="Ctrl ↵">${t("editor.save")}<//>`,
-  }, [data, dirty, saving, draft]);
+    actions: html`<span class=${`mono save-state save-state--${saveState}`} aria-live="polite">${t(indicator)}</span>
+      <span class="tip"><${Button} variant="ghost" icon="undo" aria-label=${t("editor.undo")} disabled=${!history.current.past.length} onClick=${doUndo} />
+        <span class="tip__bubble" role="tooltip">${t("editor.undo")}<span class="kbd">Ctrl Z</span></span></span>
+      <span class="tip"><${Button} variant="ghost" icon="redo" aria-label=${t("editor.redo")} disabled=${!history.current.future.length} onClick=${doRedo} />
+        <span class="tip__bubble" role="tooltip">${t("editor.redo")}<span class="kbd">Ctrl ⇧ Z</span></span></span>
+      <${Button} variant="primary" onClick=${done} kbd="Ctrl ↵">${t("editor.done")}<//>`,
+  }, [data, saveState, draft, history.current.past.length, history.current.future.length]);
+
   useEffect(() => {
-    const onKey = (e) => { if ((e.ctrlKey || e.metaKey) && e.key === "Enter" && dirty) { e.preventDefault(); save(); } };
+    const onKey = (e) => {
+      if (!data || !draft) return;
+      const typing = /INPUT|TEXTAREA|SELECT/.test(e.target.tagName) || e.target.isContentEditable;
+      const mod = e.ctrlKey || e.metaKey;
+      const key = e.key.toLowerCase();
+      if (mod && key === "enter") { e.preventDefault(); done(); return; }
+      if (typing) return; // native undo/arrows inside text fields
+      if (mod && key === "z" && !e.shiftKey) { e.preventDefault(); doUndo(); return; }
+      if (mod && ((key === "z" && e.shiftKey) || key === "y")) { e.preventDefault(); doRedo(); return; }
+      if (mod || e.altKey && !["i", "o"].includes(key)) return;
+      const dur = data.project.source.duration;
+      if (key === "i" || key === "o") {
+        e.preventDefault();
+        const field = key === "i" ? "start" : "end";
+        const list = data.sentences.map((x) => (field === "start" ? Math.max(0, x.start - 0.15) : Math.min(dur, x.end + 0.15)));
+        const v = Math.round((e.altKey ? playhead : nearest(list, playhead)) * 1000) / 1000;
+        const next = { ...draft, [field]: v };
+        if (next.end - next.start >= 1) commit(next); else toast(t("editor.bad_time"));
+      } else if (key === "arrowleft" || key === "arrowright") {
+        e.preventDefault();
+        const dir = key === "arrowright" ? 1 : -1;
+        seekTo(Math.max(0, Math.min(dur, e.shiftKey ? playhead + dir * 5 : wordStep(data.words, playhead, dir))));
+      }
+    };
     addEventListener("keydown", onKey);
     return () => removeEventListener("keydown", onKey);
   });
@@ -88,6 +147,7 @@ export function Editor({ id, cid }) {
 
   const { project, sentences, words } = data;
   const dur = project.source.duration;
+  const original = openedAs.current;
   const starts = sentences.map((s) => Math.max(0, s.start - 0.15));
   const ends = sentences.map((s) => Math.min(dur, s.end + 0.15));
   const snap = (field, dir) => {
@@ -96,13 +156,13 @@ export function Editor({ id, cid }) {
     const cand = dir < 0 ? [...list].reverse().find((v) => v < cur - 0.05) : list.find((v) => v > cur + 0.05);
     if (cand === undefined) return;
     const next = { ...draft, [field]: Math.round(cand * 1000) / 1000 };
-    if (next.end - next.start >= 1) setDraft(next);
+    if (next.end - next.start >= 1) commit(next);
   };
   const setTime = (field, text) => {
     const v = parseTime(text);
     const next = { ...draft, [field]: v };
     if (v === null || v < 0 || v > dur || next.end - next.start < 1) { toast(t("editor.bad_time")); return; }
-    setDraft(next);
+    commit(next);
   };
   // Words shown: the clip plus one sentence of context on each side (dimmed).
   const firstIn = cw.length ? cw[0].index : 0, lastIn = cw.length ? cw[cw.length - 1].index : 0;
@@ -128,10 +188,13 @@ export function Editor({ id, cid }) {
     <main class="editor__work" id="main">
       <div><div class="label">${t("editor.eyebrow", { score: Math.round(data.clip.score) })}</div>
         <input class="input editor__title" aria-label=${t("editor.title_label")} value=${draft.title} maxlength="300"
+          onFocus=${() => { titleSnap.current = draft; }}
+          onBlur=${() => { if (titleSnap.current && titleSnap.current.title !== draft.title) { record(history.current, titleSnap.current); setHistTick((n) => n + 1); } titleSnap.current = null; }}
           onInput=${(e) => setDraft({ ...draft, title: e.currentTarget.value })} /></div>
       <section class="timeline" aria-label=${t("editor.timeline")}>
         <${Timeline} projectId=${id} duration=${dur} start=${draft.start} end=${draft.end} time=${playhead} sentences=${sentences}
-          onChange=${(r) => setDraft((d) => ({ ...d, start: r.start, end: r.end }))}
+          onChange=${(r) => { if (!dragSnap.current) dragSnap.current = draft; setDraft((d) => ({ ...d, start: r.start, end: r.end })); }}
+          onCommit=${() => { if (dragSnap.current && !sameDraft(dragSnap.current, draft)) { record(history.current, dragSnap.current); setHistTick((n) => n + 1); } dragSnap.current = null; }}
           onSeek=${seekTo} />
         <div class="inout">
           ${["start", "end"].map((f) => html`<div class="field"><label class="label" for=${`t-${f}`}>${t(`editor.${f}`)}</label>
@@ -155,7 +218,7 @@ export function Editor({ id, cid }) {
               return html`<input class="input word-input" autofocus value=${draft.overrides[i] ?? w.text} aria-label=${t("editor.word_label")}
                 onKeyDown=${(e) => { if (e.key === "Enter") e.currentTarget.blur(); if (e.key === "Escape") setEditing(null); }}
                 onBlur=${(e) => { const v = e.currentTarget.value.trim(); const o = { ...draft.overrides };
-                  if (v === w.text) delete o[i]; else o[i] = v; setDraft({ ...draft, overrides: o }); setEditing(null); }} /> `;
+                  if (v === w.text) delete o[i]; else o[i] = v; commit({ ...draft, overrides: o }); setEditing(null); }} /> `;
             }
             const edited = draft.overrides[i] !== undefined;
             const active = i === activeWord;
@@ -169,18 +232,19 @@ export function Editor({ id, cid }) {
     </main>
     <aside class="editor__side" aria-label=${t("editor.style")}>
       <div class="settings"><div class="settings__row"><span class="label">${t("editor.style")}</span>
-        <${Segmented} label=${t("editor.style")} mono=${false} value=${draft.style} onChange=${(v) => setDraft({ ...draft, style: v })}
+        <${Segmented} label=${t("editor.style")} mono=${false} value=${draft.style} onChange=${(v) => commit({ ...draft, style: v })}
           options=${STYLES.map((v) => ({ value: v, label: t(`styles.${v.replace("-", "_")}`) }))} /></div></div>
       <div><div class="label" style="margin-bottom:10px">${t("editor.shortcuts")}</div>
-        <div class="keys"><div><span>${t("editor.key_play")}</span><span class="kbd">${t("editor.key_space")}</span></div>
-          <div><span>${t("editor.key_save")}</span><span class="kbd">Ctrl ↵</span></div></div></div>
+        <div class="keys">
+          ${[["key_play", "editor.key_space"], ["key_words", "← →"], ["key_jump", "⇧ ← →"], ["key_in", "I"], ["key_out", "O"],
+             ["key_undo", "Ctrl Z"], ["key_redo", "Ctrl ⇧ Z"], ["key_done", "Ctrl ↵"]].map(([k, kbd]) =>
+            html`<div><span>${t(`editor.${k}`)}</span><span class="kbd">${kbd.startsWith("editor.") ? t(kbd) : kbd}</span></div>`)}</div></div>
       <${Modal} open=${Boolean(frame)} wide eyebrow=${t("editor.real_frame")} title=${frame ? t("editor.real_frame_title", { t: fmt.precise(frame.at) }) : ""}
         onClose=${() => setFrame(null)} actions=${html`<${Button} variant="primary" size="lg" onClick=${() => setFrame(null)}>${t("editor.close")}<//>`}>
         ${frame && html`<img class="real-frame" src=${frame.url} alt=${t("editor.real_frame_alt")} />`}
         <p class="faint" style="font-size:12px">${t("editor.real_frame_note")}</p><//>
       <div style="display:flex;gap:8px;margin-top:auto">
-        <${Button} variant="ghost" disabled=${!dirty} onClick=${() => setDraft({ start: data.clip.start, end: data.clip.end, title: data.clip.title,
-          style: data.clip.subtitle_style || project.settings.subtitle_style, overrides: { ...data.clip.text_overrides } })}>${t("editor.reset")}<//>
+        <${Button} variant="ghost" disabled=${sameDraft(draft, original)} onClick=${() => commit(original)}>${t("editor.reset")}<//>
         <${Button} onClick=${() => navigate(`/proyecto/${id}`)}>${t("editor.back")}<//>
       </div>
     </aside>

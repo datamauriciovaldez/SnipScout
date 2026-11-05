@@ -176,3 +176,7 @@ html, body, .app-root { height: 100%; }
 .real-frame-btn { width: 288px; }
 .real-frame { display: block; max-width: 100%; max-height: 62vh; margin: 8px auto 0; border-radius: var(--r-2); border: var(--bw) solid var(--line); }
 @media (max-width: 1180px) { .real-frame-btn { width: 240px; } }
+
+/* --- E3: save indicator --- */
+.save-state { font-size: 12px; color: var(--text-3); min-width: 92px; text-align: right; }
+.save-state--error { color: var(--danger); }
