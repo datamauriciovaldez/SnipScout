@@ -33,3 +33,13 @@ class OfflineError(ClipForgeError):
     """A network access was attempted while ``CLIPFORGE_OFFLINE=1``."""
 
     code = "offline"
+
+
+class CancelledError(ClipForgeError):
+    code = "cancelled"
+
+
+class FfmpegFailedError(ClipForgeError):
+    """ffmpeg exited with an error while processing (render, extraction)."""
+
+    code = "ffmpeg_failed"

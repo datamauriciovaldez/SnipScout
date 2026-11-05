@@ -10,6 +10,7 @@ from dataclasses import asdict
 
 from clipforge import __version__
 from clipforge.core import system
+from clipforge.core.net import enforce_offline_if_requested
 
 
 def _print_doctor(report: system.SystemReport) -> None:
@@ -69,6 +70,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         reconfigure = getattr(stream, "reconfigure", None)
         if reconfigure is not None:
             reconfigure(errors="replace")
+    enforce_offline_if_requested()
     args = build_parser().parse_args(argv)
     result: int = args.func(args)
     return result

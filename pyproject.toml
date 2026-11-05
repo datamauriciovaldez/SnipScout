@@ -13,7 +13,9 @@ classifiers = [
     "Topic :: Multimedia :: Video",
 ]
 dependencies = [
+    "av>=14",
     "imageio-ffmpeg>=0.8.1",
+    "numpy>=1.26",
     "platformdirs>=4.2",
     "psutil>=6.0",
     "pydantic>=2.7",
