@@ -3,10 +3,10 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from clipforge.core import audio, ingest
-from clipforge.core.binaries import FfmpegBinaries
-from clipforge.core.errors import CancelledError, NoSpeechError, UnsupportedMediaError
-from clipforge.core.procs import CancelToken
+from snipscout.core import audio, ingest
+from snipscout.core.binaries import FfmpegBinaries
+from snipscout.core.errors import CancelledError, NoSpeechError, UnsupportedMediaError
+from snipscout.core.procs import CancelToken
 
 
 @pytest.fixture(params=["ffprobe", "pyav"])

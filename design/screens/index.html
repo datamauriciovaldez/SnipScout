@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Mockups D0 · ClipForge</title>
+<title>Mockups D0 · SnipScout</title>
 <script src="../js/theme.js"></script>
 <link rel="stylesheet" href="../css/fonts.css">
 <link rel="stylesheet" href="../css/tokens.css">
@@ -26,7 +26,7 @@
 </head>
 <body>
 <header class="topbar">
-  <div class="topbar__left"><span class="brand"><span class="brand__mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><path d="M8 7.5L20 18M8 16.5L20 6"/></svg></span>ClipForge</span><span class="label">Mockups D0</span></div>
+  <div class="topbar__left"><span class="brand"><span class="brand__mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><path d="M8 7.5L20 18M8 16.5L20 6"/></svg></span>SnipScout</span><span class="label">Mockups D0</span></div>
   <div class="topbar__right controls">
     <div class="seg" data-size role="group" aria-label="Tamaño de ventana"><button type="button" data-w="1440" data-h="900" aria-pressed="true">1440×900</button><button type="button" data-w="1000" data-h="680" aria-pressed="false">1000×680</button></div>
     <div class="seg seg--sans" data-theme-switch role="group" aria-label="Tema"><button type="button" data-mode="light">Claro</button><button type="button" data-mode="dark">Oscuro</button><button type="button" data-mode="system">Sistema</button></div>
@@ -49,7 +49,7 @@
   const list = document.getElementById("list"), view = document.getElementById("view"), frame = document.getElementById("frame");
   list.insertAdjacentHTML("beforeend", SCREENS.map(([id, name, sub], i) => `<a href="#${id.replace("#", "-")}" data-src="${id.replace("#", ".html#").replace(/^([^.#]+)$/, "$1.html")}"><span class="mono">${String(i + 1).padStart(2, "0")}</span><span>${name}<small>${sub}</small></span></a>`).join(""));
   let size = [1440, 900];
-  function sendTheme() { try { view.contentWindow.postMessage({ type: "theme", mode: ClipForgeTheme.get() }, "*"); } catch (e) { /* ignore */ } }
+  function sendTheme() { try { view.contentWindow.postMessage({ type: "theme", mode: SnipScoutTheme.get() }, "*"); } catch (e) { /* ignore */ } }
   function fit() {
     const avail = document.querySelector(".stage").clientWidth - 48;
     const k = Math.min(1, avail / size[0]);
@@ -72,7 +72,7 @@
     size = [+b.dataset.w, +b.dataset.h]; fit();
   });
   addEventListener("hashchange", open); addEventListener("resize", fit);
-  ClipForgeTheme.bind(); fit(); open();
+  SnipScoutTheme.bind(); fit(); open();
 </script>
 </body>
 </html>

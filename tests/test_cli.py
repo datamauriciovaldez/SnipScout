@@ -2,9 +2,9 @@ import json
 
 import pytest
 
-from clipforge import cli
-from clipforge.core import system
-from clipforge.core.errors import FfmpegMissingError
+from snipscout import cli
+from snipscout.core import system
+from snipscout.core.errors import FfmpegMissingError
 
 
 def test_doctor_json_ok(capsys: pytest.CaptureFixture[str]) -> None:
@@ -38,4 +38,4 @@ def test_version(capsys: pytest.CaptureFixture[str]) -> None:
     with pytest.raises(SystemExit) as exc:
         cli.main(["--version"])
     assert exc.value.code == 0
-    assert capsys.readouterr().out.startswith("clipforge ")
+    assert capsys.readouterr().out.startswith("snipscout ")

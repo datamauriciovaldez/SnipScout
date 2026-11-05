@@ -1,4 +1,4 @@
-# ClipForge design system — notes
+# SnipScout design system — notes
 
 **Source of truth:** `design/reference/referencia-resultados{,-oscuro}.html` (approved). Everything else derives from it.
 
@@ -20,7 +20,7 @@ shortcuts), tabular numbers. Vendored woff2 (OFL) in `fonts/`, no CDN.
 **Shape:** radii 3/4/6px, 1px rules, rows separated by lines, no shadows except toast/modal/tooltip. 18px square checkboxes.
 Thumbnails: muted gradient + SVG fractal-noise grain (`.thumb::after`).
 
-**Theme switching:** `js/theme.js` runs in `<head>` before CSS paints; `localStorage["clipforge.theme"]` = light|dark|system
+**Theme switching:** `js/theme.js` runs in `<head>` before CSS paints; `localStorage["snipscout.theme"]` = light|dark|system
 (try/catch); system = no `data-theme`. `index.html` also pushes the theme into its iframe via `postMessage`.
 Theme change animates colour only (150ms); other motion is 120/220ms on transform/opacity; reduced motion zeroes durations.
 

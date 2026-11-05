@@ -8,12 +8,12 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from clipforge.core.models import Clip, MediaInfo, Word
-from clipforge.core.procs import CancelToken
-from clipforge.core.render import RenderOptions, render_clip
-from clipforge.core.storage import atomic_write_text, slugify
-from clipforge.core.subtitles import build_ass, build_srt, build_vtt, clip_words
-from clipforge.core.text import lexicon
+from snipscout.core.models import Clip, MediaInfo, Word
+from snipscout.core.procs import CancelToken
+from snipscout.core.render import RenderOptions, render_clip
+from snipscout.core.storage import atomic_write_text, slugify
+from snipscout.core.subtitles import build_ass, build_srt, build_vtt, clip_words
+from snipscout.core.text import lexicon
 
 
 @dataclass
@@ -63,7 +63,7 @@ def export_clips(
     out_dir.mkdir(parents=True, exist_ok=True)
     vertical = opts.height > opts.width
     reasons_text = lexicon(language).get("reasons", {})
-    work = out_dir / ".clipforge-work"  # .ass + fonts; removed at the end
+    work = out_dir / ".snipscout-work"  # .ass + fonts; removed at the end
     meta: list[dict[str, object]] = []
     captions: list[str] = []
     try:

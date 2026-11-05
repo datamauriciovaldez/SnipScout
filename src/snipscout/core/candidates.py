@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
-from clipforge.core.models import Sentence
+from snipscout.core.models import Sentence
 
 TOLERANCE_S = 2.0  # accept windows slightly outside the range; refine() trims/pads later
 

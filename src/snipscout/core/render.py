@@ -13,11 +13,11 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
-from clipforge.core.errors import FfmpegFailedError
-from clipforge.core.models import MediaInfo
-from clipforge.core.procs import CancelToken, run_ffmpeg
-from clipforge.core.reframe import AUDIO_ONLY_BG, ReframeMode, video_filter
-from clipforge.core.subtitles import FONTS_DIR
+from snipscout.core.errors import FfmpegFailedError
+from snipscout.core.models import MediaInfo
+from snipscout.core.procs import CancelToken, run_ffmpeg
+from snipscout.core.reframe import AUDIO_ONLY_BG, ReframeMode, video_filter
+from snipscout.core.subtitles import FONTS_DIR
 
 HW_ENCODERS = ("h264_nvenc", "h264_qsv", "h264_videotoolbox", "h264_amf")
 

@@ -9,10 +9,10 @@ from typing import Any
 import numpy as np
 import pytest
 
-from clipforge.core import ingest, render
-from clipforge.core.binaries import FfmpegBinaries
-from clipforge.core.errors import CancelledError
-from clipforge.core.models import (
+from snipscout.core import ingest, render
+from snipscout.core.binaries import FfmpegBinaries
+from snipscout.core.errors import CancelledError
+from snipscout.core.models import (
     AspectRatio,
     Clip,
     ClipSet,
@@ -24,11 +24,11 @@ from clipforge.core.models import (
     Transcript,
     Word,
 )
-from clipforge.core.pipeline import Pipeline
-from clipforge.core.procs import CancelToken
-from clipforge.core.reframe import ReframeMode, default_mode, output_size, video_filter
-from clipforge.core.storage import ProjectStore
-from clipforge.core.subtitles import (
+from snipscout.core.pipeline import Pipeline
+from snipscout.core.procs import CancelToken
+from snipscout.core.reframe import ReframeMode, default_mode, output_size, video_filter
+from snipscout.core.storage import ProjectStore
+from snipscout.core.subtitles import (
     PRESETS,
     _ass_color,
     build_ass,
@@ -282,8 +282,8 @@ def test_render_export_end_to_end(ff: FfmpegBinaries, talk_video: Path, tmp_path
     pid = _project(store, ff, talk_video, aspect=AspectRatio.VERTICAL, subtitle_style="bold-pop")
     pipe = Pipeline(store, ff)
     # No speech model here: clips are selected from the synthetic transcript directly.
-    from clipforge.core.models import ClipLength
-    from clipforge.core.select import select_clips
+    from snipscout.core.models import ClipLength
+    from snipscout.core.select import select_clips
 
     project = store.load(pid)
     sentences = pipe.sentences(project)
@@ -335,7 +335,7 @@ def test_render_export_end_to_end(ff: FfmpegBinaries, talk_video: Path, tmp_path
     assert meta["clips"][0]["reasons"] and meta["clips"][0]["reasons"][0]["text"]
     assert (out_dir / "captions.txt").read_text(encoding="utf-8").startswith("=== clip_01_")
     assert result.clips[0].srt.exists() and result.clips[0].vtt.exists()
-    assert not (out_dir / ".clipforge-work").exists()
+    assert not (out_dir / ".snipscout-work").exists()
     if sys.platform != "win32":
         assert first.stat().st_mode & 0o044 == 0o044 and (out_dir / "metadata.json").stat().st_mode & 0o044
     opts = pipe.render_options(store.load(pid))
@@ -383,11 +383,11 @@ def test_full_pipeline_offline_with_fake_model(
     no_offline_guard: None,
 ) -> None:
     """Autonomy proof: analyze + render with all non-loopback sockets blocked and no API variables."""
-    from clipforge.core import net
+    from snipscout.core import net
 
     for var in ("OPENAI_API_KEY", "GEMINI_API_KEY", "HF_TOKEN"):
         monkeypatch.delenv(var, raising=False)
-    monkeypatch.setenv("CLIPFORGE_OFFLINE", "1")
+    monkeypatch.setenv("SNIPSCOUT_OFFLINE", "1")
     assert net.enforce_offline_if_requested()
     store = ProjectStore(tmp_path / "projects")
     media = ingest.probe(talk_video, ff.ffprobe)
@@ -434,9 +434,9 @@ def test_cli_run_real_model_offline(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     """Real speech model (must already be downloaded: run the other slow test first) + CLI, fully offline."""
-    from clipforge import cli
-    from clipforge.core import modelstore
-    from clipforge.core.transcribe import BENCHMARK_WAV
+    from snipscout import cli
+    from snipscout.core import modelstore
+    from snipscout.core.transcribe import BENCHMARK_WAV
 
     modelstore.download_model("tiny")  # no-op when installed; needs network only the first time
     video = tmp_path / "voz real.mp4"
@@ -465,8 +465,8 @@ def test_cli_run_real_model_offline(
         timeout=120,
     )
     real_models = modelstore.models_dir()  # keep using the already-downloaded model
-    monkeypatch.setenv("CLIPFORGE_OFFLINE", "1")
-    monkeypatch.setenv("CLIPFORGE_DATA_DIR", str(tmp_path / "data"))
+    monkeypatch.setenv("SNIPSCOUT_OFFLINE", "1")
+    monkeypatch.setenv("SNIPSCOUT_DATA_DIR", str(tmp_path / "data"))
     monkeypatch.setattr(modelstore, "models_dir", lambda: real_models)
     out = tmp_path / "out"
     code = cli.main(["run", str(video), "--model", "tiny", "--lang", "es", "--count", "1", "--out", str(out)])

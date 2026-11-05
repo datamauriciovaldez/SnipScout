@@ -8,8 +8,8 @@ from pathlib import Path
 
 import pytest
 
-from clipforge.core.binaries import FfmpegBinaries, resolve_ffmpeg
-from clipforge.core.net import uninstall_offline_guard
+from snipscout.core.binaries import FfmpegBinaries, resolve_ffmpeg
+from snipscout.core.net import uninstall_offline_guard
 
 # Spaces, accents and emoji: the paths real users have.
 TRICKY_DIR = "mis vídeos ñ 🎬"

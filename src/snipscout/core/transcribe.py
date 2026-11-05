@@ -15,12 +15,12 @@ from typing import Any, Protocol
 import numpy as np
 import numpy.typing as npt
 
-from clipforge.config import cache_dir
-from clipforge.core.audio import SAMPLE_RATE, read_wav_range, wav_duration
-from clipforge.core.errors import ModelDownloadError, NoSpeechError
-from clipforge.core.models import JobEvent, Transcript, Word
-from clipforge.core.modelstore import get_spec, is_installed, model_dir
-from clipforge.core.procs import CancelToken
+from snipscout.config import cache_dir
+from snipscout.core.audio import SAMPLE_RATE, read_wav_range, wav_duration
+from snipscout.core.errors import ModelDownloadError, NoSpeechError
+from snipscout.core.models import JobEvent, Transcript, Word
+from snipscout.core.modelstore import get_spec, is_installed, model_dir
+from snipscout.core.procs import CancelToken
 
 CHUNK_S = 300.0  # 5 min per chunk keeps memory bounded on multi-hour files
 QUICK_ANALYSIS_S = 600.0
@@ -108,7 +108,7 @@ BENCHMARK_WAV = Path(__file__).resolve().parents[1] / "assets" / "benchmark_es.w
 
 def run_benchmark(model: SpeechModel, model_name: str) -> float:
     """Transcribe the bundled ~10 s speech sample and record the real-time factor."""
-    from clipforge.core.audio import load_wav
+    from snipscout.core.audio import load_wav
 
     samples = load_wav(BENCHMARK_WAV)
     t0 = time.perf_counter()

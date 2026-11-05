@@ -6,15 +6,15 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from clipforge.core import candidates
-from clipforge.core.models import ClipLength, Sentence, Word
-from clipforge.core.refine import Window, bounds, select_diverse
-from clipforge.core.scoring import ScoringConfig
-from clipforge.core.scoring.heuristic import HeuristicScorer
-from clipforge.core.segment import segment
-from clipforge.core.select import select_clips
-from clipforge.core.text import extract, lexicon
-from clipforge.core.text.vectors import TfidfEncoder
+from snipscout.core import candidates
+from snipscout.core.models import ClipLength, Sentence, Word
+from snipscout.core.refine import Window, bounds, select_diverse
+from snipscout.core.scoring import ScoringConfig
+from snipscout.core.scoring.heuristic import HeuristicScorer
+from snipscout.core.segment import segment
+from snipscout.core.select import select_clips
+from snipscout.core.text import extract, lexicon
+from snipscout.core.text.vectors import TfidfEncoder
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))

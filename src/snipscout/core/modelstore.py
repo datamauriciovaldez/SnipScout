@@ -15,10 +15,10 @@ from pathlib import Path
 
 import httpx
 
-from clipforge.config import models_dir
-from clipforge.core.errors import CancelledError, ModelDownloadError
-from clipforge.core.net import require_network
-from clipforge.core.procs import CancelToken
+from snipscout.config import models_dir
+from snipscout.core.errors import CancelledError, ModelDownloadError
+from snipscout.core.net import require_network
+from snipscout.core.procs import CancelToken
 
 HF_BASE = "https://huggingface.co"
 FILES = ("config.json", "tokenizer.json", "vocabulary.txt", "model.bin")

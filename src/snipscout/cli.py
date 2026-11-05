@@ -1,4 +1,4 @@
-"""Command-line entry point: ``clipforge doctor``."""
+"""Command-line entry point: ``snipscout doctor``."""
 
 from __future__ import annotations
 
@@ -8,10 +8,10 @@ import sys
 from collections.abc import Sequence
 from dataclasses import asdict
 
-from clipforge import __version__
-from clipforge.core import system
-from clipforge.core.errors import ClipForgeError
-from clipforge.core.net import enforce_offline_if_requested
+from snipscout import __version__
+from snipscout.core import system
+from snipscout.core.errors import SnipScoutError
+from snipscout.core.net import enforce_offline_if_requested
 
 
 def _print_doctor(report: system.SystemReport) -> None:
@@ -19,7 +19,7 @@ def _print_doctor(report: system.SystemReport) -> None:
         mark = {True: "OK  ", False: "FAIL", None: "INFO"}[ok]
         print(f"[{mark}] {label:<14} {value}")
 
-    print(f"ClipForge {report.clipforge} — system check\n")
+    print(f"SnipScout {report.snipscout} — system check\n")
     line(None, "Python", report.python)
     line(None, "OS", report.os)
     line(
@@ -57,11 +57,11 @@ def _doctor(args: argparse.Namespace) -> int:
 def _run(args: argparse.Namespace) -> int:
     from pathlib import Path
 
-    from clipforge.core import ingest, modelstore
-    from clipforge.core.binaries import resolve_ffmpeg
-    from clipforge.core.models import AspectRatio, ClipLength, JobEvent, ProjectSettings
-    from clipforge.core.pipeline import Pipeline
-    from clipforge.core.storage import ProjectStore
+    from snipscout.core import ingest, modelstore
+    from snipscout.core.binaries import resolve_ffmpeg
+    from snipscout.core.models import AspectRatio, ClipLength, JobEvent, ProjectSettings
+    from snipscout.core.pipeline import Pipeline
+    from snipscout.core.storage import ProjectStore
 
     last: dict[str, int] = {}
 
@@ -131,8 +131,8 @@ def _run(args: argparse.Namespace) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="clipforge", description="Local video-to-clips tool.")
-    parser.add_argument("--version", action="version", version=f"clipforge {__version__}")
+    parser = argparse.ArgumentParser(prog="snipscout", description="Local video-to-clips tool.")
+    parser.add_argument("--version", action="version", version=f"snipscout {__version__}")
     sub = parser.add_subparsers(dest="command", required=True)
     doctor = sub.add_parser("doctor", help="Check this computer: ffmpeg, CPU, RAM, disk.")
     doctor.add_argument("--json", action="store_true", help="Machine-readable output.")
@@ -176,7 +176,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
         result: int = args.func(args)
-    except ClipForgeError as exc:  # friendly message, never a traceback
+    except SnipScoutError as exc:  # friendly message, never a traceback
         print(f"\nError [{exc.code}]: {exc}", file=sys.stderr)
         if exc.details:
             print(f"Details: {exc.details}", file=sys.stderr)

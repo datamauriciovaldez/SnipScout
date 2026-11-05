@@ -9,7 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from clipforge.core.models import Clip, Word
+from snipscout.core.models import Clip, Word
 
 FONTS_DIR = Path(__file__).resolve().parents[1] / "assets" / "fonts"
 MIN_GROUP, MAX_GROUP = 3, 5

@@ -57,7 +57,9 @@ def ratio(a: str, b: str) -> float:
 
 
 def parse(css: str) -> dict[str, dict[str, str]]:
-    """Return {'light': tokens, 'dark': tokens}. Light = first :root block; dark = :root[data-theme="dark"]."""
+    """Return {'light': tokens, 'dark': tokens}.
+
+    Light = the first bare :root block; dark = the :root[data-theme="dark"] block."""
     css = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
     decl = re.compile(r"--([\w-]+)\s*:\s*(#[0-9A-Fa-f]{6,8})\s*;")
     light_block = re.search(r":root\s*\{(.*?)\n\}", css, flags=re.S)

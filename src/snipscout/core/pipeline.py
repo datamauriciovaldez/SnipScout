@@ -12,19 +12,19 @@ from __future__ import annotations
 from collections.abc import Callable
 from pathlib import Path
 
-from clipforge.core import audio
-from clipforge.core.binaries import FfmpegBinaries
-from clipforge.core.errors import CancelledError, ClipForgeError
-from clipforge.core.export import ExportResult, export_clips
-from clipforge.core.models import ClipSet, JobEvent, JobState, Project, ProjectStatus, Sentence
-from clipforge.core.procs import CancelToken
-from clipforge.core.reframe import default_mode, output_size
-from clipforge.core.render import RenderOptions
-from clipforge.core.segment import segment
-from clipforge.core.select import select_clips
-from clipforge.core.storage import ProjectStore
-from clipforge.core.text.vectors import SentenceEncoder
-from clipforge.core.transcribe import QUICK_ANALYSIS_S, SpeechModel, load_model, transcribe
+from snipscout.core import audio
+from snipscout.core.binaries import FfmpegBinaries
+from snipscout.core.errors import CancelledError, SnipScoutError
+from snipscout.core.export import ExportResult, export_clips
+from snipscout.core.models import ClipSet, JobEvent, JobState, Project, ProjectStatus, Sentence
+from snipscout.core.procs import CancelToken
+from snipscout.core.reframe import default_mode, output_size
+from snipscout.core.render import RenderOptions
+from snipscout.core.segment import segment
+from snipscout.core.select import select_clips
+from snipscout.core.storage import ProjectStore
+from snipscout.core.text.vectors import SentenceEncoder
+from snipscout.core.transcribe import QUICK_ANALYSIS_S, SpeechModel, load_model, transcribe
 
 EventSink = Callable[[JobEvent], None]
 
@@ -67,7 +67,7 @@ class Pipeline:
 
         return emit
 
-    def _fail(self, project: Project, exc: ClipForgeError, on_event: EventSink | None) -> None:
+    def _fail(self, project: Project, exc: SnipScoutError, on_event: EventSink | None) -> None:
         cancelled = isinstance(exc, CancelledError)
         project.status = ProjectStatus.CANCELLED if cancelled else ProjectStatus.ERROR
         project.error_code = None if cancelled else exc.code
@@ -152,7 +152,7 @@ class Pipeline:
             clip_set = ClipSet(clips=clips)
             self.store.save_clips(project.id, clip_set)
             emit("find_moments", 1.0, clips=len(clips))
-        except ClipForgeError as exc:
+        except SnipScoutError as exc:
             self._fail(project, exc, on_event)
             raise
         project.status = ProjectStatus.ANALYZED
@@ -197,7 +197,7 @@ class Pipeline:
         clips = self.store.load_clips(project_id)
         transcript = self.store.load_transcript(project_id)
         if clips is None or transcript is None:
-            raise ClipForgeError("Analyze the video before rendering.")
+            raise SnipScoutError("Analyze the video before rendering.")
         project.status = ProjectStatus.RENDERING
         self.store.save(project)
 
@@ -225,7 +225,7 @@ class Pipeline:
                 on_clip_progress=on_clip,
                 cancel=cancel,
             )
-        except ClipForgeError as exc:
+        except SnipScoutError as exc:
             self._fail(project, exc, on_event)
             raise
         project.status = ProjectStatus.DONE

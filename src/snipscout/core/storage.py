@@ -19,19 +19,19 @@ from typing import TypeVar
 
 from pydantic import BaseModel, ValidationError
 
-from clipforge.config import data_dir
-from clipforge.core.errors import ClipForgeError
-from clipforge.core.models import ClipSet, MediaInfo, Project, ProjectSettings, Transcript
+from snipscout.config import data_dir
+from snipscout.core.errors import SnipScoutError
+from snipscout.core.models import ClipSet, MediaInfo, Project, ProjectSettings, Transcript
 
 M = TypeVar("M", bound=BaseModel)
 _ID_RE = re.compile(r"^[a-f0-9]{12}$")
 
 
-class ProjectNotFoundError(ClipForgeError):
+class ProjectNotFoundError(SnipScoutError):
     code = "project_not_found"
 
 
-class StorageError(ClipForgeError):
+class StorageError(SnipScoutError):
     code = "storage"
 
 

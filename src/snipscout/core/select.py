@@ -4,13 +4,13 @@ from __future__ import annotations
 
 import dataclasses
 
-from clipforge.core import candidates
-from clipforge.core.models import Clip, ClipLength, Sentence
-from clipforge.core.refine import Window, bounds, select_diverse
-from clipforge.core.scoring import ScoringConfig
-from clipforge.core.scoring.heuristic import HeuristicScorer
-from clipforge.core.text import extract
-from clipforge.core.text.vectors import SentenceEncoder, TfidfEncoder
+from snipscout.core import candidates
+from snipscout.core.models import Clip, ClipLength, Sentence
+from snipscout.core.refine import Window, bounds, select_diverse
+from snipscout.core.scoring import ScoringConfig
+from snipscout.core.scoring.heuristic import HeuristicScorer
+from snipscout.core.text import extract
+from snipscout.core.text.vectors import SentenceEncoder, TfidfEncoder
 
 
 def select_clips(

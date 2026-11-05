@@ -7,7 +7,7 @@ import threading
 from collections.abc import Callable, Sequence
 from pathlib import Path
 
-from clipforge.core.errors import CancelledError, FfmpegFailedError
+from snipscout.core.errors import CancelledError, FfmpegFailedError
 
 
 class CancelToken:

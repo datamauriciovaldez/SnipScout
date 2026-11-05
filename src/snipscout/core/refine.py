@@ -6,8 +6,8 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from clipforge.core.models import Sentence
-from clipforge.core.text.vectors import Matrix
+from snipscout.core.models import Sentence
+from snipscout.core.text.vectors import Matrix
 
 
 @dataclass

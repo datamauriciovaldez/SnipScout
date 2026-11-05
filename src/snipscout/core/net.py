@@ -1,4 +1,4 @@
-"""Network policy. With ``CLIPFORGE_OFFLINE=1`` every non-loopback connection fails with ``OfflineError``.
+"""Network policy. With ``SNIPSCOUT_OFFLINE=1`` every non-loopback connection fails with ``OfflineError``.
 
 ``enforce_offline_if_requested()`` is called by every entry point (CLI, server). It patches the
 socket layer process-wide, so third-party libraries (huggingface_hub, httpx, urllib) are covered too.
@@ -13,8 +13,8 @@ import socket
 from collections.abc import Callable
 from typing import Any
 
-from clipforge.config import is_offline
-from clipforge.core.errors import OfflineError
+from snipscout.config import is_offline
+from snipscout.core.errors import OfflineError
 
 _ORIGINAL_CONNECT = socket.socket.connect
 _ORIGINAL_CONNECT_EX = socket.socket.connect_ex
@@ -35,7 +35,7 @@ def _is_loopback(host: object) -> bool:
 
 def _blocked(host: object) -> OfflineError:
     return OfflineError(
-        "Network access is disabled (CLIPFORGE_OFFLINE=1).", details=f"blocked connection to {host!r}"
+        "Network access is disabled (SNIPSCOUT_OFFLINE=1).", details=f"blocked connection to {host!r}"
     )
 
 
@@ -87,4 +87,4 @@ def enforce_offline_if_requested() -> bool:
 def require_network(purpose: str) -> None:
     """Call before any intentional download so the user gets a clear error instead of a socket error."""
     if is_offline():
-        raise OfflineError(f"Network access is disabled (CLIPFORGE_OFFLINE=1); cannot {purpose}.")
+        raise OfflineError(f"Network access is disabled (SNIPSCOUT_OFFLINE=1); cannot {purpose}.")

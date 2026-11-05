@@ -16,7 +16,7 @@ jobs:
       - name: Fail if src/ references paid/keyed AI APIs
         run: |
           if grep -rniE '\b(openai|cohere|mistralai|generativeai)\b|sk-[A-Za-z0-9]{20,}|api[_-]?key' src/; then
-            echo "::error::Forbidden reference found in src/ (ClipForge must stay 100% local)."
+            echo "::error::Forbidden reference found in src/ (SnipScout must stay 100% local)."
             exit 1
           fi
 
@@ -39,4 +39,4 @@ jobs:
       - run: uv run ruff format --check .
       - run: uv run mypy src
       - run: uv run pytest -q --tb=short
-      - run: uv run clipforge doctor
+      - run: uv run snipscout doctor

@@ -1,4 +1,4 @@
-"""System report used by ``clipforge doctor`` and, later, the first-run hardware check."""
+"""System report used by ``snipscout doctor`` and, later, the first-run hardware check."""
 
 from __future__ import annotations
 
@@ -10,15 +10,15 @@ from pathlib import Path
 
 import psutil
 
-from clipforge import __version__
-from clipforge.config import data_dir, is_offline
-from clipforge.core.binaries import resolve_ffmpeg
-from clipforge.core.errors import FfmpegMissingError
+from snipscout import __version__
+from snipscout.config import data_dir, is_offline
+from snipscout.core.binaries import resolve_ffmpeg
+from snipscout.core.errors import FfmpegMissingError
 
 
 @dataclass
 class SystemReport:
-    clipforge: str
+    snipscout: str
     python: str
     os: str
     cpu_cores_logical: int
@@ -50,13 +50,13 @@ def _disk_free_gb(path: Path) -> float | None:
 def collect(*, use_cache: bool = True) -> SystemReport:
     ddir = data_dir()
     report = SystemReport(
-        clipforge=__version__,
+        snipscout=__version__,
         python=sys.version.split()[0],
         os=f"{platform.system()} {platform.release()} ({platform.machine()})",
         cpu_cores_logical=psutil.cpu_count(logical=True) or 1,
         cpu_cores_physical=psutil.cpu_count(logical=False),
         ram_gb=round(psutil.virtual_memory().total / 1e9, 1),
-        # Presence of the NVIDIA tool only hints at a GPU; ClipForge never requires one.
+        # Presence of the NVIDIA tool only hints at a GPU; SnipScout never requires one.
         nvidia_gpu_tool=shutil.which("nvidia-smi") is not None,
         data_dir=str(ddir),
         disk_free_gb=_disk_free_gb(ddir),

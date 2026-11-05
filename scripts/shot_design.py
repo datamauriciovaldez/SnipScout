@@ -23,10 +23,10 @@ def main() -> int:
                 target, frag = target.split("#", 1)
             page = browser.new_page(viewport={"width": w, "height": h}, device_scale_factor=1)
             errors: list[str] = []
-            page.on("console", lambda m: errors.append(m.text) if m.type == "error" else None)
-            page.on("pageerror", lambda e: errors.append(str(e)))
+            page.on("console", lambda m, errs=errors: errs.append(m.text) if m.type == "error" else None)
+            page.on("pageerror", lambda e, errs=errors: errs.append(str(e)))
             if theme:
-                page.add_init_script(f"try{{localStorage.setItem('clipforge.theme','{theme}')}}catch(e){{}}")
+                page.add_init_script(f"try{{localStorage.setItem('snipscout.theme','{theme}')}}catch(e){{}}")
             page.goto(Path(target).resolve().as_uri() + (f"#{frag}" if frag else ""))
             page.wait_for_timeout(400)
             name = f"{Path(target).stem}{'-' + frag if frag else ''}-{theme or 'auto'}-{w}.png"

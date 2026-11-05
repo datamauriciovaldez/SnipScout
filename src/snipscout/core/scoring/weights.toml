@@ -1,6 +1,6 @@
 # HeuristicScorer weights — the single place to tune clip selection.
 #
-# Each signal is computed in [0, 1] (see src/clipforge/core/scoring/heuristic.py).
+# Each signal is computed in [0, 1] (see src/snipscout/core/scoring/heuristic.py).
 # The final score is sum(weight * signal) / sum(weights) * 100.
 # Tune with: uv run python scripts/eval_scoring.py --weights path/to/weights.toml
 #

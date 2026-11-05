@@ -1,5 +1,5 @@
 [project]
-name = "clipforge"
+name = "snipscout"
 version = "0.1.0.dev0"
 description = "Turn long videos into short clips with word-by-word subtitles. 100% local, no accounts, no API keys."
 readme = "README.md"
@@ -24,7 +24,7 @@ dependencies = [
 ]
 
 [project.scripts]
-clipforge = "clipforge.cli:main"
+snipscout = "snipscout.cli:main"
 
 [project.optional-dependencies]
 embeddings = [
@@ -45,7 +45,7 @@ requires = ["hatchling>=1.26"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/clipforge"]
+packages = ["src/snipscout"]
 
 [tool.ruff]
 line-length = 110

@@ -1,4 +1,4 @@
-# ClipForge
+# SnipScout
 
 Turn a long video into short clips with word-by-word subtitles — **100% local**: no accounts, no API keys, works offline after a one-time model download.
 
@@ -8,7 +8,7 @@ Turn a long video into short clips with word-by-word subtitles — **100% local*
 
 ```bash
 uv sync
-uv run clipforge doctor
+uv run snipscout doctor
 uv run pytest
 ```
 

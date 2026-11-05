@@ -5,8 +5,8 @@ from __future__ import annotations
 import numpy as np
 import numpy.typing as npt
 
-from clipforge.core.models import Sentence, Word
-from clipforge.core.text import count_phrases, lexicon
+from snipscout.core.models import Sentence, Word
+from snipscout.core.text import count_phrases, lexicon
 
 PAUSE_SPLIT_S = 0.6
 MAX_WORDS = 40

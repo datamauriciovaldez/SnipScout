@@ -1,7 +1,7 @@
 /* Apply the saved theme before first paint (load this synchronously in <head>).
    Stored value: "light" | "dark" | "system" (default). System = no data-theme attribute. */
 (function () {
-  var KEY = "clipforge.theme";
+  var KEY = "snipscout.theme";
   function read() { try { return localStorage.getItem(KEY) || "system"; } catch (e) { return "system"; } }
   function apply(mode) {
     var root = document.documentElement;
@@ -13,7 +13,7 @@
   window.addEventListener("message", function (e) {
     if (e.data && e.data.type === "theme") apply(e.data.mode);
   });
-  window.ClipForgeTheme = {
+  window.SnipScoutTheme = {
     get: read,
     set: function (mode) {
       try { localStorage.setItem(KEY, mode); } catch (e) { /* private mode: still apply for this page */ }
@@ -25,7 +25,7 @@
       document.querySelectorAll("[data-theme-switch] button").forEach(function (b) {
         b.setAttribute("aria-pressed", String(b.dataset.mode === read()));
         b.addEventListener("click", function () {
-          window.ClipForgeTheme.set(b.dataset.mode);
+          window.SnipScoutTheme.set(b.dataset.mode);
           document.querySelectorAll("[data-theme-switch] button").forEach(function (x) {
             x.setAttribute("aria-pressed", String(x.dataset.mode === b.dataset.mode));
           });

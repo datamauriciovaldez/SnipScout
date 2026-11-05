@@ -1,7 +1,7 @@
 """Locate a usable ffmpeg (with libass + libx264) and, if available, ffprobe.
 
 Resolution order (see docs/spike-report.md):
-1. ``CLIPFORGE_FFMPEG`` environment variable (explicit override),
+1. ``SNIPSCOUT_FFMPEG`` environment variable (explicit override),
 2. ``ffmpeg`` on PATH (system build),
 3. the binary shipped by the ``imageio-ffmpeg`` wheel (has libass + libx264 on Windows/macOS/Linux).
 
@@ -20,8 +20,8 @@ import tempfile
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-from clipforge.config import cache_dir
-from clipforge.core.errors import FfmpegMissingError
+from snipscout.config import cache_dir
+from snipscout.core.errors import FfmpegMissingError
 
 PROBE_TIMEOUT_S = 60
 _CACHE_VERSION = 1
@@ -101,7 +101,7 @@ def _imageio_exe() -> Path | None:
 def candidates() -> list[tuple[str, Path]]:
     """Candidate ffmpeg binaries in priority order, without duplicates."""
     found: list[tuple[str, Path]] = []
-    env = os.environ.get("CLIPFORGE_FFMPEG")
+    env = os.environ.get("SNIPSCOUT_FFMPEG")
     if env:
         found.append(("env", Path(env)))
     system = shutil.which("ffmpeg")
@@ -132,7 +132,7 @@ def _probe_uncached(exe: Path) -> Capabilities:
     if not (has_ass and has_x264):
         return Capabilities(version, has_ass, has_x264, False, error="missing ass filter or libx264 encoder")
     # Real render. Relative file name + cwd is the pattern that avoids Windows path escaping in filters.
-    with tempfile.TemporaryDirectory(prefix="clipforge-probe-") as tmp:
+    with tempfile.TemporaryDirectory(prefix="snipscout-probe-") as tmp:
         work = Path(tmp)
         (work / "probe.ass").write_text(_PROBE_ASS, encoding="utf-8")
         try:

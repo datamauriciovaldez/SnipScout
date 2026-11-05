@@ -1,9 +1,9 @@
-"""Measure how many annotated "favourite moments" appear in ClipForge's top-K proposals.
+"""Measure how many annotated "favourite moments" appear in SnipScout's top-K proposals.
 
 Annotation format (eval/annotations/*.json):
   {
     "name": "...", "language": "es", "length": "short",
-    # either a real transcript produced by ClipForge ...
+    # either a real transcript produced by SnipScout ...
     "transcript": "path/to/transcript.json",          # relative to the annotation file
     "moments": [[start_s, end_s], ...],
     # ... or synthetic sentences (words are timed at a constant speaking rate)
@@ -23,10 +23,10 @@ import json
 import sys
 from pathlib import Path
 
-from clipforge.core.models import ClipLength, Transcript, Word
-from clipforge.core.scoring import ScoringConfig
-from clipforge.core.segment import segment
-from clipforge.core.select import select_clips
+from snipscout.core.models import ClipLength, Transcript, Word
+from snipscout.core.scoring import ScoringConfig
+from snipscout.core.segment import segment
+from snipscout.core.select import select_clips
 
 ROOT = Path(__file__).resolve().parents[1]
 WPS = 2.6

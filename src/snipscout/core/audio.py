@@ -9,9 +9,9 @@ from pathlib import Path
 import numpy as np
 import numpy.typing as npt
 
-from clipforge.core.errors import NoSpeechError
-from clipforge.core.models import MediaInfo
-from clipforge.core.procs import CancelToken, run_ffmpeg
+from snipscout.core.errors import NoSpeechError
+from snipscout.core.models import MediaInfo
+from snipscout.core.procs import CancelToken, run_ffmpeg
 
 SAMPLE_RATE = 16000
 

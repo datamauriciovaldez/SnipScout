@@ -4,7 +4,7 @@ and ``core`` must not import the UI layers."""
 import re
 from pathlib import Path
 
-SRC = Path(__file__).resolve().parents[1] / "src" / "clipforge"
+SRC = Path(__file__).resolve().parents[1] / "src" / "snipscout"
 FORBIDDEN = re.compile(
     r"\b(openai|cohere|mistralai|generativeai)\b|sk-[A-Za-z0-9]{20,}|api[_-]?key", re.IGNORECASE
 )
@@ -25,7 +25,7 @@ def test_no_forbidden_references_in_src() -> None:
 
 
 def test_core_does_not_import_ui_layers() -> None:
-    bad = re.compile(r"^\s*(from|import)\s+clipforge\.(web|cli|desktop)\b", re.MULTILINE)
+    bad = re.compile(r"^\s*(from|import)\s+snipscout\.(web|cli|desktop)\b", re.MULTILINE)
     offenders = [
         str(p.relative_to(SRC)) for p in (SRC / "core").rglob("*.py") if bad.search(p.read_text("utf-8"))
     ]

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ajustes · ClipForge</title>
+<title>Ajustes · SnipScout</title>
 <script src="../js/theme.js"></script>
 <link rel="stylesheet" href="../css/fonts.css">
 <link rel="stylesheet" href="../css/tokens.css">
@@ -26,7 +26,7 @@
 <body>
 <header class="topbar">
   <div class="topbar__left">
-    <a class="brand" href="index.html" aria-label="ClipForge, inicio"><span class="brand__mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><path d="M8 7.5L20 18M8 16.5L20 6"/></svg></span>ClipForge</a>
+    <a class="brand" href="index.html" aria-label="SnipScout, inicio"><span class="brand__mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><path d="M8 7.5L20 18M8 16.5L20 6"/></svg></span>SnipScout</a>
     <nav class="nav" aria-label="Principal"><a href="inicio.html">Nuevo</a><a href="resultados.html">Proyectos</a><a href="ajustes.html" aria-current="page">Ajustes</a></nav>
   </div>
   <div class="topbar__right"><span class="label status-dot">Local · sin conexión</span></div>
@@ -41,7 +41,7 @@
       <div><div class="seg seg--sans theme-switch" data-theme-switch role="group" aria-labelledby="l-theme"><button type="button" data-mode="light">Claro</button><button type="button" data-mode="dark">Oscuro</button><button type="button" data-mode="system">Sistema</button></div>
         <div class="settings__help">“Sistema” sigue el modo claro u oscuro de tu ordenador.</div></div></div>
     <div class="settings__row"><label class="label" for="out">Carpeta de salida</label>
-      <div class="path"><input class="input input--mono" id="out" value="C:\Users\lucia\Descargas\ClipForge" readonly><button class="btn btn--outline btn--lg" type="button">Cambiar…</button></div></div>
+      <div class="path"><input class="input input--mono" id="out" value="C:\Users\lucia\Descargas\SnipScout" readonly><button class="btn btn--outline btn--lg" type="button">Cambiar…</button></div></div>
     <div class="settings__row" style="align-items:start"><span class="label" style="padding-top:14px">Modelo de transcripción</span>
       <div class="table models" style="border-top:0">
         <div class="row"><div class="row__main"><div class="row__title" style="font-size:14px">Rápido</div></div><span class="row__cell mono" style="width:90px">78 MB</span><span class="row__cell" style="width:120px">No descargado</span><button class="btn btn--ghost" type="button" style="width:110px">Descargar</button></div>
@@ -50,7 +50,7 @@
       </div></div>
     <div class="settings__row" style="align-items:start"><span class="label" style="padding-top:4px">Espacio en disco</span>
       <div>
-        <div style="display:flex;justify-content:space-between;align-items:baseline"><span><b class="mono" style="font-weight:500" id="used">3,4 GB</b> <span class="muted">usados por ClipForge</span></span><span class="mono faint" style="font-size:12px">212 GB libres en C:</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline"><span><b class="mono" style="font-weight:500" id="used">3,4 GB</b> <span class="muted">usados por SnipScout</span></span><span class="mono faint" style="font-size:12px">212 GB libres en C:</span></div>
         <div class="disk__bar" aria-hidden="true"><span class="a" style="width:19%"></span><span class="b" id="b-proj" style="width:52%"></span><span class="c" id="b-tmp" style="width:29%"></span></div>
         <div class="legend"><span><i class="a"></i>Modelos 634 MB</span><span><i class="b"></i>Proyectos 1,8 GB</span><span><i class="c"></i>Temporales y audio extraído <span id="tmp">980 MB</span></span></div>
         <div style="display:flex;gap:8px;align-items:center;margin-top:14px"><button class="btn btn--outline btn--lg" type="button" id="free">Liberar espacio</button><span class="faint" style="font-size:13px">Borra temporales y audio extraído. Tus clips y proyectos no se tocan.</span></div>
@@ -60,7 +60,7 @@
 <script src="../js/ui.js"></script>
 <script>
   UI.bindSegs();
-  ClipForgeTheme.bind();
+  SnipScoutTheme.bind();
   document.getElementById("free").addEventListener("click", (e) => {
     const b = e.currentTarget; b.classList.add("is-loading");
     setTimeout(() => {

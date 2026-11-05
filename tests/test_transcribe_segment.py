@@ -8,12 +8,12 @@ from typing import Any
 import numpy as np
 import pytest
 
-from clipforge.core import transcribe
-from clipforge.core.audio import SAMPLE_RATE
-from clipforge.core.errors import CancelledError, NoSpeechError
-from clipforge.core.models import JobEvent, Transcript, Word
-from clipforge.core.procs import CancelToken
-from clipforge.core.segment import segment
+from snipscout.core import transcribe
+from snipscout.core.audio import SAMPLE_RATE
+from snipscout.core.errors import CancelledError, NoSpeechError
+from snipscout.core.models import JobEvent, Transcript, Word
+from snipscout.core.procs import CancelToken
+from snipscout.core.segment import segment
 
 
 def _wav(path: Path, seconds: float) -> Path:
@@ -138,7 +138,7 @@ def test_no_speech(tmp_path: Path) -> None:
 
 
 def test_rtf_stats(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    monkeypatch.setenv("CLIPFORGE_CACHE_DIR", str(tmp_path))
+    monkeypatch.setenv("SNIPSCOUT_CACHE_DIR", str(tmp_path))
     assert transcribe.estimate_seconds(100, "base") == pytest.approx(18)  # H0 default
     transcribe.record_rtf("base", 0.5)
     assert transcribe.estimate_seconds(100, "base") == pytest.approx(50)
@@ -195,7 +195,7 @@ def test_segment_empty() -> None:
 @pytest.mark.slow
 def test_real_whisper_tiny_on_benchmark_sample(tmp_path: Path) -> None:
     """Downloads the real tiny model (~78 MB) and transcribes the bundled Spanish sample."""
-    from clipforge.core import modelstore
+    from snipscout.core import modelstore
 
     modelstore.download_model("tiny")
     model = transcribe.load_model("tiny")

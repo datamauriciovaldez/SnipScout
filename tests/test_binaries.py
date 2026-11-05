@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from clipforge.core import binaries
-from clipforge.core.errors import FfmpegMissingError
+from snipscout.core import binaries
+from snipscout.core.errors import FfmpegMissingError
 
 FILTERS_OK = """Filters:
   T.. = Timeline support
@@ -37,7 +37,7 @@ def _fake_exe(tmp_path: Path, name: str) -> Path:
 
 def test_candidates_order(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     env_exe = _fake_exe(tmp_path, "custom-ffmpeg")
-    monkeypatch.setenv("CLIPFORGE_FFMPEG", str(env_exe))
+    monkeypatch.setenv("SNIPSCOUT_FFMPEG", str(env_exe))
     monkeypatch.setattr(
         binaries.shutil, "which", lambda name: "/usr/bin/ffmpeg" if name == "ffmpeg" else None
     )
@@ -72,7 +72,7 @@ def test_real_ffmpeg_capabilities_and_render() -> None:
 
 
 def test_probe_cache_roundtrip(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    monkeypatch.setenv("CLIPFORGE_CACHE_DIR", str(tmp_path / "cache"))
+    monkeypatch.setenv("SNIPSCOUT_CACHE_DIR", str(tmp_path / "cache"))
     exe = binaries._imageio_exe()
     assert exe is not None
     first = binaries.probe_capabilities(exe, use_cache=True)
@@ -97,6 +97,6 @@ def test_find_ffprobe_none_for_imageio_without_path(monkeypatch: pytest.MonkeyPa
 
 @pytest.mark.skipif(shutil.which("ffmpeg") is None, reason="no system ffmpeg")
 def test_system_ffmpeg_preferred_when_usable(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.delenv("CLIPFORGE_FFMPEG", raising=False)
+    monkeypatch.delenv("SNIPSCOUT_FFMPEG", raising=False)
     found = binaries.resolve_ffmpeg(use_cache=False)
     assert found.source in {"system", "imageio"}  # system first if it has libass + libx264

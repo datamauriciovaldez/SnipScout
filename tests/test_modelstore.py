@@ -4,9 +4,9 @@ from pathlib import Path
 import httpx
 import pytest
 
-from clipforge.core import modelstore
-from clipforge.core.errors import CancelledError, ModelDownloadError, OfflineError
-from clipforge.core.procs import CancelToken
+from snipscout.core import modelstore
+from snipscout.core.errors import CancelledError, ModelDownloadError, OfflineError
+from snipscout.core.procs import CancelToken
 
 FILES = {
     "config.json": b"{}",
@@ -45,8 +45,8 @@ def _transport(log: list[str]) -> httpx.MockTransport:
 
 @pytest.fixture
 def fake_model(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    monkeypatch.setenv("CLIPFORGE_DATA_DIR", str(tmp_path))
-    monkeypatch.delenv("CLIPFORGE_OFFLINE", raising=False)
+    monkeypatch.setenv("SNIPSCOUT_DATA_DIR", str(tmp_path))
+    monkeypatch.delenv("SNIPSCOUT_OFFLINE", raising=False)
     monkeypatch.setitem(modelstore.MODELS, "fake", _spec())
 
 
@@ -101,7 +101,7 @@ def test_http_error_is_typed(fake_model: None) -> None:
 
 
 def test_offline_refuses_download(monkeypatch: pytest.MonkeyPatch, fake_model: None) -> None:
-    monkeypatch.setenv("CLIPFORGE_OFFLINE", "1")
+    monkeypatch.setenv("SNIPSCOUT_OFFLINE", "1")
     with pytest.raises(OfflineError):
         modelstore.download_model("fake")
 

@@ -1,4 +1,4 @@
-/* ClipForge design tokens — the ONLY source of colour, type, spacing, radii, borders and motion.
+/* SnipScout design tokens — the ONLY source of colour, type, spacing, radii, borders and motion.
    Themes change values only. Light = paper, dark = warm graphite.
    Theme selection: <html data-theme="light|dark">; without the attribute, prefers-color-scheme decides.
    Every text/background pair used by components is listed in scripts/check_contrast.py (AA). */

@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from enum import StrEnum
 
-from clipforge.core.models import AspectRatio, MediaInfo
+from snipscout.core.models import AspectRatio, MediaInfo
 
 AUDIO_ONLY_BG = "0x15112B"  # deep brand violet for audio-only sources
 

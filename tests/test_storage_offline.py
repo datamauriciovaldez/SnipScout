@@ -4,10 +4,10 @@ from pathlib import Path
 
 import pytest
 
-from clipforge.core import net
-from clipforge.core.errors import OfflineError
-from clipforge.core.models import MediaInfo, ProjectStatus, Transcript, Word
-from clipforge.core.storage import ProjectNotFoundError, ProjectStore, StorageError, slugify
+from snipscout.core import net
+from snipscout.core.errors import OfflineError
+from snipscout.core.models import MediaInfo, ProjectStatus, Transcript, Word
+from snipscout.core.storage import ProjectNotFoundError, ProjectStore, StorageError, slugify
 
 
 def _media(tmp_path: Path) -> MediaInfo:
@@ -72,7 +72,7 @@ def test_slugify() -> None:
 def test_offline_blocks_network_but_allows_loopback(
     monkeypatch: pytest.MonkeyPatch, no_offline_guard: None
 ) -> None:
-    monkeypatch.setenv("CLIPFORGE_OFFLINE", "1")
+    monkeypatch.setenv("SNIPSCOUT_OFFLINE", "1")
     assert net.enforce_offline_if_requested()
     with pytest.raises(OfflineError):
         socket.create_connection(("huggingface.co", 443), timeout=2)
@@ -92,6 +92,6 @@ def test_offline_blocks_network_but_allows_loopback(
 
 
 def test_online_by_default(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.delenv("CLIPFORGE_OFFLINE", raising=False)
+    monkeypatch.delenv("SNIPSCOUT_OFFLINE", raising=False)
     assert not net.enforce_offline_if_requested()
     net.require_network("anything")  # no error

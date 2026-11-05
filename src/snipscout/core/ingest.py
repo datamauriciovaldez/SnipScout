@@ -9,8 +9,8 @@ from fractions import Fraction
 from pathlib import Path
 from typing import Any
 
-from clipforge.core.errors import UnsupportedMediaError
-from clipforge.core.models import AudioTrack, MediaInfo
+from snipscout.core.errors import UnsupportedMediaError
+from snipscout.core.models import AudioTrack, MediaInfo
 
 VIDEO_EXTS = {".mp4", ".mov", ".mkv", ".webm", ".avi", ".m4v"}
 AUDIO_EXTS = {".mp3", ".wav", ".m4a"}

@@ -6,9 +6,9 @@ import re
 
 import numpy as np
 
-from clipforge.core.models import Sentence
-from clipforge.core.text import lexicon, normalize
-from clipforge.core.text.vectors import Matrix
+from snipscout.core.models import Sentence
+from snipscout.core.text import lexicon, normalize
+from snipscout.core.text.vectors import Matrix
 
 HOOK_MAX = 80
 TITLE_MAX = 70

@@ -13,7 +13,7 @@ from typing import Protocol
 import numpy as np
 import numpy.typing as npt
 
-from clipforge.core.text import lexicon, normalize
+from snipscout.core.text import lexicon, normalize
 
 Matrix = npt.NDArray[np.float32]
 
@@ -67,7 +67,7 @@ def l2_normalize(m: Matrix) -> Matrix:
 
 
 class EmbeddingEncoder:
-    """Optional local embeddings (``pip install clipforge[embeddings]`` + one-time model download)."""
+    """Optional local embeddings (``pip install snipscout[embeddings]`` + one-time model download)."""
 
     MODEL = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 
