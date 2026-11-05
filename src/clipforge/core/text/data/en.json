@@ -1,3 +1,24 @@
 {
-  "fillers": ["um", "uh", "erm", "hmm", "like", "you know", "i mean", "basically", "actually", "sort of", "kind of"]
+  "fillers": ["um", "uh", "erm", "hmm", "like", "you know", "i mean", "basically", "actually", "sort of", "kind of"],
+  "question_starters": ["what", "how", "why", "which", "when", "where", "who", "did you know", "have you ever", "do you", "can you", "is it", "are you"],
+  "emphasis": ["never", "always", "nobody", "no one", "everyone", "everybody", "absolutely", "incredible", "insane", "huge", "secret", "mistake", "mistakes", "trick", "tricks", "key", "important", "the most", "the best", "the worst", "truly", "seriously", "lie", "truth", "changed my life", "nobody tells you", "game changer"],
+  "contrast": ["but", "however", "instead", "although", "actually", "in reality", "the problem is", "on the contrary"],
+  "numbers": ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "hundred", "thousand", "million", "percent", "half", "double", "first", "second", "third"],
+  "address": ["you", "your", "imagine", "think about", "look", "picture this"],
+  "dangling_starts": ["as i said", "like i said", "as i was saying", "that", "this", "those", "these", "it", "he said", "she said", "they", "the other thing", "also", "and then", "so then"],
+  "weak_starts": ["and", "but", "or", "so", "because", "well", "okay", "then"],
+  "closers": ["that's why", "so", "in short", "the key", "the rule", "the lesson", "at the end of the day", "it works", "always", "never", "period", "remember", "try it"],
+  "dangling_ends": ["and", "but", "or", "that", "because", "of", "with", "for", "the", "a", "an", "to", "so", "like"],
+  "stopwords": ["a", "about", "after", "all", "also", "an", "and", "any", "are", "as", "at", "be", "because", "been", "but", "by", "can", "could", "did", "do", "does", "for", "from", "get", "got", "had", "has", "have", "he", "her", "here", "him", "his", "how", "i", "if", "in", "into", "is", "it", "its", "just", "me", "more", "my", "no", "not", "now", "of", "on", "one", "or", "our", "out", "she", "so", "some", "than", "that", "the", "their", "them", "then", "there", "these", "they", "this", "to", "up", "us", "was", "we", "were", "what", "when", "which", "who", "will", "with", "would", "you", "your", "um", "uh", "like", "okay", "well", "really", "very", "going", "gonna", "know", "think", "thing", "things"],
+  "reasons": {
+    "question_hook": "Opens with a question",
+    "number_hook": "Opens with a number",
+    "strong_hook": "Strong opening hook",
+    "good_pace": "Good pace",
+    "high_energy": "High energy",
+    "coherent_topic": "Coherent topic",
+    "strong_ending": "Ends with a punchline",
+    "self_contained": "Makes sense on its own",
+    "clear_audio": "Clear transcription"
+  }
 }

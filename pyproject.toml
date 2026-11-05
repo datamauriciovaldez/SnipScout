@@ -26,6 +26,11 @@ dependencies = [
 [project.scripts]
 clipforge = "clipforge.cli:main"
 
+[project.optional-dependencies]
+embeddings = [
+    "fastembed>=0.4",
+]
+
 [dependency-groups]
 dev = [
     "mypy>=1.10",
@@ -61,7 +66,7 @@ warn_unused_ignores = true
 files = ["src"]
 
 [[tool.mypy.overrides]]
-module = ["imageio_ffmpeg", "ctranslate2", "faster_whisper", "faster_whisper.*"]
+module = ["imageio_ffmpeg", "ctranslate2", "faster_whisper", "faster_whisper.*", "fastembed"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]

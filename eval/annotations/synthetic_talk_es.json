@@ -1,0 +1,183 @@
+{
+ "name": "synthetic_talk_es",
+ "language": "es",
+ "synthetic": true,
+ "length": "short",
+ "note": "Synthetic talk written for development; gold moments are sentence index ranges [start, end). Not evidence of real-world quality.",
+ "sentences": [
+  {
+   "text": "Bueno, pues vamos a empezar, que ya estamos casi todos.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Antes de nada, gracias por venir con este calor.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Como decía antes, esto lo vimos un poco la semana pasada.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Eso que os comenté no lo voy a repetir ahora.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "¿Sabéis cuál es el error número uno al hablar en público?",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Hablar demasiado rápido porque tienes miedo al silencio.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "El silencio no es tu enemigo, es tu herramienta.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Una pausa de dos segundos hace que todos te miren.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Así que la próxima vez, respira y calla un momento.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Vale, ahora pasamos a la parte de las diapositivas.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Esto, eh, esto se ve un poco pequeño, perdonad.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Y luego, pues, bueno, lo otro que comentábamos.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Él dijo que no, y ya está, no hay más.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "El noventa por ciento de las charlas se olvidan en una hora.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Pero hay una cosa que la gente recuerda durante años.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Una historia personal contada con detalle.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "No los datos, no los gráficos, la historia.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Por eso yo empiezo cada charla contando un fracaso mío.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Y os aseguro que funciona siempre.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Bueno, ¿alguna pregunta hasta aquí?",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Vale, pues seguimos, que vamos un poco justos de tiempo.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Lo de antes también vale para esto, más o menos.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "¿Y qué pasa cuando te quedas en blanco delante de todos?",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Pues que, bueno, depende mucho de la situación y de",
+   "pause_after": 0.2
+  },
+  {
+   "text": "la gente que tengas delante, eso ya lo hablaremos otro día.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Nunca, nunca leáis las diapositivas en voz alta.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Si el público puede leerlo, no te necesita a ti.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Tu trabajo es contar lo que no cabe en la pantalla.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Pon una imagen, una frase y nada más.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Menos texto, más impacto, esa es la regla.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Eso que he dicho de las imágenes es importante también.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Y ya que estamos, lo de los colores lo dejamos para luego.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Imagina que tienes solo treinta segundos para convencer a alguien.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "¿Qué le dirías primero?",
+   "pause_after": 0.7
+  },
+  {
+   "text": "La mayoría empieza por su nombre y su cargo, y eso es un error.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Empieza por el problema que le resuelves.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "El nombre puede esperar, la atención no.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Y con esto terminamos, que ya es la hora.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Gracias a todos por venir, nos vemos la semana que viene.",
+   "pause_after": 0.7
+  }
+ ],
+ "moments_sentences": [
+  [
+   4,
+   9
+  ],
+  [
+   13,
+   19
+  ],
+  [
+   25,
+   30
+  ],
+  [
+   32,
+   37
+  ]
+ ]
+}

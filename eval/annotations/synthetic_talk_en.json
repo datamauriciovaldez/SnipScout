@@ -1,0 +1,107 @@
+{
+ "name": "synthetic_talk_en",
+ "language": "en",
+ "synthetic": true,
+ "length": "short",
+ "note": "Synthetic talk written for development; gold moments are sentence index ranges [start, end). Not evidence of real-world quality.",
+ "sentences": [
+  {
+   "text": "Okay so, um, let's get started, I think everyone's here.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Like I said last week, we covered some of this already.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "That thing I mentioned, I won't repeat it now.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "What's the one thing that kills most startups in their first year?",
+   "pause_after": 0.7
+  },
+  {
+   "text": "It's not money, and it's not competition.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "It's building something nobody actually asked for.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Talk to ten customers before you write a single line of code.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "That's the rule, and it works every time.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "And then, well, the other slide, I'll get to that.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "So, um, yeah, let me find the next part here.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Ninety percent of your users will never read your onboarding.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "They skip it, every single time.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "So make the product explain itself in the first click.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "If you need a tutorial, the design has already failed.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Because, you know, the thing with that is, and",
+   "pause_after": 0.2
+  },
+  {
+   "text": "it depends on a lot of factors that we'll see later.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Here's a secret nobody tells you about pricing.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Charge more than you think you should.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Cheap customers complain the most and stay the least.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Double your price and watch who stays, that's the lesson.",
+   "pause_after": 0.7
+  },
+  {
+   "text": "Alright, that's it for today, thanks for coming.",
+   "pause_after": 0.7
+  }
+ ],
+ "moments_sentences": [
+  [
+   3,
+   8
+  ],
+  [
+   10,
+   14
+  ],
+  [
+   16,
+   20
+  ]
+ ]
+}

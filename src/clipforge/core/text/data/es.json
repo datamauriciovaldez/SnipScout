@@ -1,3 +1,24 @@
 {
-  "fillers": ["eh", "em", "ehm", "mmm", "este", "o sea", "pues", "bueno", "vale", "digamos", "en plan", "tipo", "osea"]
+  "fillers": ["eh", "em", "ehm", "mmm", "este", "o sea", "pues", "bueno", "vale", "digamos", "en plan", "tipo", "osea"],
+  "question_starters": ["que", "como", "por que", "cual", "cuales", "cuando", "donde", "quien", "cuanto", "cuantos", "sabias", "sabiais", "te has preguntado", "alguna vez"],
+  "emphasis": ["nunca", "siempre", "jamas", "nadie", "todos", "todo el mundo", "absolutamente", "increible", "brutal", "enorme", "secreto", "error", "errores", "truco", "trucos", "clave", "importante", "lo mas", "el mejor", "el peor", "de verdad", "en serio", "mentira", "verdad", "cambio", "cambia", "cambio mi vida", "nadie te cuenta", "nadie habla"],
+  "contrast": ["pero", "sin embargo", "en cambio", "aunque", "en realidad", "lo que pasa es que", "al contrario"],
+  "numbers": ["uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez", "cien", "mil", "millon", "millones", "por ciento", "la mitad", "el doble", "primero", "segundo", "tercero"],
+  "address": ["tu", "te", "tus", "vosotros", "os", "usted", "imagina", "imaginad", "piensa", "mira", "fijate"],
+  "dangling_starts": ["como decia", "como dije", "como os decia", "lo de antes", "lo que comentaba", "eso", "esto", "esa", "ese", "aquello", "el dijo", "ella dijo", "ellos", "lo otro", "lo mismo", "tambien", "ademas", "entonces"],
+  "weak_starts": ["y", "pero", "o", "que", "porque", "pues", "bueno", "vale", "entonces", "luego"],
+  "closers": ["por eso", "asi que", "en resumen", "la clave", "la regla", "la leccion", "al final", "en definitiva", "funciona", "siempre", "nunca", "punto", "recuerda", "pruebalo"],
+  "dangling_ends": ["y", "pero", "o", "que", "porque", "de", "con", "para", "el", "la", "los", "las", "un", "una", "como", "entonces", "pues"],
+  "stopwords": ["a", "al", "algo", "algunos", "ante", "antes", "como", "con", "contra", "cual", "cuando", "de", "del", "desde", "donde", "durante", "e", "el", "ella", "ellas", "ellos", "en", "entre", "era", "es", "esa", "esas", "ese", "eso", "esos", "esta", "estaba", "estas", "este", "esto", "estos", "fue", "ha", "hay", "la", "las", "le", "les", "lo", "los", "mas", "me", "mi", "mis", "mucho", "muy", "nada", "ni", "no", "nos", "o", "os", "otra", "otro", "para", "pero", "poco", "por", "porque", "que", "quien", "se", "sea", "ser", "si", "sin", "sobre", "son", "su", "sus", "tambien", "te", "tengo", "ti", "tiene", "todo", "todos", "tu", "tus", "un", "una", "uno", "unos", "va", "vamos", "y", "ya", "yo", "eh", "pues", "bueno", "vale", "asi", "aqui", "ahi", "hace", "hacer", "puede", "ver", "voy", "estoy", "esta", "estan", "he", "has", "hemos", "solo", "cada", "bien"],
+  "reasons": {
+    "question_hook": "Empieza con una pregunta",
+    "number_hook": "Empieza con una cifra",
+    "strong_hook": "Gancho inicial fuerte",
+    "good_pace": "Buen ritmo",
+    "high_energy": "Energía alta",
+    "coherent_topic": "Tema coherente",
+    "strong_ending": "Cierre con remate",
+    "self_contained": "Se entiende sin contexto",
+    "clear_audio": "Transcripción clara"
+  }
 }

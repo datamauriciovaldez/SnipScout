@@ -90,6 +90,34 @@ class Sentence(_Model):
         return self.end - self.start
 
 
+class Clip(_Model):
+    """A proposed (and later user-edited) clip. Times are seconds in the source media."""
+
+    id: str
+    rank: int
+    start: float
+    end: float
+    sentence_start: int  # index into the sentence list
+    sentence_end: int  # exclusive
+    score: float  # 0-100
+    signals: dict[str, float] = Field(default_factory=dict)  # each 0..1
+    reasons: list[str] = Field(default_factory=list)  # reason keys, e.g. "question_hook"
+    title: str = ""
+    hook: str = ""
+    keywords: list[str] = Field(default_factory=list)
+    included: bool = True
+    subtitle_style: str | None = None  # None = project default
+    text_overrides: dict[int, str] = Field(default_factory=dict)  # word index -> corrected text
+
+    @property
+    def duration(self) -> float:
+        return self.end - self.start
+
+
+class ClipSet(_Model):
+    clips: list[Clip] = Field(default_factory=list)
+
+
 # --- Settings & project ----------------------------------------------------------------------------
 
 

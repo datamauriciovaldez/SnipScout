@@ -21,7 +21,7 @@ from pydantic import BaseModel, ValidationError
 
 from clipforge.config import data_dir
 from clipforge.core.errors import ClipForgeError
-from clipforge.core.models import MediaInfo, Project, ProjectSettings, Transcript
+from clipforge.core.models import ClipSet, MediaInfo, Project, ProjectSettings, Transcript
 
 M = TypeVar("M", bound=BaseModel)
 _ID_RE = re.compile(r"^[a-f0-9]{12}$")
@@ -134,3 +134,9 @@ class ProjectStore:
 
     def load_transcript(self, project_id: str) -> Transcript | None:
         return self._load(project_id, "transcript.json", Transcript)
+
+    def save_clips(self, project_id: str, clips: ClipSet) -> None:
+        self._save(project_id, "clips.json", clips)
+
+    def load_clips(self, project_id: str) -> ClipSet | None:
+        return self._load(project_id, "clips.json", ClipSet)

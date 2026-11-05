@@ -1,0 +1,35 @@
+# HeuristicScorer weights — the single place to tune clip selection.
+#
+# Each signal is computed in [0, 1] (see src/clipforge/core/scoring/heuristic.py).
+# The final score is sum(weight * signal) / sum(weights) * 100.
+# Tune with: uv run python scripts/eval_scoring.py --weights path/to/weights.toml
+#
+# Calibration status: hand-tuned on synthetic transcripts (eval/annotations/*synthetic*).
+# Not yet validated on real videos — see docs/spike-report.md, spike 6.
+
+[weights]
+hook = 3.0        # opening: question, number, emphasis/strong claim, contrast, direct address
+pace = 1.0        # words/sec in a comfortable band; penalises long inner silences and fillers
+energy = 1.0      # vocal dynamics (RMS variation) and loudness relative to the whole video
+cohesion = 1.5    # sentences talk about the same thing (TF-IDF, or local embeddings if installed)
+closure = 2.5     # ends on a complete sentence with a punchline, not mid-thought
+autonomy = 2.0    # does not open with references to earlier context ("as I said", "that")
+confidence = 0.5  # mean word probability from the transcription
+
+[pace]
+band_low = 1.8    # words per second; inside [band_low, band_high] scores 1.0
+band_high = 3.8
+inner_pause_s = 1.2   # pauses longer than this inside a clip are penalised
+
+[cohesion]
+# Mean pairwise cosine between the clip's sentences that maps to 1.0.
+# TF-IDF on short spoken sentences is sparse (raw values ~0-0.05); embeddings are dense (~0.1-0.4, H0 spike 3).
+scale_tfidf = 0.04
+scale_embeddings = 0.35
+
+[selection]
+candidates_prefilter = 400  # cheap pre-selection before full scoring
+top_k = 12                  # clips shown to the user (spec: 10-15)
+mmr_lambda = 0.75           # 1.0 = score only, lower = more diversity
+padding_s = 0.15            # added before the first and after the last word
+reason_threshold = 0.6      # a signal above this becomes a visible reason chip
