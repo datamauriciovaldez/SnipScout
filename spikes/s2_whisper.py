@@ -6,18 +6,23 @@ import sys
 import time
 from pathlib import Path
 
+import wave
+
+import numpy as np
 from faster_whisper import WhisperModel
 
 OUT = Path(__file__).parent / "out"
 truth = json.loads((OUT / "sample_truth.json").read_text(encoding="utf-8"))
-audio_s = truth[-1]["end"] + 0.7
+with wave.open(str(OUT / "sample.wav")) as w:
+    AUDIO = np.frombuffer(w.readframes(w.getnframes()), dtype=np.int16).astype(np.float32) / 32768.0
+audio_s = len(AUDIO) / 16000
 
 for size in sys.argv[1:] or ["tiny", "base"]:
     t0 = time.perf_counter()
     model = WhisperModel(size, device="cpu", compute_type="int8")
     load_s = time.perf_counter() - t0
     t0 = time.perf_counter()
-    segs, info = model.transcribe(str(OUT / "sample.wav"), language="es", word_timestamps=True, vad_filter=True)
+    segs, info = model.transcribe(AUDIO, language="es", word_timestamps=True, vad_filter=True)
     words = [w for s in segs for w in s.words]
     tr_s = time.perf_counter() - t0
     # Boundary error: each true sentence start/end vs nearest word start/end.

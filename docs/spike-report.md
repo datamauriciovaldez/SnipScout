@@ -4,15 +4,14 @@ Date: 2026-11-05 · Machine: Linux container, Intel Xeon @ 2.80 GHz, 4 vCPU, 16 
 Python 3.13 (system) / 3.12 (spike venv), uv 0.11.32, system ffmpeg 6.1.1 (Ubuntu).
 All numbers below were measured on this machine unless marked **unverified**. Scripts live in `spikes/`.
 
-**Network note:** this build environment's egress policy blocks `huggingface.co`.
-Spikes 2 and 3 could not download models and are **BLOCKED, not failed**. PyPI, GitHub releases and
-archive.ubuntu.com are reachable.
+**Network note:** `huggingface.co` was blocked at first by the build sandbox. The author allowed it, and spikes 2 and 3
+then ran. No HF token was present (no `HF_TOKEN` env var, no `~/.cache/huggingface/token`).
 
 | # | Topic | Result | Decision |
 |---|---|---|---|
 | 1 | ffmpeg + libass + libx264 | ✅ system ffmpeg and imageio-ffmpeg both render | **GO** — imageio-ffmpeg as the bundled fallback |
-| 2 | Whisper on CPU | ⛔ blocked (HF 403); sample + benchmark script ready | Pending |
-| 3 | Multilingual embeddings | ⛔ blocked (fastembed sources are HF-only) | Pending; TF-IDF plan B is ready anyway |
+| 2 | Whisper on CPU | ✅ tiny/base/small download token-free, RTF 0.14 / 0.18 / 0.38 | **GO** — default `base` |
+| 3 | Multilingual embeddings | ✅ token-free, 241 MB, 8.4 s / 1000 sentences, weak-but-real signal | **GO (optional)** — see decision 6 |
 | 4 | pywebview | ⚠️ partial: window + Range seek OK, H.264 fails in Qt | **GO** with fallback + preview proxy |
 | 5 | uv installer | ✅ official installer → clean env with managed Python in 8 s | **GO** |
 | 6 | Clip selection PoC | ⚠️ 3/3 planted moments in top-3, but transcript is synthetic | Weak evidence; recheck on real transcripts |
@@ -36,18 +35,31 @@ Running them on real Windows/macOS: **unverified**.
 **Gap:** imageio-ffmpeg ships **no `ffprobe`**.
 
 ## 2. Whisper (`spikes/s2_make_sample.py`, `spikes/s2_whisper.py`)
-- faster-whisper 1.2.1 + ctranslate2 4.8.5 install from PyPI with no issues.
-- Sample: 58.7 s of Spanish speech generated with `espeak-ng` 1.51 (13 sentences, 0.7 s gaps;
-  sentence boundaries saved as ground truth in `out/sample_truth.json`).
-- `WhisperModel("tiny")` → `httpx.ProxyError: 403` (huggingface.co blocked here). The script that measures
-  real-time factor (RTF), RAM and word-timing error is ready: `python spikes/s2_whisper.py tiny base`.
-- Public, token-free access to `Systran/faster-whisper-*`: **unverified** (needs HF access).
+Sample: 58.7 s of Spanish speech generated with `espeak-ng` 1.51 (13 sentences, 0.7 s gaps, sentence boundaries
+saved as ground truth). faster-whisper 1.2.1, ctranslate2 4.8.5, `cpu`, `int8`, `language="es"`,
+`word_timestamps=True`, `vad_filter=True`. Boundary error = |true sentence start/end − nearest word start/end|.
 
-## 3. Embeddings
-- fastembed 0.9.1 catalog: `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2` →
-  source `Qdrant/paraphrase-multilingual-MiniLM-L12-v2-onnx-Q`, declared size 0.22 GB, apache-2.0
-  (catalog metadata, **unverified** download size and timing). The download failed with the same 403.
-- `minishlab/potion-multilingual-128M` (MIT, 0.51 GB declared) is a static-embedding alternative.
+| Model | On disk | Load | Transcribe 58.7 s | RTF | Peak RSS | Boundary err median / p90 |
+|---|---|---|---|---|---|---|
+| tiny | 75 MB | 1.7 s | 8.3 s | 0.14 | 391 MB | 0.18 s / 0.31 s |
+| base | 142 MB | 7.8 s* | 10.7 s | 0.18 | 594 MB | 0.10 s / 0.16 s |
+| small | 464 MB | 16.3 s* | 22.2 s | 0.38 | 1132 MB | 0.08 s / 0.19 s |
+
+\* Load time includes the first download. `small` ran concurrently with spike 3, so its numbers are pessimistic.
+- Quality on this robotic espeak voice: `tiny` garbles a lot ("sonoligador yos"), `base` is mostly
+  right, and `small` is nearly perfect (it even writes "80 %"). A real human voice is still **unverified** and will likely do better.
+- HF repos `Systran/faster-whisper-{tiny,base,small}`: not gated, `license:mit`.
+- **Bug found:** faster-whisper 1.2.1 accepts any `av>=11`, but PyAV 19.0.2 removed the `metadata_errors` kwarg, so
+  `transcribe(path)` crashes. Root cause: PyAV API change. Fix used here: pass a float32 numpy array
+  (we already extract 16 kHz mono WAV with ffmpeg), which bypasses PyAV decoding entirely.
+
+## 3. Embeddings (`spikes/s3_embeddings.py`)
+- fastembed 0.9.1, `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2` →
+  `Qdrant/paraphrase-multilingual-MiniLM-L12-v2-onnx-Q` (not gated, `license:apache-2.0`).
+- Download: 241 MB on disk (235 MB ONNX + 17 MB tokenizer), 9.4 s including load.
+- 1000 sentences: 8.4 s (under contention with Whisper `small`); peak RSS 732 MB.
+- Sanity: mean cosine between on-topic sentences (public speaking, mixed es/en) 0.18 vs off-topic 0.08.
+  It separates topics, but by a modest margin. Still far better than TF-IDF (0.03–0.08 between related sentences in spike 6).
 
 ## 4. pywebview 6.2.1 (`spikes/s4_webview.py`)
 FastAPI server on `127.0.0.1` with a free random port and a hand-written `Range` → `206` endpoint.
@@ -93,3 +105,7 @@ penalty), closure lexicon, TF-IDF cohesion; 15–30 s windows on sentence bounda
 4. **Linux:** prefer the browser fallback when GTK/Qt is missing (confirmed failure mode).
 5. **Launchers** use the versioned GitHub-release uv installer with `UV_UNMANAGED_INSTALL` into the
    app's own folder (no PATH changes).
+6. **Embeddings optional, not required:** TF-IDF cohesion stays the built-in baseline. The multilingual MiniLM
+   (241 MB) is an optional download that improves topic cohesion. Pending the author's decision.
+7. **Whisper model names:** Rápido = `tiny`, Equilibrado = `base` (default), Preciso = `small`.
+8. **Never let faster-whisper decode files:** always pass the numpy array from our WAV. Avoids the PyAV breakage.
