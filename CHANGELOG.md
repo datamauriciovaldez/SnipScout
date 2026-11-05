@@ -24,4 +24,4 @@ First public version ("it works").
 
 ### Known limitations
 - Clip selection tuned on synthetic transcripts only.
-- Native window not yet verified on real Windows and macOS hardware.
+- Windows launcher verified on a real machine; native window on macOS not yet verified.

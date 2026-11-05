@@ -92,7 +92,7 @@ speed and adjusts its estimates after the first analysis.
 - Selection quality has only been tuned on synthetic transcripts so far; expect to adjust suggestions.
 - Reframing is center-crop or blurred background; no face tracking.
 - The preview in the app approximates the subtitle rendering; the exported file is the reference.
-- Native window on macOS and real Windows hardware are **not yet verified**.
+- Windows double-click launch verified on a real machine; the native window on macOS is **not yet verified**.
 - v0.2: waveform timeline with draggable handles, full transcript editing, undo, projects history.
 - v0.3: polish, accessibility review, optional local-LLM re-ranking (Ollama, if you already run it), packaging.
 
