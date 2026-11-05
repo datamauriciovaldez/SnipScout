@@ -106,6 +106,6 @@ penalty), closure lexicon, TF-IDF cohesion; 15–30 s windows on sentence bounda
 5. **Launchers** use the versioned GitHub-release uv installer with `UV_UNMANAGED_INSTALL` into the
    app's own folder (no PATH changes).
 6. **Embeddings optional, not required:** TF-IDF cohesion stays the built-in baseline. The multilingual MiniLM
-   (241 MB) is an optional download that improves topic cohesion. Pending the author's decision.
-7. **Whisper model names:** Rápido = `tiny`, Equilibrado = `base` (default), Preciso = `small`.
+   (241 MB) is an optional download in Settings that improves topic cohesion. **Approved by the author.**
+7. **Whisper model names:** Rápido = `tiny`, Equilibrado = `base` (default), Preciso = `small`. **Approved by the author.**
 8. **Never let faster-whisper decode files:** always pass the numpy array from our WAV. Avoids the PyAV breakage.

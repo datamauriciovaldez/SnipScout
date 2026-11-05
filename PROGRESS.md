@@ -8,4 +8,4 @@
 - Preview proxy VP9/WebM when H.264 can't play (Qt WebEngine).
 
 ## Next
-- Waiting for author: approve H0 decisions (esp. optional embeddings), then H1.
+- Author approved H0: embeddings optional (TF-IDF default), Whisper base default. Next: H1. Before pushing: author must auth gh / create GitHub repo.
