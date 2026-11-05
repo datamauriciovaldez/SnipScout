@@ -1,12 +1,12 @@
 [project]
 name = "snipscout"
-version = "0.1.0.dev0"
+version = "0.1.0"
 description = "Turn long videos into short clips with word-by-word subtitles. 100% local, no accounts, no API keys."
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
 requires-python = ">=3.11"
-authors = [{ name = "Mauricio Valdez Fuste" }]
+authors = [{ name = "datamauriciovaldez" }]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
@@ -46,6 +46,10 @@ dev = [
 [build-system]
 requires = ["hatchling>=1.26"]
 build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.sdist]
+# Explicit allow-list: only what is needed to build and test the package.
+include = ["src/", "tests/", "scripts/", "eval/", "README.md", "LICENSE", "THIRD_PARTY_LICENSES.md", "CHANGELOG.md", "pyproject.toml", "uv.lock"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/snipscout"]

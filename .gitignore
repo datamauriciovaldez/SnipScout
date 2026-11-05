@@ -7,3 +7,5 @@ spikes/wheels/
 .ruff_cache/
 .mypy_cache/
 dist/
+.uv/
+snipscout-error.log

@@ -1,0 +1,9 @@
+# Windows batch files must keep CRLF line endings; shell scripts must keep LF.
+*.bat     text eol=crlf
+*.sh      text eol=lf
+*.command text eol=lf
+
+# Development-only folders are left out of the ready-to-use release archives.
+spikes/   export-ignore
+design/   export-ignore
+.github/  export-ignore

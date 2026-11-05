@@ -201,7 +201,7 @@ def _reveal(path: Path) -> None:
     """Open a folder in the OS file manager (argument list, never a shell)."""
     try:
         if sys.platform == "win32":
-            os.startfile(path)  # type: ignore[attr-defined]  # noqa: S606 - opens a folder the app created
+            os.startfile(path)  # noqa: S606 - opens a folder the app created (mypy narrows by platform)
         elif sys.platform == "darwin":
             subprocess.Popen(["open", str(path)])  # noqa: S607
         else:
