@@ -11,6 +11,7 @@
 
 - **D0** design system in `design/` (author brief: warm paper/graphite, vermilion, IBM Plex): tokens.css (2 themes, AA verified by scripts/check_contrast.py), components.css, theme.js (no-flash), 8 screens + index (resultados [+vacío/cargando], inicio, procesando, editor, primer-arranque, error, ajustes), NOTES.md, screenshots in design/screenshots. **All screens APPROVED by the author (2026-11-05).**
 - **U1** server + shell: `web/app.py` (FastAPI, full /api/v1 contract incl. SSE events, model download SSE, Range media, waveform peaks, thumbnails, export.zip, reveal; preview-frame = 501 until v0.2), security (session token → HttpOnly SameSite=Strict cookie, Host/Origin checks, no CORS, upload streaming with sanitised names and size limit), `web/jobs.py` (threaded jobs, event fan-out/replay, cancel, busy=409), `desktop.py` (`snipscout ui`: free port, pywebview window with file/folder dialogs, automatic browser fallback — verified 0.1 s fallback without GTK/Qt), frontend skeleton (Preact 10.24.3 + hooks + htm 3.1.1 vendored via import map, hash router, store, i18n ES/EN with completeness tests, error screens per error code, theme/lang persistence). Design system moved to `web/static` (design/ screens link to it). 109 tests green; browser run: no console errors, theme+lang persist.
+- **U2** components: `js/components.js` (Button incl. loading/disabled/icon/kbd, Checkbox, Segmented, Tag, ScoreBar, Progress incl. indeterminate, Thumb, Wave, Field, Modal with focus trap/Esc/focus return, Toaster/toast(), Stepper, ErrorNotice), `js/icons.js` (one 24px round-stroke set + Logo), SVG favicon. Gallery `design/screens/componentes.html` + `scripts/check_components.py` (Playwright: no console errors, icons, i18n, modal focus, toast, ARIA) passing in light and dark. Contrast: scripts/check_contrast.py (AA, both themes).
 
 ## Decisions
 - Project renamed **SnipScout** (package `snipscout`, CLI `snipscout`, env `SNIPSCOUT_*`, theme key `snipscout.theme`). Repo: https://github.com/datamauriciovaldez/SnipScout (branch `main`).
@@ -24,4 +25,4 @@
 - CI not yet run on GitHub (no remote). Windows/macOS behaviour unverified until first push.
 
 ## Next
-- **U2**: only the components actually used (button, card/row, chips, progress, toast, modal, stepper, score bar) as Preact components on top of components.css; logo/icons; contrast script already in scripts/check_contrast.py.
+- **U3**: first-run stepper (language → hardware check + model choice → model download with real progress, pause/resume, "only once") + Home (drop zone with native path in window mode / streamed upload in browser, file queue, simple settings table, subtitle style preview, advanced panel, "Find my best clips").

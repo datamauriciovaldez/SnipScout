@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Componentes · SnipScout</title>
+<link rel="icon" href="../../src/snipscout/web/static/icons/favicon.svg" type="image/svg+xml">
+<script src="../../src/snipscout/web/static/js/theme.js"></script>
+<link rel="stylesheet" href="../../src/snipscout/web/static/css/fonts.css">
+<link rel="stylesheet" href="../../src/snipscout/web/static/css/tokens.css">
+<link rel="stylesheet" href="../../src/snipscout/web/static/css/components.css">
+<script type="importmap">
+{ "imports": {
+  "preact": "../../src/snipscout/web/static/vendor/preact.module.js",
+  "preact/hooks": "../../src/snipscout/web/static/vendor/preact-hooks.module.js",
+  "htm": "../../src/snipscout/web/static/vendor/htm.module.js"
+} }
+</script>
+<style>
+  body { padding: 24px 32px 80px; }
+  .grid { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 0 24px; border-top: 1px solid var(--rule); }
+  .grid > * { padding: 14px 0; border-bottom: 1px solid var(--line); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="module">
+  import { useState } from "preact/hooks";
+  import { html, render } from "../../src/snipscout/web/static/js/html.js";
+  import { setLang, t } from "../../src/snipscout/web/static/js/i18n.js";
+  import { Icon, ICON_NAMES, Logo } from "../../src/snipscout/web/static/js/icons.js";
+  import { Button, Checkbox, ErrorNotice, Field, Modal, Progress, ScoreBar, Segmented, Stepper, Tag, Thumb, Toaster, Wave, toast }
+    from "../../src/snipscout/web/static/js/components.js";
+
+  const peaks = Array.from({ length: 90 }, (_, i) => (8 + Math.abs(Math.sin(i * .7) * 18 + Math.sin(i * 1.9) * 10)) / 40);
+
+  function Gallery() {
+    const [open, setOpen] = useState(false);
+    const [checked, setChecked] = useState(true);
+    const [seg, setSeg] = useState("short");
+    return html`
+      <div class="label">Galería · SnipScout</div><h1 class="title-1" style="margin:6px 0 20px">Componentes</h1>
+      <div class="grid">
+        <span class="label">Marca e iconos</span>
+        <div id="icons"><span class="brand"><${Logo} />SnipScout</span>${ICON_NAMES.map((n) => html`<${Icon} name=${n} size=${18} />`)}</div>
+        <span class="label">Botones</span>
+        <div><${Button} variant="primary">Renderizar 3 clips<//><${Button} variant="accent" icon="download">Descargar<//>
+          <${Button}>Editar clip<//><${Button} variant="ghost" kbd="Ctrl Z">Deshacer<//><${Button} icon="close" aria-label="Cerrar" />
+          <${Button} variant="primary" loading>Cargando<//><${Button} disabled>Desactivado<//><${Button} variant="primary" size="lg">Grande<//></div>
+        <span class="label">Casilla</span>
+        <div><${Checkbox} id="cb" checked=${checked} onChange=${setChecked} label="Exportar clip" /><span>${checked ? "Marcada" : "Sin marcar"}</span></div>
+        <span class="label">Selector</span>
+        <div><${Segmented} label="Duración" value=${seg} onChange=${setSeg} mono=${false}
+          options=${[{ value: "short", label: "Cortos" }, { value: "medium", label: "Medios" }, { value: "long", label: "Largos" }]} /></div>
+        <span class="label">Etiqueta y puntuación</span>
+        <div><${Tag}>Exportado<//><${ScoreBar} value=${94} /><${ScoreBar} value=${62} /></div>
+        <span class="label">Progreso</span>
+        <div style="display:grid;gap:10px;width:320px"><${Progress} value=${0.36} label="Descarga" /><${Progress} value=${null} label="Preparando" /></div>
+        <span class="label">Miniatura y onda</span>
+        <div><${Thumb} badge="0:42" /><div style="width:420px"><${Wave} peaks=${peaks} classFor=${(i, n) => (i > n * .1 && i < n * .8 ? "in" : "")} /></div></div>
+        <span class="label">Campo</span>
+        <div style="width:320px"><${Field} id="f1" label="Carpeta de salida" hint="Puedes cambiarla cuando quieras."><input class="input input--mono" id="f1" value="Descargas/SnipScout" /><//></div>
+        <span class="label">Pasos</span>
+        <div><${Stepper} current=${2} steps=${["Idioma", "Tu equipo", "Modelo de voz"]} /></div>
+        <span class="label">Modal y aviso</span>
+        <div><${Button} id="open-modal" onClick=${() => setOpen(true)}>Cancelar análisis<//>
+          <${Button} id="toast-btn" onClick=${() => toast("Hemos liberado 980 MB")}>Mostrar aviso<//></div>
+      </div>
+      <div style="margin-top:32px"><${ErrorNotice} error=${{ code: "no_speech", message: "No speech found", details: "vad: 0 segments" }}
+        action=${html`<${Button} variant="primary" size="lg">Elegir otro archivo<//>`} /></div>
+      <${Modal} open=${open} eyebrow="Cancelar análisis" title="¿Paramos aquí?" onClose=${() => setOpen(false)}
+        actions=${html`<${Button} id="m-cancel" size="lg" onClick=${() => setOpen(false)}>Cancelar análisis<//><${Button} id="m-keep" variant="primary" size="lg" onClick=${() => setOpen(false)}>Seguir analizando<//>`}>
+        Guardamos lo ya escuchado. Si vuelves a analizar, seguiremos desde ese punto.<//>
+      <${Toaster} />`;
+  }
+  setLang("es", "../../src/snipscout/web/static").then(() => render(html`<${Gallery} />`, document.getElementById("root")));
+</script>
+</body>
+</html>

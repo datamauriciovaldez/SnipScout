@@ -19,6 +19,7 @@ export const store = createStore({
   status: null, // /system/status
   projects: [],
   error: null, // { code, message, details }
+  toast: null, // { text, action?: { label, run } }
 });
 
 export function useStore(select = (s) => s) {

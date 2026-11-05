@@ -14,8 +14,8 @@ export function preferredLang() {
   return LANGS.includes(nav) ? nav : "es";
 }
 
-export async function setLang(lang) {
-  const res = await fetch(`/static/i18n/${lang}.json`, { cache: "no-cache" });
+export async function setLang(lang, base = "/static") {
+  const res = await fetch(`${base}/i18n/${lang}.json`, { cache: "no-cache" });
   dict = await res.json();
   document.documentElement.lang = lang;
   try { localStorage.setItem(KEY, lang); } catch (e) { /* not persisted this time */ }

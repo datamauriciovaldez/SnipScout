@@ -2,37 +2,24 @@
 import { useEffect } from "preact/hooks";
 import { html, render } from "./html.js";
 import { api } from "./api.js";
+import { Button, ErrorNotice, Toaster } from "./components.js";
+import { Logo } from "./icons.js";
 import { fmt, preferredLang, setLang, t } from "./i18n.js";
 import { useRoute } from "./router.js";
 import { store, useStore } from "./store.js";
-
-const LOGO = html`<span class="brand__mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><path d="M8 7.5L20 18M8 16.5L20 6"/></svg></span>`;
 
 function Topbar({ route }) {
   const status = useStore((s) => s.status);
   const tab = (name, href, key) => html`<a href=${href} aria-current=${route.name === name ? "page" : undefined}>${t(key)}</a>`;
   return html`<header class="topbar">
     <div class="topbar__left">
-      <a class="brand" href="#/">${LOGO}SnipScout</a>
+      <a class="brand" href="#/"><${Logo} />SnipScout</a>
       <nav class="nav" aria-label=${t("nav.label")}>${tab("home", "#/", "nav.new")}${tab("settings", "#/ajustes", "nav.settings")}</nav>
     </div>
     <div class="topbar__right">
       <span class="label status-dot">${status && status.offline ? t("status.offline") : t("status.local")}</span>
     </div>
   </header>`;
-}
-
-export function ErrorNotice({ error, action }) {
-  const details = [`code: ${error.code}`, error.message, error.details].filter(Boolean).join("\n");
-  const copy = async () => { try { await navigator.clipboard.writeText(details); } catch (e) { /* selection fallback is fine */ } };
-  return html`<section class="notice" role="alert">
-    <div class="notice__code">${t("error.label")} · ${error.code}</div>
-    <h1 class="title-1" style="margin:12px 0">${t(`errors.${error.code}.title`)}</h1>
-    <p class="lead">${t(`errors.${error.code}.body`)}</p>
-    ${action}
-    <details><summary>${t("error.copy_details")}</summary><pre>${details}</pre>
-      <button class="btn btn--ghost" type="button" onClick=${copy}>${t("common.copy")}</button></details>
-  </section>`;
 }
 
 function Home() {
@@ -93,7 +80,7 @@ function Placeholder({ titleKey }) {
     <div class="label">${t("placeholder.eyebrow")}</div>
     <h1 class="title-2">${t(titleKey)}</h1>
     <p class="lead">${t("placeholder.body")}</p>
-    <a class="btn btn--outline btn--lg" href="#/">${t("common.back_home")}</a>
+    <div><${Button} size="lg" onClick=${() => (location.hash = "#/")}>${t("common.back_home")}<//></div>
   </div></main>`;
 }
 
@@ -111,7 +98,9 @@ function App() {
   };
   return html`<a class="skip-link" href="#main">${t("common.skip")}</a>
     <${Topbar} route=${route} />
-    <div class="app-main">${error ? html`<div class="page"><${ErrorNotice} error=${error} /></div>` : views[route.name]()}</div>`;
+    <div class="app-main">${error ? html`<div class="page"><${ErrorNotice} error=${error}
+      action=${html`<${Button} variant="primary" size="lg" onClick=${() => location.reload()}>${t("common.retry")}<//>`} /></div>` : views[route.name]()}</div>
+    <${Toaster} />`;
 }
 
 async function boot() {

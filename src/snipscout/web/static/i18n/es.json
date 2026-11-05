@@ -135,5 +135,11 @@
       "title": "Algo ha fallado",
       "body": "Copia los detalles técnicos si quieres avisarnos."
     }
+  },
+  "components": {
+    "score": "Puntuación {v} de 100",
+    "steps": "Pasos",
+    "copied": "Copiado",
+    "copy_failed": "No se pudo copiar; selecciona el texto y usa Ctrl C"
   }
 }

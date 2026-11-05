@@ -135,5 +135,11 @@
       "title": "Something went wrong",
       "body": "Copy the technical details if you want to report it."
     }
+  },
+  "components": {
+    "score": "Score {v} out of 100",
+    "steps": "Steps",
+    "copied": "Copied",
+    "copy_failed": "Couldn't copy; select the text and press Ctrl C"
   }
 }
