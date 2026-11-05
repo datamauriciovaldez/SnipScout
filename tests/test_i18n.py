@@ -62,3 +62,12 @@ def test_every_project_status_and_stage_is_translated() -> None:
     keys = set(_load("es"))
     assert all(f"project_status.{s.value}" in keys for s in ProjectStatus)
     assert all(f"stage.{s}" in keys for s in [*ANALYZE_STAGES, "render", "done", "exported"])
+
+
+def test_every_scoring_reason_and_signal_is_translated() -> None:
+    from snipscout.core.scoring import ScoringConfig
+    from snipscout.core.text import lexicon
+
+    keys = set(_load("es"))
+    assert all(f"reasons.{r}" in keys for r in lexicon("es")["reasons"])
+    assert all(f"signals.{s}" in keys for s in ScoringConfig.load().weights)

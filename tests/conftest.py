@@ -15,6 +15,12 @@ from snipscout.core.net import uninstall_offline_guard
 TRICKY_DIR = "mis vídeos ñ 🎬"
 
 
+@pytest.fixture(autouse=True)
+def _isolated_output_dir(tmp_path_factory: pytest.TempPathFactory, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Never write exports into the real Downloads folder during tests."""
+    monkeypatch.setenv("SNIPSCOUT_OUTPUT_DIR", str(tmp_path_factory.mktemp("output")))
+
+
 @pytest.fixture(scope="session")
 def ff() -> FfmpegBinaries:
     return resolve_ffmpeg()

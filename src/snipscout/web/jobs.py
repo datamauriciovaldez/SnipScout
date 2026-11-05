@@ -24,7 +24,11 @@ class Job:
 
     @property
     def running(self) -> bool:
-        return self.thread is not None and self.thread.is_alive()
+        """True while work is in progress. A job whose last event is terminal (done/error/cancelled)
+        is finished even if its thread has not exited yet: the terminal event is published from
+        inside the thread, a moment before it ends."""
+        alive = self.thread is not None and self.thread.is_alive()
+        return alive and (self.last is None or self.last.state == JobState.RUNNING)
 
 
 class JobBusyError(SnipScoutError):

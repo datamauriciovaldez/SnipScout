@@ -12,6 +12,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from pathlib import Path
 
+from snipscout.config import output_dir
 from snipscout.core import audio
 from snipscout.core.binaries import FfmpegBinaries
 from snipscout.core.errors import CancelledError, SnipScoutError
@@ -22,7 +23,7 @@ from snipscout.core.reframe import default_mode, output_size
 from snipscout.core.render import RenderOptions
 from snipscout.core.segment import segment
 from snipscout.core.select import select_clips
-from snipscout.core.storage import ProjectStore
+from snipscout.core.storage import ProjectStore, slugify
 from snipscout.core.text.vectors import SentenceEncoder
 from snipscout.core.transcribe import QUICK_ANALYSIS_S, SpeechModel, load_model, transcribe
 
@@ -192,12 +193,20 @@ class Pipeline:
         cancel: CancelToken | None = None,
         hardware: bool = False,
         loudnorm: bool = False,
+        clip_ids: list[str] | None = None,
     ) -> ExportResult:
+        """Render included clips (or exactly ``clip_ids``) into ``out_dir``
+        (default: ``<output_dir>/<project-name>-<id>``)."""
         project = self.store.load(project_id)
         clips = self.store.load_clips(project_id)
         transcript = self.store.load_transcript(project_id)
         if clips is None or transcript is None:
             raise SnipScoutError("Analyze the video before rendering.")
+        if clip_ids:
+            wanted = set(clip_ids)
+            selected = [c.model_copy(update={"included": True}) for c in clips.clips if c.id in wanted]
+        else:
+            selected = clips.clips
         project.status = ProjectStatus.RENDERING
         self.store.save(project)
 
@@ -217,8 +226,8 @@ class Pipeline:
                 self.bin.ffmpeg,
                 project.source,
                 transcript.words,
-                clips.clips,
-                out_dir or (self.store.project_dir(project.id) / "exports"),
+                selected,
+                out_dir or (output_dir() / f"{slugify(project.name, 40)}-{project.id[:6]}"),
                 default_style=project.settings.subtitle_style,
                 opts=self.render_options(project, hardware=hardware, loudnorm=loudnorm),
                 language=transcript.language,

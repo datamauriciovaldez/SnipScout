@@ -20,10 +20,17 @@ export const store = createStore({
   projects: [],
   error: null, // { code, message, details }
   toast: null, // { text, action?: { label, run } }
+  topbar: null, // { crumb?: { name, duration }, actions?: vnode } set by the current view
 });
 
 export function useStore(select = (s) => s) {
   const [value, setValue] = useState(() => select(store.get()));
   useEffect(() => store.subscribe((s) => setValue(select(s))), []);
   return value;
+}
+
+/** Views declare their top-bar crumb/actions; cleared when the view unmounts. */
+export function useTopbar(value, deps) {
+  useEffect(() => { store.set({ topbar: value }); }, deps);
+  useEffect(() => () => store.set({ topbar: null }), []);
 }

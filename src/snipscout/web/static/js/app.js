@@ -8,18 +8,27 @@ import { fmt, preferredLang, setLang, t } from "./i18n.js";
 import { navigate, useRoute } from "./router.js";
 import { Home } from "./views/home.js";
 import { Welcome } from "./views/welcome.js";
+import { Project } from "./views/project.js";
+import { Editor } from "./views/editor.js";
 import { store, useStore } from "./store.js";
 
 function Topbar({ route }) {
   const status = useStore((s) => s.status);
+  const bar = useStore((s) => s.topbar);
   const tab = (name, href, key) => html`<a href=${href} aria-current=${route.name === name ? "page" : undefined}>${t(key)}</a>`;
   return html`<header class="topbar">
     <div class="topbar__left">
       <a class="brand" href="#/"><${Logo} />SnipScout</a>
-      <nav class="nav" aria-label=${t("nav.label")}>${tab("home", "#/", "nav.new")}${tab("settings", "#/ajustes", "nav.settings")}</nav>
+      ${bar && bar.crumb
+        ? html`<div class="crumb"><span class="crumb__sep" aria-hidden="true">/</span>
+            <a class="crumb__name" href=${bar.crumb.href || "#/"} style="color:inherit;text-decoration:none">${bar.crumb.name}</a>
+            ${bar.crumb.duration && html`<span class="mono faint" style="font-size:12px">${bar.crumb.duration}</span>`}
+            ${bar.crumb.sub && html`<span class="crumb__sep" aria-hidden="true">/</span><span style="color:var(--text)">${bar.crumb.sub}</span>`}</div>`
+        : html`<nav class="nav" aria-label=${t("nav.label")}>${tab("home", "#/", "nav.new")}${tab("settings", "#/ajustes", "nav.settings")}</nav>`}
     </div>
     <div class="topbar__right">
       <span class="label status-dot">${status && status.offline ? t("status.offline") : t("status.local")}</span>
+      ${bar && bar.actions}
     </div>
   </header>`;
 }
@@ -67,8 +76,9 @@ function App() {
     home: () => ready(() => html`<${Home} />`),
     settings: () => html`<${Settings} />`,
     welcome: () => ready(() => html`<${Welcome} />`),
-    project: () => html`<${Placeholder} titleKey="placeholder.project" />`,
-    clip: () => html`<${Placeholder} titleKey="placeholder.clip" />`,
+    project: () => ready(() => html`<${Project} key=${route.params[0]} id=${route.params[0]} />`),
+    clip: () => ready(() => html`<${Editor} key=${route.params.join("/")} id=${route.params[0]} cid=${route.params[1]} />`),
+    export: () => html`<${Placeholder} titleKey="placeholder.export" />`,
     notFound: () => html`<${Placeholder} titleKey="placeholder.not_found" />`,
   };
   return html`<a class="skip-link" href="#main">${t("common.skip")}</a>

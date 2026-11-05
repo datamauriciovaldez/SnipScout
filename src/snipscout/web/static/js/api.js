@@ -36,6 +36,7 @@ export const api = {
   patchClip: (id, cid, patch) => request("PATCH", `/projects/${id}/clips/${cid}`, patch),
   render: (id, opts) => request("POST", `/projects/${id}/render`, opts || {}),
   reveal: (id) => request("POST", `/projects/${id}/reveal`),
+  transcript: (id) => request("GET", `/projects/${id}/transcript`),
   waveform: (id, points = 800) => request("GET", `/projects/${id}/waveform?points=${points}`),
   mediaUrl: (id) => `${BASE}/projects/${id}/media`,
   thumbUrl: (id, cid) => `${BASE}/projects/${id}/clips/${cid}/thumbnail`,

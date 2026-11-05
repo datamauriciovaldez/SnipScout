@@ -129,6 +129,7 @@ def test_upload_streaming(client: TestClient, video_mp4: Path) -> None:
     assert r.status_code == 201, r.text
     path = Path(r.json()["source"]["path"])
     assert path.name == "mi-video.mp4" and ".." not in path.parts
+    assert r.json()["name"] == "mi vídeo"  # display name keeps the original
     r = client.post("/api/v1/projects/upload", params={"filename": "virus.exe"}, content=b"MZ")
     assert r.status_code == 400
 
@@ -212,3 +213,53 @@ def test_missing_ffmpeg_is_reported(tmp_path: Path, video_mp4: Path) -> None:
     assert client.get("/api/v1/system/status", headers=h).json()["ffmpeg"]["ok"] is False
     r = client.post("/api/v1/projects", json={"path": str(video_mp4)}, headers=h)
     assert r.status_code == 503 and r.json()["error"]["code"] == "ffmpeg_missing"
+
+
+def test_transcript_contributions_and_single_clip_render(
+    client: TestClient, ctx: Context, video_mp4: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    out_root = tmp_path / "Descargas" / "SnipScout"
+    monkeypatch.setenv("SNIPSCOUT_OUTPUT_DIR", str(out_root))
+    pid = client.post("/api/v1/projects", json={"path": str(video_mp4)}).json()["id"]
+    assert client.get(f"/api/v1/projects/{pid}/transcript").status_code == 400  # before analysis
+    client.post(f"/api/v1/projects/{pid}/analyze")
+    assert _events_until_done(client, pid)[-1]["state"] == "done"
+
+    tr = client.get(f"/api/v1/projects/{pid}/transcript").json()
+    assert tr["words"] and tr["sentences"] and tr["complete"]
+    assert tr["sentences"][0]["word_start"] == 0 and tr["sentences"][-1]["word_end"] == len(tr["words"])
+
+    clips = client.get(f"/api/v1/projects/{pid}/clips").json()["clips"]
+    for c in clips:
+        assert sum(c["contributions"].values()) == pytest.approx(c["score"], abs=0.6)
+
+    target = clips[-1]["id"]
+    assert client.post(f"/api/v1/projects/{pid}/render", json={"clip_ids": [target]}).status_code == 202
+    assert _events_until_done(client, pid)[-1]["state"] == "done"
+    project = client.get(f"/api/v1/projects/{pid}").json()
+    folder = Path(project["export_dir"])
+    assert folder.parent == out_root  # default output folder
+    assert len(list(folder.glob("*.mp4"))) == 1
+    assert client.get("/api/v1/system/status").json()["output_dir"] == str(out_root)
+
+
+def test_job_not_running_after_terminal_event() -> None:
+    """Regression: the UI reloads the project as soon as the 'done' event arrives; it must not look busy."""
+    import threading
+
+    from snipscout.core.models import JobEvent, JobState
+    from snipscout.web.jobs import JobManager
+
+    jobs = JobManager()
+    release = threading.Event()
+
+    def work(emit: Any, cancel: Any) -> None:
+        emit(JobEvent(stage="done", state=JobState.DONE, progress=1.0))
+        release.wait(5)  # the thread is still alive after publishing the terminal event
+
+    jobs.start("abcdef123456", "analyze", work)
+    job = jobs.get("abcdef123456")
+    assert job is not None and job.thread is not None and job.thread.is_alive()
+    assert not jobs.running("abcdef123456")
+    release.set()
+    jobs.wait("abcdef123456", timeout=5)

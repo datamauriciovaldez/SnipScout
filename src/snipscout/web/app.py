@@ -37,7 +37,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from snipscout import __version__
-from snipscout.config import data_dir, is_offline
+from snipscout.config import data_dir, is_offline, output_dir
 from snipscout.core import audio, ingest, modelstore
 from snipscout.core.binaries import FfmpegBinaries
 from snipscout.core.errors import (
@@ -59,6 +59,8 @@ from snipscout.core.models import (
 )
 from snipscout.core.pipeline import Pipeline
 from snipscout.core.procs import CancelToken, run_ffmpeg
+from snipscout.core.scoring import ScoringConfig
+from snipscout.core.segment import segment
 from snipscout.core.storage import ProjectNotFoundError, ProjectStore, slugify
 from snipscout.core.transcribe import SpeechModel, estimate_seconds, load_model, measured_rtf
 from snipscout.web.jobs import JobBusyError, JobManager
@@ -150,6 +152,7 @@ class ClipPatch(BaseModel):
 
 class RenderRequest(BaseModel):
     out_dir: str | None = None
+    clip_ids: list[str] | None = Field(default=None, max_length=100)
     hardware: bool = False
     loudnorm: bool = False
 
@@ -296,6 +299,7 @@ def create_app(ctx: Context) -> FastAPI:  # noqa: C901 - one place that lists th
             "recommended_model": modelstore.DEFAULT_MODEL,
             "first_run": not any(modelstore.is_installed(n) for n in modelstore.MODELS),
             "data_dir": str(data_dir()),
+            "output_dir": str(output_dir()),
             "disk_free_gb": round(
                 shutil.disk_usage(data_dir() if data_dir().exists() else Path.home()).free / 1e9, 1
             ),
@@ -377,7 +381,10 @@ def create_app(ctx: Context) -> FastAPI:  # noqa: C901 - one place that lists th
         except (SnipScoutError, OSError):
             shutil.rmtree(folder, ignore_errors=True)
             raise
-        return _project_json(ctx, ctx.store.create(media))
+        project = ctx.store.create(media)
+        project.name = Path(filename).stem.strip()[:200] or project.name  # display name keeps accents
+        ctx.store.save(project)
+        return _project_json(ctx, project)
 
     @app.get("/api/v1/projects/{pid}")
     def get_project(pid: str) -> dict[str, Any]:
@@ -422,7 +429,13 @@ def create_app(ctx: Context) -> FastAPI:  # noqa: C901 - one place that lists th
             pid,
             "render",
             lambda emit, cancel: pipe.render(
-                pid, out_dir=out, on_event=emit, cancel=cancel, hardware=req.hardware, loudnorm=req.loudnorm
+                pid,
+                out_dir=out,
+                clip_ids=req.clip_ids,
+                on_event=emit,
+                cancel=cancel,
+                hardware=req.hardware,
+                loudnorm=req.loudnorm,
             ),
         )
         return {"started": "render"}
@@ -459,9 +472,42 @@ def create_app(ctx: Context) -> FastAPI:  # noqa: C901 - one place that lists th
     # --- clips ------------------------------------------------------------------------------------
     @app.get("/api/v1/projects/{pid}/clips")
     def get_clips(pid: str) -> dict[str, Any]:
+        """Clips plus each signal's contribution in score points (they add up to the score)."""
         ctx.store.load(pid)
         clips = ctx.store.load_clips(pid) or ClipSet()
-        return clips.model_dump(mode="json")
+        weights = ScoringConfig.load().weights
+        total_w = sum(weights.values()) or 1.0
+        out = clips.model_dump(mode="json")
+        for clip in out["clips"]:
+            clip["contributions"] = {
+                k: round(weights.get(k, 0.0) * v / total_w * 100, 1) for k, v in clip["signals"].items()
+            }
+        return out
+
+    @app.get("/api/v1/projects/{pid}/transcript")
+    def get_transcript(pid: str) -> dict[str, Any]:
+        """Words (for subtitle editing) and sentences (for snapping clip edges)."""
+        p = ctx.store.load(pid)
+        tr = ctx.store.load_transcript(pid)
+        if tr is None:
+            raise ApiError("Analyze the video first.", details="no transcript yet")
+        sentences = segment(tr.words, language=tr.language)
+        return {
+            "language": tr.language,
+            "complete": tr.complete,
+            "duration": p.source.duration,
+            "words": [w.model_dump(mode="json") for w in tr.words],
+            "sentences": [
+                {
+                    "start": s.start,
+                    "end": s.end,
+                    "text": s.text,
+                    "word_start": s.word_start,
+                    "word_end": s.word_end,
+                }
+                for s in sentences
+            ],
+        }
 
     @app.patch("/api/v1/projects/{pid}/clips/{cid}")
     def patch_clip(pid: str, cid: str, body: ClipPatch) -> dict[str, Any]:

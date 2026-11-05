@@ -42,6 +42,17 @@ export const fmt = {
     const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), r = s % 60;
     return h ? `${h}:${String(m).padStart(2, "0")}:${String(r).padStart(2, "0")}` : `${m}:${String(r).padStart(2, "0")}`;
   },
+  /** 872.4 → "00:14:32" (always h:mm:ss with two-digit hours, like the approved Results reference) */
+  timecode(seconds) {
+    const s = Math.max(0, Math.floor(seconds));
+    const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), r = s % 60;
+    return [h, m, r].map((x) => String(x).padStart(2, "0")).join(":");
+  },
+  /** 872.45 → "00:14:32.4" (editor fields) */
+  precise(seconds) {
+    const tenths = Math.round(Math.max(0, seconds) * 10);
+    return `${fmt.timecode(Math.floor(tenths / 10))}.${tenths % 10}`;
+  },
   bytes(n) {
     const units = ["B", "KB", "MB", "GB"];
     let i = 0;

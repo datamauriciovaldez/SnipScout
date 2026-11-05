@@ -12,6 +12,8 @@ from snipscout.core.scoring.heuristic import HeuristicScorer
 from snipscout.core.text import extract
 from snipscout.core.text.vectors import SentenceEncoder, TfidfEncoder
 
+DEFAULT_INCLUDED = 3  # the best clips come pre-ticked; the user decides the rest
+
 
 def select_clips(
     sentences: list[Sentence],
@@ -53,6 +55,7 @@ def select_clips(
             Clip(
                 id=f"c{rank:02d}",
                 rank=rank,
+                included=rank <= DEFAULT_INCLUDED,
                 start=start,
                 end=end,
                 sentence_start=w.i,

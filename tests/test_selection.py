@@ -154,6 +154,7 @@ def test_select_clips_end_to_end_and_ranked() -> None:
     assert [c.score for c in clips] == sorted((c.score for c in clips), reverse=True)
     spans = sorted((c.start, c.end) for c in clips)
     assert all(a[1] <= b[0] for a, b in zip(spans, spans[1:], strict=False))  # no overlaps
+    assert [c.included for c in clips] == [c.rank <= 3 for c in clips]  # top 3 pre-selected
     for c in clips:
         assert 0 <= c.score <= 100 and c.title and c.hook
         assert set(c.reasons) <= set(lexicon(lang)["reasons"])

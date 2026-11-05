@@ -24,6 +24,12 @@ def data_dir() -> Path:
     return _env_path("SNIPSCOUT_DATA_DIR", Path(_dirs.user_data_dir))
 
 
+def output_dir() -> Path:
+    """Where exported clips go by default. Override with ``SNIPSCOUT_OUTPUT_DIR``."""
+    downloads = _dirs.user_downloads_dir or str(Path.home() / "Downloads")
+    return _env_path("SNIPSCOUT_OUTPUT_DIR", Path(downloads) / APP_NAME)
+
+
 def models_dir() -> Path:
     return data_dir() / "models"
 
