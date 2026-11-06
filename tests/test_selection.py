@@ -161,6 +161,22 @@ def test_select_clips_end_to_end_and_ranked() -> None:
         assert len(c.reasons) <= 4
 
 
+def test_repeated_content_gives_no_duplicate_clips() -> None:
+    """A talk said ten times (loops, recurring intros, catchphrases) must not yield the same clip thrice."""
+    files = sorted((ROOT / "eval" / "annotations").glob("synthetic_*.json"))
+    words, _, lang, length, duration = eval_scoring.load(files[0])
+    looped = [
+        w.model_copy(update={"start": w.start + k * (duration + 2), "end": w.end + k * (duration + 2)})
+        for k in range(10)
+        for w in words
+    ]
+    sents = segment(looped, language=lang)
+    clips = select_clips(sents, language=lang, length=length, media_duration=10 * (duration + 2))
+    texts = [" ".join(x.text for x in sents[c.sentence_start : c.sentence_end]) for c in clips]
+    assert len(clips) >= 3
+    assert len(set(texts)) == len(texts)
+
+
 def test_eval_recall_on_synthetic_set() -> None:
     """Regression guard for the weights (synthetic data; see weights.toml calibration note)."""
     files = sorted((ROOT / "eval" / "annotations").glob("synthetic_*.json"))

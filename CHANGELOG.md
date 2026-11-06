@@ -3,6 +3,16 @@
 All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+- Browser end-to-end test of the whole flow (upload → analyze → edit → render) with a fake speech model, run in CI.
+- README: step-by-step install guide for non-technical users (Windows, macOS, Linux) and a Spanish quick guide.
+
+### Fixed
+- Clip selection no longer proposes the same content several times when a video repeats itself (recurring intros,
+  catchphrases, loops): near-duplicates (topic similarity ≥ 0.7) are skipped. Found with a 2-hour test video.
+
 ## [0.3.0] - 2026-11-06
 
 "Polish" release.

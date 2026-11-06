@@ -173,7 +173,8 @@ synthetic Spanish voice (2026-11-06, v0.3 development):
 | Accurate (`small`) | 486 MB | ≈ 11.7 s | 0.79 GB |
 
 A full `snipscout run` of the same talk with Balanced (audio extraction, transcription, scoring and one exported
-vertical clip) took 40 s with the experimental bundle. Earlier v0.1 measurements on the same kind of machine were
+vertical clip) took 40 s with the experimental bundle. A **2-hour** video (the same talk looped) took 11.6 min from file to three exported clips,
+with 0.68 GB peak RAM, and the editor stayed responsive (transcript 1.2 MB, editor ready in under 1 s). Earlier v0.1 measurements on the same kind of machine were
 about twice as slow (the cause was not isolated); treat all of these as indicative.
 
 A 2:38 talk went from file to three exported vertical clips in 1 min 38 s with the Balanced model

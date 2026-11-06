@@ -76,6 +76,13 @@
   render ticked clips → finished list + download link → MP4 files on disk named from the edited title; zero console
   errors. 47 s locally; skipped without Playwright; CI `ui` job runs it. No app bugs found (two test assumptions fixed).
 
+- **R3** 2-hour robustness (demo talk looped, 640x360, 412 MB): `snipscout run` → 11.6 min, peak RAM 0.68 GB (base,
+  4 vCPU); UI with that project: transcript 1.18 MB in 180 ms, clips 8 ms, first full waveform 1.0 s (then cached),
+  Results 0.2 s, editor 0.8 s, 69 words in DOM, 11 MB JS heap, no console errors → no UI changes needed.
+  Found: 8 of 12 proposed clips were the same repeated sentence (MMR only penalises similarity). Fix:
+  `refine.DUPLICATE_SIM = 0.7` hard skip (distinct clips of the demo talk measured max cosine 0.115; synthetic
+  recall still 7/7); after fix 12 distinct clips. Regression test with a 10× looped synthetic talk (fails without the fix).
+
 ## Decisions
 - Playwright in CI is pinned (`uv run --with playwright==1.64.1`) instead of a dev dependency, so normal installs stay small.
 - Ollama re-ranking: combined = 0.5 × heuristic + 0.5 × (rating × 10); only top 15 are rated; per-clip requests so
@@ -102,9 +109,7 @@
 
 ## Next — v0.4 "Real world" (approved by the author 2026-11-06: "hazlo como tú quieras")
 Goal: prove and improve behaviour on real use, before new features. One milestone at a time, same process.
-- R1, R2 done.
-- **R3** Long-video robustness: synthetic 2 h file (concatenated speech) → time, peak RAM, transcript/clips size,
-  editor/results responsiveness; fix what breaks (e.g. transcript payload paging).
+- R1, R2, R3 done.
 - **R4** Real-speech evaluation: freely licensed real talks (CC-BY/public domain, recorded human speech) annotated
   with good moments in `eval/annotations/`, measure recall@K, tune weights; author's own videos welcome.
 - **R5** Face-aware vertical reframing (local face detector, CPU, optional fallback to centre) — needs licence check.

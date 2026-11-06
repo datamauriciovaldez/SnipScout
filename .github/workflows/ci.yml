@@ -63,8 +63,7 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           python-version: "3.12"
-      - name: Install ffmpeg
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      # No system ffmpeg on purpose: the app must work with the imageio-ffmpeg build, like on a fresh laptop.
       - run: uv sync
       - name: Install Chromium for Playwright
         run: uv run --with playwright==1.64.1 playwright install --with-deps chromium

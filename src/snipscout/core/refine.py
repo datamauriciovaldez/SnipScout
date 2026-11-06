@@ -41,11 +41,15 @@ def _centroid(vectors: Matrix, w: Window) -> np.ndarray:
     return c / n if n else c
 
 
+DUPLICATE_SIM = 0.7  # topic cosine = same content said again; distinct clips of a talk measured <= 0.12
+
+
 def select_diverse(
     windows: list[Window], vectors: Matrix, k: int, lam: float, total_s: float
 ) -> list[Window]:
     """Maximal Marginal Relevance: score vs. similarity (topic + time) to already-picked clips.
-    Overlapping windows are never selected together."""
+    Overlapping windows are never selected together, and neither are near-duplicates (the same words said
+    again later in the video), which MMR alone would only penalise."""
     pool = sorted(windows, key=lambda w: -w.score)
     picked: list[Window] = []
     cents: list[np.ndarray] = []
@@ -56,13 +60,17 @@ def select_diverse(
             if any(_overlap(w, p) for p in picked):
                 continue
             sim = 0.0
+            duplicate = False
             if picked:
                 c = _centroid(vectors, w) if has_vec else None
                 for p, pc in zip(picked, cents, strict=True):
                     topic = float(c @ pc) if c is not None else 0.0
+                    duplicate = duplicate or topic >= DUPLICATE_SIM
                     gap = abs(w.i - p.i) / max(len(vectors), 1)
                     temporal = max(0.0, 1.0 - gap * 10)  # near in the video = similar
                     sim = max(sim, 0.7 * topic + 0.3 * temporal)
+            if duplicate:
+                continue
             val = lam * (w.score / 100) - (1 - lam) * sim
             if val > best_val:
                 best_idx, best_val = idx, val
