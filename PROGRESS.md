@@ -54,6 +54,14 @@
   CODE_OF_CONDUCT (Contributor Covenant 2.1 text), CONTRIBUTING, issue forms + PR template; README links them.
   Author action suggested: enable *Private vulnerability reporting* in repo Settings → Security.
 
+- **P4** media/measurements/packaging: `scripts/make_screenshots.py --gif` (frame capture + ffmpeg palette GIF, 2.3 MB;
+  Playwright video needs its own ffmpeg, avoided) → README header GIF + 4 screenshots per theme regenerated from the
+  re-analysed demo; `scripts/benchmark.py` (fresh process per model, psutil peak RSS) → tiny/base/small 4.1/5.4/11.7 s
+  per audio minute, 0.43/0.53/0.79 GB (v0.1 numbers were ~2× slower; cause not isolated; README says so);
+  `packaging/snipscout_frozen.py` + `.github/workflows/pyinstaller.yml` (manual, 3 OS, doctor smoke test, artifact
+  with BUNDLE-README) — local Linux build 593 MB, `doctor` OK and full offline `run` with the bundled imageio ffmpeg
+  (no PATH) in 40 s. Version 0.3.0, CHANGELOG 0.3.0, 124 tests green.
+
 ## Decisions
 - Playwright in CI is pinned (`uv run --with playwright==1.64.1`) instead of a dev dependency, so normal installs stay small.
 - Ollama re-ranking: combined = 0.5 × heuristic + 0.5 × (rating × 10); only top 15 are rated; per-clip requests so
@@ -75,10 +83,12 @@
 - Output folder resolution: `SNIPSCOUT_OUTPUT_DIR` → preferences.json → Downloads/SnipScout/<project>.
 
 ## Current state
-- Version in pyproject: **0.2.0**; v0.1.0 and v0.2.0 released. CHANGELOG `[Unreleased]` collects v0.3 work.
-- Tests: 118 passed + 2 slow deselected (`uv run pytest -q -m "not slow"`).
+- Version in pyproject: **0.3.0** (CHANGELOG 0.3.0); v0.1.0 and v0.2.0 released; **v0.3.0 waiting for the author's release run**.
+- Tests: 124 passed + 2 slow deselected (`uv run pytest -q -m "not slow"`).
 
 ## Next
-- **v0.3 "Pulido"** (P1, P2, P3 done) (acceptance: accessibility verified, full light theme, complete docs + licences, real measurements):
-  - **P4 (next)**: reproducible screenshots + GIF, real performance measurements, experimental PyInstaller workflow (manual), **release v0.3.0** (pause).
-- Pending (spec 5.6): lightweight H.264→VP9 preview proxy when the webview can't play the source (Qt backend only) — not needed for Windows/macOS webviews; decide in U5/S1.
+- **Release v0.3.0** (mandatory pause): author runs Actions → Release → Run workflow; optionally Actions →
+  Experimental bundle to try the PyInstaller build on Windows/macOS. Then verify assets.
+- After v0.3 (needs the author's decision, outside the current spec): real-video scorer tuning with annotated talks
+  (`eval/annotations/*.json`), H.264→VP9 preview proxy for the Qt webview (spec 5.6, only Linux/Qt), face-aware
+  reframing, signed installers.

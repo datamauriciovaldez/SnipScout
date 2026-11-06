@@ -35,9 +35,10 @@ Every error screen has a stable code (also returned by the API) and a *Copy tech
 
 ## Speed and resources
 
-- Analysis time depends mostly on the speech model. On a 4-vCPU machine without GPU, Balanced (`base`) took about
-  11 s per minute of audio; Fast (`tiny`) about 8.5 s; Accurate (`small`) about 23 s. Laptop timings are not measured
-  yet; SnipScout measures your machine after the first analysis and updates its estimates.
+- Analysis time depends mostly on the speech model. On a 4-vCPU machine without GPU, Balanced (`base`) transcribed
+  about 5.4 s per minute of audio; Fast (`tiny`) about 4.1 s; Accurate (`small`) about 11.7 s
+  (`scripts/benchmark.py`). Laptop timings are not measured yet; SnipScout measures your machine after the first
+  analysis and updates its estimates. Measure yours with `uv run python scripts/benchmark.py your-video.mp4`.
 - Long videos are processed in 5-minute chunks; you can cancel and resume later without losing progress.
 - *Quick analysis* only listens to the first 10 minutes.
 - Exports use libx264 by default. *Hardware encoder* (Settings) tries the GPU encoder and falls back automatically.

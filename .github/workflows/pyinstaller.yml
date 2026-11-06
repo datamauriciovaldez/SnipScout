@@ -1,0 +1,47 @@
+name: Experimental bundle (PyInstaller)
+
+# Manual only. Produces an unsigned folder build per OS for testing. It is NOT the recommended way to install:
+# unsigned executables trigger SmartScreen/antivirus warnings on Windows and Gatekeeper on macOS
+# (no notarization). Speech models are still downloaded on first run. ffmpeg comes from the
+# imageio-ffmpeg wheel bundled in the folder (GPL build, not modified).
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  bundle:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+      - run: uv sync --no-dev
+      - name: Build
+        shell: bash
+        run: >
+          uv run --no-dev --with pyinstaller==6.22.3 pyinstaller --noconfirm --onedir --name SnipScout
+          --collect-data snipscout --copy-metadata snipscout --collect-data faster_whisper
+          --collect-data imageio_ffmpeg --collect-binaries imageio_ffmpeg --collect-submodules uvicorn
+          --collect-data webview packaging/snipscout_frozen.py
+      - name: Smoke test (doctor)
+        shell: bash
+        run: |
+          exe=dist/SnipScout/SnipScout
+          [ -f "$exe.exe" ] && exe="$exe.exe"
+          "$exe" doctor
+      - name: Add notes
+        shell: bash
+        run: cp LICENSE THIRD_PARTY_LICENSES.md packaging/BUNDLE-README.txt dist/SnipScout/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SnipScout-experimental-${{ runner.os }}
+          path: dist/SnipScout/
+          retention-days: 14

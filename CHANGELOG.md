@@ -3,7 +3,9 @@
 All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [0.3.0] - 2026-11-06
+
+"Polish" release.
 
 ### Added
 - Documentation: `docs/architecture.md`, `docs/api.md`, `docs/scoring.md`, `docs/troubleshooting.md`.
@@ -20,9 +22,14 @@ All notable changes to this project are documented here. The format follows
   Settings shows whether Ollama is running and lets you pick the model.
 - `scripts/check_a11y.py`: audits every screen in both themes (axe-core WCAG 2.1 AA rules when given `axe.min.js`,
   40 px targets, keyboard Tab walk with visible focus, no horizontal scroll at 200 % zoom).
+- Reproducible README media: `scripts/make_screenshots.py --gif` records the walkthrough GIF from frames (no extra
+  video tooling). `scripts/benchmark.py` measures speed and peak RAM per speech model in fresh processes.
+- Experimental PyInstaller folder build (manual workflow, unsigned, all three OS); verified on Linux.
 - Subtle motion (transform/opacity only): views fade in, score bars grow, the selected-row marker slides in.
 
 ### Changed
+- README performance table re-measured with `scripts/benchmark.py`: ≈ 4.1 / 5.4 / 11.7 s per minute of audio for
+  tiny / base / small on a 4-vCPU container (earlier v0.1 figures were about twice as slow).
 - Every control has a hit area of at least 40 px; compact buttons keep their look.
 - Progress is announced to screen readers once per stage or 10 % instead of on every update.
 - The results list is an ARIA grid (fixes nested interactive controls); keyboard shortcuts in the editor have AA contrast.
