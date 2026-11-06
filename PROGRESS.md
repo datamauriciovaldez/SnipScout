@@ -119,6 +119,9 @@
   error. Browser check: 40 s HEVC → note → proxy in 4.8 s → plays 640x360. JS: pure `js/subtitles.js`
   (clipWords/activeWord/lineFor) + `tests/js/subtitles.test.mjs`. 135 tests + e2e green.
 
+- **v0.4.0 RELEASED** 2026-11-06 (assets verified: .bat CRLF, launchers executable, sdist 0.4.0, YuNet model in
+  zip and wheel, no dev/local files). v0.4 milestones R1–R6 done.
+
 ## Decisions
 - Vertical/square from wide: always fill the frame (author's request); blurred background never by default.
 - Face crop is fixed per clip (no panning) to avoid jitter; ambiguous cases use the centred crop.
@@ -144,10 +147,10 @@
 - Output folder resolution: `SNIPSCOUT_OUTPUT_DIR` → preferences.json → Downloads/SnipScout/<project>.
 
 ## Current state
-- Version **0.4.0** prepared (pyproject + CHANGELOG); v0.1.0–v0.3.0 published; v0.4.0 waits for the author's Release run.
+- Version **0.4.0** released (v0.1.0–v0.4.0 published).
   Dependabot opens weekly PRs (author merges).
 - Tests: 124 passed + 2 slow deselected (`uv run pytest -q -m "not slow"`).
 
 ## Next — v0.4 "Real world" (approved by the author 2026-11-06: "hazlo como tú quieras")
 Goal: prove and improve behaviour on real use, before new features. One milestone at a time, same process.
-- R1–R6 done. **Release v0.4.0**: author runs Actions → Release → Run workflow (mandatory pause), then verify assets.
+- R1–R6 done and v0.4.0 released. Next scope to be chosen by the author.
