@@ -10,7 +10,7 @@ import { useTopbar } from "../store.js";
 import { ClipPlayer, clipWords } from "./player.js";
 import { Timeline } from "./timeline.js";
 import { createHistory, nearest, record, redo, sameDraft, undo, wordStep } from "../editing.js";
-import { displaySize, effectiveFocus, objectPositionX, outputRatio } from "../framing.js";
+import { displaySize, outputRatio, previewPosition } from "../framing.js";
 
 const STYLES = ["bold-pop", "classic", "karaoke", "minimal"];
 
@@ -160,8 +160,8 @@ export function Editor({ id, cid }) {
   const [srcW, srcH] = displaySize(project.source);
   const outRatio = outputRatio(project.settings.aspect, srcW, srcH);
   const autoX = cropInfo && cropInfo.auto_focus ? cropInfo.auto_focus[0] : null;
-  const focus = effectiveFocus(draft.framing, draft.focusX, autoX);
-  const posX = focus == null ? 0.5 : objectPositionX(focus, srcW / srcH, outRatio);
+  const panning = draft.framing === "auto" && Boolean(cropInfo && cropInfo.auto_path);
+  const { posX, posPath } = previewPosition(draft.framing, draft.focusX, cropInfo, srcW / srcH, outRatio);
   const starts = sentences.map((s) => Math.max(0, s.start - 0.15));
   const ends = sentences.map((s) => Math.min(dur, s.end + 0.15));
   const snap = (field, dir) => {
@@ -195,7 +195,7 @@ export function Editor({ id, cid }) {
   return html`<div class="editor">
     <section class="editor__player" aria-label=${t("editor.preview")}>
       <${ClipPlayer} projectId=${id} hasVideo=${project.source.has_video} start=${draft.start} end=${draft.end} words=${cw} style=${draft.style} big
-        seek=${seek} onTime=${setPlayhead} ratio=${outRatio} posX=${posX} />
+        seek=${seek} onTime=${setPlayhead} ratio=${outRatio} posX=${posX} posPath=${posPath} />
       <${Button} icon="image" loading=${framing} onClick=${realFrame} class="real-frame-btn">${t("editor.real_frame")}<//>
       <p class="faint" style="font-size:12px;margin:0">${t("editor.approx")}</p>
     </section>
@@ -249,7 +249,7 @@ export function Editor({ id, cid }) {
         <${Segmented} label=${t("editor.framing")} mono=${false} value=${draft.framing}
           onChange=${(v) => commit({ ...draft, framing: v, focusX: v === "manual" ? (draft.focusX ?? autoX ?? 0.5) : draft.focusX })}
           options=${["auto", "center", "manual"].map((v) => ({ value: v, label: t(`editor.framing_${v}`) }))} />
-        <div class="settings__help">${draft.framing === "auto" ? t(autoX != null ? "editor.framing_auto_face" : project.settings.follow_face === false ? "editor.framing_auto_off" : "editor.framing_auto_none")
+        <div class="settings__help">${draft.framing === "auto" ? t(panning ? "editor.framing_auto_pan" : autoX != null ? "editor.framing_auto_face" : project.settings.follow_face === false ? "editor.framing_auto_off" : "editor.framing_auto_none")
           : draft.framing === "center" ? t("editor.framing_center_help") : t("editor.framing_manual_help")}</div>
         ${draft.framing === "manual" && html`<label class="framing-slider"><span class="label">${t("editor.framing_position")}</span>
           <input type="range" min="0" max="1" step="0.01" value=${draft.focusX ?? 0.5} aria-label=${t("editor.framing_position")}

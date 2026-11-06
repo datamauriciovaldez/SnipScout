@@ -399,7 +399,7 @@ def test_per_clip_framing(client: TestClient, ctx: Context, video_mp4: Path) -> 
     assert _events_until_done(client, pid)[-1]["state"] == "done"
     cid = client.get(f"/api/v1/projects/{pid}/clips").json()["clips"][0]["id"]
     info = client.get(f"/api/v1/projects/{pid}/clips/{cid}/framing").json()
-    assert info == {"crops": True, "auto_focus": None}  # 4:3 test pattern → 9:16, no face
+    assert info == {"crops": True, "auto_focus": None, "auto_path": None}  # 4:3 test pattern → 9:16, no face
     r = client.patch(f"/api/v1/projects/{pid}/clips/{cid}", json={"framing": "manual", "focus_x": 0.2})
     assert r.status_code == 200 and r.json()["framing"] == "manual" and r.json()["focus_x"] == 0.2
     assert client.patch(f"/api/v1/projects/{pid}/clips/{cid}", json={"focus_x": 1.5}).status_code == 422

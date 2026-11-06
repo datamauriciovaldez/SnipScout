@@ -131,6 +131,15 @@
   Browser check on a face video: auto → object-position 87.75 % (face right), manual 0.1 → 0 %, saved, real frame
   matches; a11y audit 0 problems (fixed a pre-existing 32 px link for very short project names). 137 tests + e2e green.
 
+- **F2** moving speaker: `faces.summarize(..., fps)` → static focus (x IQR ≤ 0.15) or, if one face moves
+  (presence ≥ 0.6, consecutive jumps ≤ 0.12), `Focus.path` = interpolated, 3 s moving average, speed-limited
+  (0.1 width/s) keyframes; two people alternating → None. `reframe._pan_expr` = nested piecewise-linear `if(lt(t,…))`
+  inside the crop x; `RenderOptions.path`; `render.at_time()` for single frames; `/framing` returns `auto_path`;
+  metadata `pan`. Verified on a 30 s video with a real face walking 200→1400 px: path within ~0.02 of the truth,
+  frames at 2/15/28 s keep the face in place, clip starting at 12 s aligned (ffmpeg `t` restarts at the clip).
+  Preview: `framing.pathAt` + `previewPosition`; player object-position follows the path (browser: 10 % → 21 % →
+  33 % while playing). Tests: path smoothness/speed/two-people rule, real ffmpeg pan (red→blue), JS path helpers.
+
 ## Decisions
 - Vertical/square from wide: always fill the frame (author's request); blurred background never by default.
 - Face crop is fixed per clip (no panning) to avoid jitter; ambiguous cases use the centred crop.
@@ -165,7 +174,4 @@ Goal: prove and improve behaviour on real use, before new features. One mileston
 - R1–R6 done and v0.4.0 released.
 
 ## Next — v0.5 "Encuadre" (chosen by the author 2026-11-06)
-- F1 done.
-- **F2** Moving speaker: when the face moves steadily, a smoothed horizontal pan instead of a fixed crop
-  (ffmpeg crop with a time expression); no jitter; preview approximates it.
-- Then release v0.5.0 (mandatory pause).
+- F1, F2 done. Next: release v0.5.0 (mandatory pause).

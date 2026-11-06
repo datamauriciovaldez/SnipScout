@@ -411,7 +411,8 @@
     "framing_auto_off": "Following the face is turned off for this project: the crop is centred.",
     "framing_center_help": "The crop always stays in the middle of the video.",
     "framing_manual_help": "Move the crop to the part of the video you want to show.",
-    "framing_position": "Horizontal position"
+    "framing_position": "Horizontal position",
+    "framing_auto_pan": "Follows the speaker as they move (smooth pan)."
   },
   "reasons": {
     "question_hook": "Opens with a question",

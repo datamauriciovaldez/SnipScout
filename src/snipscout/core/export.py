@@ -123,7 +123,11 @@ def export_clips(
                     "start": clip.start,
                     "end": clip.end,
                     "duration": round(clip.end - clip.start, 3),
-                    "reframe": {"mode": clip_opts.mode.value, "focus": clip_opts.focus},
+                    "reframe": {
+                        "mode": clip_opts.mode.value,
+                        "focus": clip_opts.focus,
+                        "pan": clip_opts.path is not None,
+                    },
                     "keywords": clip.keywords,
                     "subtitles": {
                         "srt": srt.name,

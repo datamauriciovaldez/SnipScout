@@ -28,3 +28,25 @@ export function effectiveFocus(framing, focusX, autoFocusX) {
   if (framing === "auto" && autoFocusX != null) return autoFocusX;
   return null;
 }
+
+/** Value of a [[t, v], ...] keyframe path at time t (linear, clamped at the ends). */
+export function pathAt(path, t) {
+  if (!path || !path.length) return null;
+  if (t <= path[0][0]) return path[0][1];
+  for (let i = 1; i < path.length; i++) {
+    const [t1, v1] = path[i];
+    if (t <= t1) {
+      const [t0, v0] = path[i - 1];
+      return v0 + ((v1 - v0) * (t - t0)) / Math.max(t1 - t0, 1e-3);
+    }
+  }
+  return path[path.length - 1][1];
+}
+
+/** Preview positions for a framing: a static object-position x, or a path of them when the export pans. */
+export function previewPosition(framing, focusX, cropInfo, srcRatio, outRatio) {
+  const autoPath = framing === "auto" && cropInfo && cropInfo.auto_path;
+  if (autoPath) return { posX: 0.5, posPath: autoPath.map(([t, x]) => [t, objectPositionX(x, srcRatio, outRatio)]) };
+  const fx = effectiveFocus(framing, focusX, cropInfo && cropInfo.auto_focus ? cropInfo.auto_focus[0] : null);
+  return { posX: fx == null ? 0.5 : objectPositionX(fx, srcRatio, outRatio), posPath: null };
+}

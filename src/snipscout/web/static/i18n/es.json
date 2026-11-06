@@ -411,7 +411,8 @@
     "framing_auto_off": "Seguir la cara está desactivado en este proyecto: el recorte va al centro.",
     "framing_center_help": "El recorte va siempre al centro del vídeo.",
     "framing_manual_help": "Mueve el recorte a la parte del vídeo que quieras mostrar.",
-    "framing_position": "Posición horizontal"
+    "framing_position": "Posición horizontal",
+    "framing_auto_pan": "Sigue a quien habla mientras se mueve (barrido suave)."
   },
   "reasons": {
     "question_hook": "Empieza con una pregunta",

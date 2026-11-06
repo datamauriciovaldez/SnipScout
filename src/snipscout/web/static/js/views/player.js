@@ -6,6 +6,7 @@ import { api } from "../api.js";
 import { Button } from "../components.js";
 import { fmt, t } from "../i18n.js";
 import { activeWord, clipWords, lineFor } from "../subtitles.js";
+import { pathAt } from "../framing.js";
 
 export { clipWords }; // re-exported for the views that already import it from here
 
@@ -16,7 +17,7 @@ function subtitleAt(words, time, style) {
 }
 
 /** `ratio`: output width/height (screen shape); `posX`: CSS object-position x (0..1) matching the export crop. */
-export function ClipPlayer({ projectId, hasVideo, start, end, words, style, big, seek, onTime: report, ratio = 9 / 16, posX = 0.5 }) {
+export function ClipPlayer({ projectId, hasVideo, start, end, words, style, big, seek, onTime: report, ratio = 9 / 16, posX = 0.5, posPath = null }) {
   const video = useRef(null);
   const [time, setTime] = useState(start);
   const [playing, setPlaying] = useState(false);
@@ -80,7 +81,7 @@ export function ClipPlayer({ projectId, hasVideo, start, end, words, style, big,
     <div class="thumb thumb--preview player__screen" style=${Math.abs(ratio - 9 / 16) > 0.01 ? `height:auto;aspect-ratio:${ratio}` : undefined}>
       ${hasVideo && !failed && preparing === null
         ? html`<video ref=${video} key=${variant} src=${api.mediaUrl(projectId, variant)} preload="metadata" playsinline
-            style=${`object-position:${(posX * 100).toFixed(2)}% 50%`}
+            style=${`object-position:${((posPath ? pathAt(posPath, time - start) : posX) * 100).toFixed(2)}% 50%`}
             onLoadedMetadata=${(e) => { // no picture size = codec not supported here (Chromium plays HEVC audio only)
               if (!e.currentTarget.videoWidth) { fallBack(); return; } e.currentTarget.currentTime = start; }} onTimeUpdate=${onTime}
             onPlay=${() => setPlaying(true)} onPause=${() => setPlaying(false)} onError=${fallBack}></video>`

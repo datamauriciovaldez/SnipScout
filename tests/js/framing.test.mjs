@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { displaySize, effectiveFocus, objectPositionX, outputRatio } from "../../src/snipscout/web/static/js/framing.js";
+import { displaySize, effectiveFocus, objectPositionX, outputRatio, pathAt, previewPosition } from "../../src/snipscout/web/static/js/framing.js";
 
 test("output ratios", () => {
   assert.equal(outputRatio("9:16"), 9 / 16);
@@ -30,4 +30,19 @@ test("display size follows rotation", () => {
   assert.deepEqual(displaySize({ width: 1920, height: 1080, rotation: 90 }), [1080, 1920]);
   assert.deepEqual(displaySize({ width: 1920, height: 1080, rotation: 0 }), [1920, 1080]);
   assert.deepEqual(displaySize({}), [16, 9]);
+});
+
+test("pan paths for the preview", () => {
+  const path = [[0, 0.2], [10, 0.6]];
+  assert.equal(pathAt(path, -1), 0.2);
+  assert.ok(Math.abs(pathAt(path, 5) - 0.4) < 1e-9);
+  assert.equal(pathAt(path, 20), 0.6);
+  const info = { crops: true, auto_focus: [0.4, 0.4], auto_path: path };
+  const auto = previewPosition("auto", null, info, 16 / 9, 9 / 16);
+  assert.equal(auto.posPath.length, 2);
+  assert.equal(auto.posPath[0][1], objectPositionX(0.2, 16 / 9, 9 / 16));
+  const manual = previewPosition("manual", 0.3, info, 16 / 9, 9 / 16);
+  assert.equal(manual.posPath, null);
+  assert.equal(manual.posX, objectPositionX(0.3, 16 / 9, 9 / 16));
+  assert.equal(previewPosition("center", 0.3, info, 16 / 9, 9 / 16).posX, 0.5);
 });

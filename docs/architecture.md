@@ -38,7 +38,8 @@ flowchart TB
 
 Rendering (`render` job): `subtitles.py` builds an ASS file with one event per word (3–5 word lines),
 `reframe.py` always fills the output (scale to cover + crop); via `faces.py` (YuNet on onnxruntime, ~1 frame/s of the
-clip) the crop is centred on a steadily visible speaker, otherwise on the middle of the frame, `render.py` runs ffmpeg (libx264, or a hardware encoder with
+clip) the crop is centred on a steadily visible speaker, pans smoothly after one that moves, or stays in the middle;
+per-clip *Framing* (auto/centre/manual) overrides it, `render.py` runs ffmpeg (libx264, or a hardware encoder with
 fallback; optional loudnorm), `export.py` writes `clip_NN_slug.mp4/.srt/.vtt`, `metadata.json` and `captions.txt`.
 
 Optional `improve` job: `scoring/ollama.py` asks a local Ollama model to rate the top clips (see [scoring](scoring.md)).

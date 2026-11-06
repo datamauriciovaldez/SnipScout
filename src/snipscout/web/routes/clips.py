@@ -104,9 +104,13 @@ def register(app: FastAPI, ctx: Context) -> None:  # noqa: C901 - routes as clos
             raise ApiError("Invalid clip range.", details=f"start={a} end={b}")
         opts = ctx.pipeline().render_options(p)
         if not crops(p.source, opts):
-            return {"crops": False, "auto_focus": None}
+            return {"crops": False, "auto_focus": None, "auto_path": None}
         auto = for_clip(ctx.require_ffmpeg().ffmpeg, p.source, opts, a, b)
-        return {"crops": True, "auto_focus": list(auto.focus) if auto.focus else None}
+        return {
+            "crops": True,
+            "auto_focus": list(auto.focus) if auto.focus else None,
+            "auto_path": [list(k) for k in auto.path] if auto.path else None,  # seconds from `start`, x
+        }
 
     @app.get("/api/v1/projects/{pid}/clips/{cid}/thumbnail")
     def thumbnail(pid: str, cid: str) -> FileResponse:
@@ -145,7 +149,7 @@ def register(app: FastAPI, ctx: Context) -> None:  # noqa: C901 - routes as clos
     @app.post("/api/v1/projects/{pid}/clips/{cid}/preview-frame")
     def preview_frame(pid: str, cid: str, body: PreviewFrameRequest) -> FileResponse:
         """One real frame (ffmpeg + libass, same reframe as the export) for the editor's current draft."""
-        from snipscout.core.render import for_clip, render_still
+        from snipscout.core.render import at_time, for_clip, render_still
         from snipscout.core.subtitles import PRESETS, build_ass, clip_words, shift_words
 
         p = ctx.store.load(pid)
@@ -183,6 +187,7 @@ def register(app: FastAPI, ctx: Context) -> None:  # noqa: C901 - routes as clos
         opts = for_clip(
             ff, p.source, opts, draft.start, draft.end, framing=draft.framing, focus_x=draft.focus_x
         )
+        opts = at_time(opts, body.at - draft.start)
         out = render_still(ff, p.source, body.at, work, work / f"frame_{tag}.jpg", ass_name, opts)
         (work / ass_name).unlink(missing_ok=True)
         return FileResponse(out, media_type="image/jpeg", headers={"Cache-Control": "no-store"})

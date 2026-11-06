@@ -189,8 +189,9 @@ speed and adjusts its estimates after the first analysis.
   Parliament, VoxPopuli, 17 moments annotated by one person), the top 5 suggestions caught 29 % of the moments;
   a random choice of 5 windows catches 38 %. Treat the ranking as a starting point and review all suggestions —
   that is why there are 12 and the editor exists. Details and how to help: [scoring](docs/scoring.md#5-tuning-and-honesty).
-- Face-aware reframing uses one fixed crop per clip (no panning yet). With two people in view or a moving camera the
-  automatic crop is centred; you can move it per clip in the editor (*Framing → Manual*). Tested with a single real face only.
+- Face-aware reframing follows one speaker (fixed crop, or a smooth pan when they move). With two people taking turns
+  or camera cuts the automatic crop is centred; you can move it per clip in the editor (*Framing → Manual*).
+  Tested with a single real face (static and moving) only.
 - The preview in the app approximates the subtitle rendering; the exported file is the reference.
 - Windows double-click launch verified on a real machine; the native window on macOS is **not yet verified**.
 - An **experimental** self-contained folder build (PyInstaller, ~0.6 GB, unsigned) can be produced with the manual
