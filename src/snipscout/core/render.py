@@ -7,6 +7,7 @@ of Windows drive letters and backslashes inside filtergraphs.
 
 from __future__ import annotations
 
+import dataclasses
 import shutil
 import subprocess
 from collections.abc import Callable
@@ -14,6 +15,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from snipscout.core.errors import FfmpegFailedError
+from snipscout.core.faces import find_focus
 from snipscout.core.models import MediaInfo
 from snipscout.core.procs import CancelToken, run_ffmpeg
 from snipscout.core.reframe import AUDIO_ONLY_BG, ReframeMode, video_filter
@@ -33,6 +35,8 @@ class RenderOptions:
     loudnorm: bool = False
     hardware: bool = False  # try a hardware H.264 encoder first, fall back to libx264
     burn_subtitles: bool = True
+    follow_face: bool = False  # crop around the speaker when the layout would otherwise be blur-pad
+    focus: tuple[float, float] | None = None  # set by for_clip() in FACE mode
 
 
 def ensure_fonts(work_dir: Path) -> None:
@@ -71,7 +75,7 @@ def build_args(
     dur = max(0.1, end - start)
     args = ["-ss", f"{start:.3f}", "-t", f"{dur:.3f}", "-i", str(media.path)]
     if media.has_video:
-        graph = video_filter(opts.width, opts.height, opts.mode)
+        graph = video_filter(opts.width, opts.height, opts.mode, opts.focus)
     else:
         args += [
             "-f",
@@ -101,6 +105,24 @@ def build_args(
         args += ["-c:v", encoder, "-b:v", "8M"]
     args += ["-pix_fmt", "yuv420p", "-movflags", "+faststart", "-shortest", out_file]
     return args
+
+
+def for_clip(
+    ffmpeg: Path,
+    media: MediaInfo,
+    opts: RenderOptions,
+    start: float,
+    end: float,
+    *,
+    cancel: CancelToken | None = None,
+) -> RenderOptions:
+    """Options for one clip: switch blur-pad to a face-centred crop when one speaker is steadily in view."""
+    if not (opts.follow_face and opts.mode == ReframeMode.BLUR_PAD and media.has_video):
+        return opts
+    focus = find_focus(ffmpeg, media, start, end, cancel=cancel)
+    if focus is None:
+        return opts
+    return dataclasses.replace(opts, mode=ReframeMode.FACE, focus=(focus.x, focus.y))
 
 
 def render_clip(
@@ -164,7 +186,7 @@ def render_still(
         ensure_fonts(work_dir)
     if media.has_video:
         args = ["-ss", f"{max(0.0, at):.3f}", "-i", str(media.path)]
-        graph = video_filter(opts.width, opts.height, opts.mode)
+        graph = video_filter(opts.width, opts.height, opts.mode, opts.focus)
     else:
         args = ["-f", "lavfi", "-i", f"color=c={AUDIO_ONLY_BG}:s={opts.width}x{opts.height}:r=30"]
         graph = "[0:v]format=yuv420p[base]"

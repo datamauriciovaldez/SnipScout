@@ -104,6 +104,7 @@ def _run(args: argparse.Namespace) -> int:
         language=args.lang,
         model=args.model,
         quick_analysis=args.quick,
+        follow_face=not args.no_face,
         audio_track=args.track,
     )
     project = store.create(media, settings)
@@ -165,6 +166,11 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--track", type=int, default=0, help="Audio track index (default 0).")
     run.add_argument("--count", type=int, default=3, help="How many top clips to render (default 3).")
     run.add_argument("--quick", action="store_true", help="Quick analysis: only the first 10 minutes.")
+    run.add_argument(
+        "--no-face",
+        action="store_true",
+        help="Never crop around the speaker's face (keep the blurred background).",
+    )
     run.add_argument("--out", help="Output folder (default: inside the project folder).")
     run.add_argument("--hardware", action="store_true", help="Try a hardware H.264 encoder first.")
     run.add_argument("--loudnorm", action="store_true", help="Normalize loudness (-14 LUFS).")

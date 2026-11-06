@@ -25,7 +25,8 @@ video, proposes the moments that work on their own, and renders vertical clips w
 - Clip editor with a waveform timeline: drag in/out handles that snap to sentences, scrub, zoom, fix any subtitle
   word (synced with playback), preview the exact exported frame, undo/redo and autosave.
 - Projects history, "continue where you left off", and settings for output folder, quality and speech models.
-- Export to 9:16, 1:1, 16:9 or original, with word-by-word highlighted subtitles (4 styles), plus `.srt`/`.vtt`,
+- Export to 9:16, 1:1, 16:9 or original; wide videos are cropped around the speaker's face (detected locally), with
+  word-by-word highlighted subtitles (4 styles), plus `.srt`/`.vtt`,
   `metadata.json` and a ready-to-paste title and description per clip.
 - Optional: re-rank the suggestions with a local Ollama model you already have (never downloaded by SnipScout).
 - Spanish and English interface, light and dark themes, keyboard friendly, automated WCAG 2.1 AA checks (axe-core) on every screen.
@@ -187,7 +188,8 @@ speed and adjusts its estimates after the first analysis.
   Parliament, VoxPopuli, 17 moments annotated by one person), the top 5 suggestions caught 29 % of the moments;
   a random choice of 5 windows catches 38 %. Treat the ranking as a starting point and review all suggestions —
   that is why there are 12 and the editor exists. Details and how to help: [scoring](docs/scoring.md#5-tuning-and-honesty).
-- Reframing is center-crop or blurred background; no face tracking.
+- Face-aware reframing uses one fixed crop per clip (no panning). With two people in view or a moving camera it falls
+  back to the blurred background. Tested with a single real face only.
 - The preview in the app approximates the subtitle rendering; the exported file is the reference.
 - Windows double-click launch verified on a real machine; the native window on macOS is **not yet verified**.
 - An **experimental** self-contained folder build (PyInstaller, ~0.6 GB, unsigned) can be produced with the manual

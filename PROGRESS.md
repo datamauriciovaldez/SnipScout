@@ -93,7 +93,18 @@
   `eval_scoring.random_baseline` (printed by the script), honest numbers in README/scoring.md/weights.toml, test.
   Next for quality: needs more and better annotated real talks (ideally the author's own) before any tuning.
 
+- **R5** face-aware reframing: `core/faces.py` (YuNet 2023mar ONNX, MIT, 232 KB bundled in `assets/models`;
+  onnxruntime CPU, 2 threads, ~12 ms/frame; ffmpeg samples ≤ 40 frames at ≤ 1 fps to 640 px BGR; largest face per
+  frame; focus = median centre if a face is in ≥ 50 % of frames and the x interquartile range ≤ 0.15, else None;
+  cached per file/range for editor previews). `ReframeMode.FACE` = scale-to-cover + fixed crop centred on the face
+  (face at 40 % height). `render.for_clip()` switches BLUR_PAD → FACE per clip (export + preview-frame);
+  `ProjectSettings.follow_face` (default on), Home checkbox for 9:16/1:1, CLI `--no-face`, metadata `reframe`.
+  Verified with a real face (local only, not committed): detected x 0.262 vs 0.255 expected, 0.4 s per 8 s clip;
+  full `snipscout run` with face on the right → focus 0.758, vertical clip centred on the face. CI tests: YuNet
+  decoding maths + NMS, decision rule, bundled model on CPU, ffmpeg crop direction (red/blue), for_clip switching.
+
 ## Decisions
+- Face crop is fixed per clip (no panning) to avoid jitter; ambiguous cases fall back to blur-pad (safe default).
 - Do not tune scoring weights on fewer than ~50 real annotated moments, and always validate on held-out speeches
   against the random baseline.
 - Playwright in CI is pinned (`uv run --with playwright==1.64.1`) instead of a dev dependency, so normal installs stay small.
@@ -121,7 +132,6 @@
 
 ## Next — v0.4 "Real world" (approved by the author 2026-11-06: "hazlo como tú quieras")
 Goal: prove and improve behaviour on real use, before new features. One milestone at a time, same process.
-- R1–R4 done (R4: evaluation only; quality not improved — see Done).
-- **R5** Face-aware vertical reframing (local face detector, CPU, optional fallback to centre) — needs licence check.
+- R1–R5 done (R4: evaluation only; quality not improved — see Done).
 - **R6** Housekeeping: split `web/app.py` into routers, more JS unit tests, VP9 preview proxy for Qt (spec 5.6).
 - Then release v0.4.0 (mandatory pause).

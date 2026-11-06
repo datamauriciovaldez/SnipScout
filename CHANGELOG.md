@@ -12,6 +12,12 @@ All notable changes to this project are documented here. The format follows
   `eval_scoring.py` now also reports a random baseline. Result, published in the README: the ranking is not yet
   better than chance on real speech (29 % vs 38 % recall@5).
 
+### Changed
+- Wide videos exported as vertical or square clips are now cropped around the speaker's face when one person is
+  steadily in view (YuNet face detector, bundled, CPU, ~0.4 s per clip); otherwise the blurred background is kept.
+  Option *Follow the speaker's face* in Home (on by default) and `snipscout run --no-face`. `metadata.json` records
+  the layout used per clip.
+
 ### Fixed
 - Clip selection no longer proposes the same content several times when a video repeats itself (recurring intros,
   catchphrases, loops): near-duplicates (topic similarity ≥ 0.7) are skipped. Found with a 2-hour test video.

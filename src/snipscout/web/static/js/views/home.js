@@ -10,7 +10,7 @@ import { store, useStore } from "../store.js";
 
 const ACCEPT = ".mp4,.mov,.mkv,.webm,.avi,.m4v,.mp3,.wav,.m4a";
 const DEFAULTS_KEY = "snipscout.defaults";
-const DEFAULTS = { clip_length: "short", aspect: "9:16", subtitle_style: "bold-pop", language: null, model: "base", quick_analysis: false };
+const DEFAULTS = { clip_length: "short", aspect: "9:16", subtitle_style: "bold-pop", language: null, model: "base", quick_analysis: false, follow_face: true };
 const DROP_PEAKS = Array.from({ length: 140 }, (_, i) => (6 + Math.abs(Math.sin(i * 0.7) * 14 + Math.sin(i * 1.9) * 8)) / 32);
 
 function loadDefaults() {
@@ -148,7 +148,10 @@ function SettingsPanel({ settings, setSettings, selectedItem }) {
       <div class="settings__row"><span class="label">${t("home.format")}</span><div>
         <${Segmented} label=${t("home.format")} value=${settings.aspect} onChange=${set("aspect")}
           options=${["9:16", "1:1", "16:9", "original"].map((v) => ({ value: v, label: v === "original" ? t("home.original") : v }))} />
-        <div class="settings__help">${t(`home.format_help_${settings.aspect.replace(":", "_")}`)}</div></div></div>
+        <div class="settings__help">${t(`home.format_help_${settings.aspect.replace(":", "_")}`)}</div>
+        ${["9:16", "1:1"].includes(settings.aspect) && html`<label class="inline-check" style="margin-top:8px">
+          <${Checkbox} checked=${settings.follow_face !== false} onChange=${set("follow_face")} label=${t("home.follow_face")} /> ${t("home.follow_face")}</label>
+          <div class="settings__help">${t("home.follow_face_help")}</div>`}</div></div>
       <div class="settings__row"><span class="label">${t("home.subtitles")}</span><div>
         <${Segmented} label=${t("home.subtitles")} mono=${false} value=${settings.subtitle_style} onChange=${set("subtitle_style")}
           options=${["bold-pop", "classic", "karaoke", "minimal"].map((v) => ({ value: v, label: t(`styles.${v.replace("-", "_")}`) }))} />

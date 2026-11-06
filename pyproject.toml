@@ -16,6 +16,7 @@ dependencies = [
     "av>=14",
     "fastapi>=0.115",
     "faster-whisper>=1.1",
+    "onnxruntime>=1.14",  # also used directly: bundled YuNet face detector
     "httpx>=0.27",
     "imageio-ffmpeg>=0.8.1",
     "numpy>=1.26",
@@ -73,7 +74,7 @@ warn_unused_ignores = true
 files = ["src"]
 
 [[tool.mypy.overrides]]
-module = ["imageio_ffmpeg", "ctranslate2", "faster_whisper", "faster_whisper.*", "fastembed"]
+module = ["imageio_ffmpeg", "ctranslate2", "faster_whisper", "faster_whisper.*", "fastembed", "onnxruntime"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]

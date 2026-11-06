@@ -10,7 +10,7 @@ from pathlib import Path
 
 from snipscout.core.models import Clip, MediaInfo, Word
 from snipscout.core.procs import CancelToken
-from snipscout.core.render import RenderOptions, render_clip
+from snipscout.core.render import RenderOptions, for_clip, render_clip
 from snipscout.core.storage import atomic_write_text, slugify
 from snipscout.core.subtitles import build_ass, build_srt, build_vtt, clip_words
 from snipscout.core.text import lexicon
@@ -87,6 +87,7 @@ def export_clips(
                 if on_clip_progress:
                     on_clip_progress(i, len(selected), f)
 
+            clip_opts = for_clip(ffmpeg, media, opts, clip.start, clip.end, cancel=cancel)
             video = render_clip(
                 ffmpeg,
                 media,
@@ -95,7 +96,7 @@ def export_clips(
                 work,
                 out_dir / f"{name}.mp4",
                 ass_name,
-                opts,
+                clip_opts,
                 on_progress=progress,
                 cancel=cancel,
             )
@@ -113,6 +114,7 @@ def export_clips(
                     "start": clip.start,
                     "end": clip.end,
                     "duration": round(clip.end - clip.start, 3),
+                    "reframe": {"mode": clip_opts.mode.value, "focus": clip_opts.focus},
                     "keywords": clip.keywords,
                     "subtitles": {
                         "srt": srt.name,

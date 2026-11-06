@@ -242,6 +242,7 @@ class Pipeline:
             mode=default_mode(project.source, project.settings.aspect),
             crf=prefs.quality.crf,
             audio_track=project.settings.audio_track,
+            follow_face=project.settings.follow_face,
             hardware=prefs.hardware if hardware is None else hardware,
             loudnorm=prefs.loudnorm if loudnorm is None else loudnorm,
         )

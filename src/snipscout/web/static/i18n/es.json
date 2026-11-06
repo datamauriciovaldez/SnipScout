@@ -63,7 +63,7 @@
     "length_help_long": "60–90 s · historias y respuestas largas.",
     "format": "Formato",
     "original": "Original",
-    "format_help_9_16": "Vertical para Reels, TikTok y Shorts. Si tu vídeo es horizontal, el fondo se rellena con el propio vídeo desenfocado.",
+    "format_help_9_16": "Vertical para Reels, TikTok y Shorts. Si tu vídeo es horizontal, recortamos alrededor de la cara de quien habla; si no hay una cara clara, el fondo se rellena con el propio vídeo desenfocado.",
     "format_help_1_1": "Cuadrado para el feed de Instagram o LinkedIn.",
     "format_help_16_9": "Horizontal para YouTube o presentaciones.",
     "format_help_original": "Mantiene la forma de tu vídeo.",
@@ -85,7 +85,9 @@
     "estimate": "≈ {min} min en este equipo (estimación inicial)",
     "estimate_measured": "≈ {min} min en este equipo · medido con tu procesador",
     "tracks_one": "{n} pista de audio",
-    "tracks_other": "{n} pistas de audio"
+    "tracks_other": "{n} pistas de audio",
+    "follow_face": "Seguir la cara de quien habla",
+    "follow_face_help": "Se detecta en tu ordenador. Si salen dos personas o la cámara se mueve mucho, se usa el fondo desenfocado."
   },
   "project_status": {
     "new": "Nuevo",

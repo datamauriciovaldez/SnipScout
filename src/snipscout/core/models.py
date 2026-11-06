@@ -148,6 +148,9 @@ class ProjectSettings(_Model):
     model: str = "base"
     audio_track: int = 0
     quick_analysis: bool = False  # only the first ~10 minutes
+    follow_face: bool = (
+        True  # vertical/square from wide video: crop around the speaker when one is steadily visible
+    )
 
 
 class ProjectStatus(StrEnum):

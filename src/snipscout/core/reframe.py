@@ -1,7 +1,8 @@
 """Output geometry and ffmpeg filter chains for changing aspect ratio.
 
-Modes: ``center`` (scale to cover + center crop) and ``blur-pad`` (whole frame over a blurred,
-zoomed copy of itself). Face tracking is out of scope (roadmap).
+Modes: ``center`` (scale to cover + center crop), ``blur-pad`` (whole frame over a blurred,
+zoomed copy of itself) and ``face`` (scale to cover + crop centred on the speaker's face, see
+``core/faces.py``; the crop is fixed for the whole clip).
 """
 
 from __future__ import annotations
@@ -16,6 +17,7 @@ AUDIO_ONLY_BG = "0x15112B"  # deep brand violet for audio-only sources
 class ReframeMode(StrEnum):
     CENTER = "center"
     BLUR_PAD = "blur-pad"
+    FACE = "face"
 
 
 _TARGETS = {
@@ -48,8 +50,19 @@ def default_mode(media: MediaInfo, aspect: AspectRatio) -> ReframeMode:
     return ReframeMode.BLUR_PAD if ratio > 1.3 or ratio < 1 / 1.3 else ReframeMode.CENTER
 
 
-def video_filter(width: int, height: int, mode: ReframeMode) -> str:
-    """Filter graph from input label [0:v] to an output ready for subtitles (label [base])."""
+def video_filter(width: int, height: int, mode: ReframeMode, focus: tuple[float, float] | None = None) -> str:
+    """Filter graph from input label [0:v] to an output ready for subtitles (label [base]).
+
+    ``focus`` (FACE mode) is the face centre as fractions of the source frame; the crop window is
+    centred on it and clamped inside the frame."""
+    if mode == ReframeMode.FACE and focus is not None:
+        fx, fy = (min(1.0, max(0.0, v)) for v in focus)
+        x = f"min(max({fx:.4f}*iw-{width}/2\\,0)\\,iw-{width})"
+        y = f"min(max({fy:.4f}*ih-{height}*0.4\\,0)\\,ih-{height})"  # face in the upper part of the frame
+        return (
+            f"[0:v]scale={width}:{height}:force_original_aspect_ratio=increase,"
+            f"crop={width}:{height}:{x}:{y},setsar=1,format=yuv420p[base]"
+        )
     if mode == ReframeMode.BLUR_PAD:
         return (
             f"[0:v]split=2[bgsrc][fgsrc];"

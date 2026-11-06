@@ -137,6 +137,7 @@ class SettingsPatch(BaseModel):
     model: str | None = None
     audio_track: int | None = Field(default=None, ge=0, le=31)
     quick_analysis: bool | None = None
+    follow_face: bool | None = None
 
 
 class CreateProject(BaseModel):
@@ -737,7 +738,7 @@ def create_app(ctx: Context) -> FastAPI:  # noqa: C901 - one place that lists th
     @app.post("/api/v1/projects/{pid}/clips/{cid}/preview-frame")
     def preview_frame(pid: str, cid: str, body: PreviewFrameRequest) -> FileResponse:
         """One real frame (ffmpeg + libass, same reframe as the export) for the editor's current draft."""
-        from snipscout.core.render import render_still
+        from snipscout.core.render import for_clip, render_still
         from snipscout.core.subtitles import PRESETS, build_ass, clip_words, shift_words
 
         p = ctx.store.load(pid)
@@ -771,9 +772,9 @@ def create_app(ctx: Context) -> FastAPI:  # noqa: C901 - one place that lists th
             ),
             encoding="utf-8",
         )
-        out = render_still(
-            ctx.require_ffmpeg().ffmpeg, p.source, body.at, work, work / f"frame_{tag}.jpg", ass_name, opts
-        )
+        ff = ctx.require_ffmpeg().ffmpeg
+        opts = for_clip(ff, p.source, opts, draft.start, draft.end)
+        out = render_still(ff, p.source, body.at, work, work / f"frame_{tag}.jpg", ass_name, opts)
         (work / ass_name).unlink(missing_ok=True)
         return FileResponse(out, media_type="image/jpeg", headers={"Cache-Control": "no-store"})
 
