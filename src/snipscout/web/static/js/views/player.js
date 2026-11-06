@@ -15,7 +15,8 @@ function subtitleAt(words, time, style) {
   return lineFor(words, k, style).map((w) => (w.lit ? html`<mark>${w.text}</mark> ` : `${w.text} `));
 }
 
-export function ClipPlayer({ projectId, hasVideo, start, end, words, style, big, seek, onTime: report }) {
+/** `ratio`: output width/height (screen shape); `posX`: CSS object-position x (0..1) matching the export crop. */
+export function ClipPlayer({ projectId, hasVideo, start, end, words, style, big, seek, onTime: report, ratio = 9 / 16, posX = 0.5 }) {
   const video = useRef(null);
   const [time, setTime] = useState(start);
   const [playing, setPlaying] = useState(false);
@@ -76,9 +77,10 @@ export function ClipPlayer({ projectId, hasVideo, start, end, words, style, big,
   const frac = Math.max(0, Math.min(1, (time - start) / Math.max(0.1, end - start)));
   const shown = Math.max(0, Math.min(end - start, time - start));
   return html`<div class=${`player${big ? " player--big" : ""}`}>
-    <div class="thumb thumb--preview player__screen">
+    <div class="thumb thumb--preview player__screen" style=${Math.abs(ratio - 9 / 16) > 0.01 ? `height:auto;aspect-ratio:${ratio}` : undefined}>
       ${hasVideo && !failed && preparing === null
         ? html`<video ref=${video} key=${variant} src=${api.mediaUrl(projectId, variant)} preload="metadata" playsinline
+            style=${`object-position:${(posX * 100).toFixed(2)}% 50%`}
             onLoadedMetadata=${(e) => { // no picture size = codec not supported here (Chromium plays HEVC audio only)
               if (!e.currentTarget.videoWidth) { fallBack(); return; } e.currentTarget.currentTime = start; }} onTimeUpdate=${onTime}
             onPlay=${() => setPlaying(true)} onPause=${() => setPlaying(false)} onError=${fallBack}></video>`

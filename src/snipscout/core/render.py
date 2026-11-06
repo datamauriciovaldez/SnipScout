@@ -16,7 +16,7 @@ from pathlib import Path
 
 from snipscout.core.errors import FfmpegFailedError
 from snipscout.core.faces import find_focus
-from snipscout.core.models import MediaInfo
+from snipscout.core.models import Framing, MediaInfo
 from snipscout.core.procs import CancelToken, run_ffmpeg
 from snipscout.core.reframe import AUDIO_ONLY_BG, ReframeMode, video_filter
 from snipscout.core.subtitles import FONTS_DIR
@@ -107,6 +107,14 @@ def build_args(
     return args
 
 
+def crops(media: MediaInfo, opts: RenderOptions) -> bool:
+    """True when the export crops part of the source frame (so where to crop matters)."""
+    if opts.mode != ReframeMode.CENTER or not media.has_video or not media.display_size:
+        return False
+    sw, sh = media.display_size
+    return abs((sw / sh) / (opts.width / opts.height) - 1) >= 0.05
+
+
 def for_clip(
     ffmpeg: Path,
     media: MediaInfo,
@@ -114,15 +122,19 @@ def for_clip(
     start: float,
     end: float,
     *,
+    framing: Framing = Framing.AUTO,
+    focus_x: float | None = None,
     cancel: CancelToken | None = None,
 ) -> RenderOptions:
-    """Options for one clip: when the crop cuts away part of the frame (e.g. 16:9 → 9:16), centre it on the
-    speaker's face if one is steadily in view; otherwise keep the centred crop."""
-    if not (opts.follow_face and opts.mode == ReframeMode.CENTER and media.has_video and media.display_size):
+    """Options for one clip when the crop cuts away part of the frame (e.g. 16:9 → 9:16):
+    AUTO centres it on the speaker's face if one is steadily in view (and the project allows it), CENTER keeps
+    the middle, MANUAL centres it on ``focus_x``."""
+    if not crops(media, opts):
         return opts
-    sw, sh = media.display_size
-    if abs((sw / sh) / (opts.width / opts.height) - 1) < 0.05:
-        return opts  # same shape: nothing is cropped away
+    if framing == Framing.MANUAL and focus_x is not None:
+        return dataclasses.replace(opts, mode=ReframeMode.FACE, focus=(focus_x, 0.4))
+    if framing == Framing.CENTER or not opts.follow_face:
+        return opts
     focus = find_focus(ffmpeg, media, start, end, cancel=cancel)
     if focus is None:
         return opts

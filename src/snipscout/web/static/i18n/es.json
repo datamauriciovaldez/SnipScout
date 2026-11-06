@@ -401,7 +401,17 @@
     "key_out": "Salida en el cabezal",
     "key_undo": "Deshacer",
     "key_redo": "Rehacer",
-    "key_done": "Guardar y volver"
+    "key_done": "Guardar y volver",
+    "framing": "Encuadre",
+    "framing_auto": "Automático",
+    "framing_center": "Centro",
+    "framing_manual": "Manual",
+    "framing_auto_face": "Sigue la cara de quien habla (detectada en este tramo).",
+    "framing_auto_none": "No hay una cara clara en este tramo: el recorte va al centro.",
+    "framing_auto_off": "Seguir la cara está desactivado en este proyecto: el recorte va al centro.",
+    "framing_center_help": "El recorte va siempre al centro del vídeo.",
+    "framing_manual_help": "Mueve el recorte a la parte del vídeo que quieras mostrar.",
+    "framing_position": "Posición horizontal"
   },
   "reasons": {
     "question_hook": "Empieza con una pregunta",

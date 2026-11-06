@@ -87,7 +87,16 @@ def export_clips(
                 if on_clip_progress:
                     on_clip_progress(i, len(selected), f)
 
-            clip_opts = for_clip(ffmpeg, media, opts, clip.start, clip.end, cancel=cancel)
+            clip_opts = for_clip(
+                ffmpeg,
+                media,
+                opts,
+                clip.start,
+                clip.end,
+                framing=clip.framing,
+                focus_x=clip.focus_x,
+                cancel=cancel,
+            )
             video = render_clip(
                 ffmpeg,
                 media,

@@ -55,6 +55,7 @@ export const api = {
   waveform: (id, points = 800, start, end) => request("GET", `/projects/${id}/waveform?points=${Math.round(points)}`
     + (start !== undefined ? `&start=${start.toFixed(3)}` : "") + (end !== undefined ? `&end=${end.toFixed(3)}` : "")),
   mediaUrl: (id, variant) => `${BASE}/projects/${id}/media${variant === "proxy" ? "?variant=proxy" : ""}`,
+  clipFraming: (id, cid, start, end) => request("GET", `/projects/${id}/clips/${cid}/framing?start=${start}&end=${end}`),
   proxyStatus: (id) => request("GET", `/projects/${id}/media/proxy`),
   makeProxy: (id) => request("POST", `/projects/${id}/media/proxy`),
   thumbUrl: (id, cid) => `${BASE}/projects/${id}/clips/${cid}/thumbnail`,

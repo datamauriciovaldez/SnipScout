@@ -88,6 +88,26 @@ def register(app: FastAPI, ctx: Context) -> None:  # noqa: C901 - routes as clos
         ctx.store.save_clips(pid, clips)
         return clip.model_dump(mode="json")
 
+    @app.get("/api/v1/projects/{pid}/clips/{cid}/framing")
+    def framing(pid: str, cid: str, start: float | None = None, end: float | None = None) -> dict[str, Any]:
+        """What the automatic framing would do for this clip (or for an unsaved [start, end) draft):
+        whether the export crops at all, and the face focus it found (None = centred crop)."""
+        from snipscout.core.render import crops, for_clip
+
+        p = ctx.store.load(pid)
+        clips = ctx.store.load_clips(pid) or ClipSet()
+        clip = next((c for c in clips.clips if c.id == cid), None)
+        if clip is None:
+            raise ProjectNotFoundError("Unknown clip.", details=cid)
+        a, b = (clip.start if start is None else start), (clip.end if end is None else end)
+        if not 0 <= a < b <= p.source.duration + 0.01:
+            raise ApiError("Invalid clip range.", details=f"start={a} end={b}")
+        opts = ctx.pipeline().render_options(p)
+        if not crops(p.source, opts):
+            return {"crops": False, "auto_focus": None}
+        auto = for_clip(ctx.require_ffmpeg().ffmpeg, p.source, opts, a, b)
+        return {"crops": True, "auto_focus": list(auto.focus) if auto.focus else None}
+
     @app.get("/api/v1/projects/{pid}/clips/{cid}/thumbnail")
     def thumbnail(pid: str, cid: str) -> FileResponse:
         p = ctx.store.load(pid)
@@ -160,7 +180,9 @@ def register(app: FastAPI, ctx: Context) -> None:  # noqa: C901 - routes as clos
             encoding="utf-8",
         )
         ff = ctx.require_ffmpeg().ffmpeg
-        opts = for_clip(ff, p.source, opts, draft.start, draft.end)
+        opts = for_clip(
+            ff, p.source, opts, draft.start, draft.end, framing=draft.framing, focus_x=draft.focus_x
+        )
         out = render_still(ff, p.source, body.at, work, work / f"frame_{tag}.jpg", ass_name, opts)
         (work / ass_name).unlink(missing_ok=True)
         return FileResponse(out, media_type="image/jpeg", headers={"Cache-Control": "no-store"})

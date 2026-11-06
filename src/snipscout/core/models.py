@@ -90,6 +90,12 @@ class Sentence(_Model):
         return self.end - self.start
 
 
+class Framing(StrEnum):
+    AUTO = "auto"  # follow the speaker's face when one is steadily visible, else centre
+    CENTER = "center"
+    MANUAL = "manual"  # crop centred on ``Clip.focus_x``
+
+
 class Clip(_Model):
     """A proposed (and later user-edited) clip. Times are seconds in the source media."""
 
@@ -110,6 +116,8 @@ class Clip(_Model):
     text_overrides: dict[int, str] = Field(default_factory=dict)  # word index -> corrected text
     ai_score: float | None = None  # 0-100 from the optional local re-ranking (Ollama)
     ai_title: str | None = None  # title suggested by the local model; never applied automatically
+    framing: Framing = Framing.AUTO  # where the crop goes when the output shape differs from the source
+    focus_x: float | None = Field(default=None, ge=0, le=1)  # MANUAL: crop centre as a fraction of the width
 
     @property
     def duration(self) -> float:

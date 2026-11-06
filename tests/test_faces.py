@@ -105,3 +105,22 @@ def test_for_clip_follows_face_only_when_cropping(
     assert for_clip(ff.ffmpeg, media, pad, 0, 3) is pad  # an explicit blur-pad request is respected
     monkeypatch.setattr("snipscout.core.render.find_focus", lambda *a, **k: None)
     assert for_clip(ff.ffmpeg, media, crop, 0, 3).mode == ReframeMode.CENTER  # no clear face: centred crop
+
+
+def test_for_clip_honours_per_clip_framing(
+    monkeypatch: pytest.MonkeyPatch, video_mp4: Path, ff: FfmpegBinaries
+) -> None:
+    from snipscout.core.ingest import probe
+    from snipscout.core.models import Framing
+
+    media = probe(video_mp4, ff.ffprobe)
+    monkeypatch.setattr("snipscout.core.render.find_focus", lambda *a, **k: Focus(0.25, 0.4, 1.0))
+    crop = RenderOptions(width=1080, height=1920, mode=ReframeMode.CENTER, follow_face=True)
+    assert for_clip(ff.ffmpeg, media, crop, 0, 3, framing=Framing.CENTER) is crop
+    manual = for_clip(ff.ffmpeg, media, crop, 0, 3, framing=Framing.MANUAL, focus_x=0.8)
+    assert manual.mode == ReframeMode.FACE and manual.focus == (0.8, 0.4)
+    no_face_project = RenderOptions(width=1080, height=1920, mode=ReframeMode.CENTER, follow_face=False)
+    assert for_clip(ff.ffmpeg, media, no_face_project, 0, 3, framing=Framing.MANUAL, focus_x=0.1).focus == (
+        0.1,
+        0.4,
+    )

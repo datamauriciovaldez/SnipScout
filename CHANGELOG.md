@@ -3,6 +3,16 @@
 All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+- Per-clip framing in the editor: *Automatic* (follows the speaker's face, else centre), *Centre* or *Manual* with a
+  horizontal position slider. The in-app preview now shows the same crop as the export (and the output shape for
+  1:1 and 16:9), in the editor and in the results preview. `metadata.json` records the layout per clip.
+
+### Fixed
+- Very short project names had a link narrower than 40 px in the projects list.
+
 ## [0.4.0] - 2026-11-06
 
 "Real world" release: tested on real speech, long videos and real faces.

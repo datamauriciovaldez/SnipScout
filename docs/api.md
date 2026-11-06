@@ -54,8 +54,9 @@ SSE body from `POST /system/models/download`.
 | POST | `/projects/{id}/cancel` | Cancel the running job; work done so far is kept. |
 | GET | `/projects/{id}/events` | SSE progress (above). |
 | GET | `/projects/{id}/clips` | Clips with signals, reasons, `contributions` (score points per signal), `ai_score`, `ai_title`. |
-| PATCH | `/projects/{id}/clips/{cid}` | `start`, `end`, `title`, `included`, `subtitle_style`, `text_overrides`. |
+| PATCH | `/projects/{id}/clips/{cid}` | `start`, `end`, `title`, `included`, `subtitle_style`, `text_overrides`, `framing` (`auto`/`center`/`manual`), `focus_x` (0–1). |
 | GET | `/projects/{id}/clips/{cid}/thumbnail` | JPEG thumbnail. |
+| GET | `/projects/{id}/clips/{cid}/framing` | Whether the export crops, and the face focus *Automatic* framing would use (`start`/`end` for a draft). |
 | POST | `/projects/{id}/clips/{cid}/preview-frame` | One real frame (JPEG) for an unsaved draft (`at`, `start`, `end`, style, overrides). |
 | GET | `/projects/{id}/transcript` | Words and sentences. |
 | GET | `/projects/{id}/media` | Source media with HTTP Range support (`?variant=proxy`: the WebM preview copy). |

@@ -122,6 +122,15 @@
 - **v0.4.0 RELEASED** 2026-11-06 (assets verified: .bat CRLF, launchers executable, sdist 0.4.0, YuNet model in
   zip and wheel, no dev/local files). v0.4 milestones R1–R6 done.
 
+- **F1** per-clip framing: `Clip.framing` (Framing auto/center/manual) + `focus_x`; `render.crops()` +
+  `for_clip(..., framing, focus_x)` (manual = FACE mode at (focus_x, 0.4); auto respects the project's follow_face);
+  export and preview-frame honour it; `GET /clips/{cid}/framing` (crops, auto_focus; face search cached). Frontend:
+  pure `js/framing.js` (displaySize, outputRatio, objectPositionX = (fx·k − ½)/(k − 1) with k = src/out ratio,
+  effectiveFocus) + node tests; player `ratio` (screen shape for 1:1/16:9) and `posX` (CSS object-position);
+  editor "Encuadre" segmented + range slider (one undo step per drag), results preview uses the clip's framing.
+  Browser check on a face video: auto → object-position 87.75 % (face right), manual 0.1 → 0 %, saved, real frame
+  matches; a11y audit 0 problems (fixed a pre-existing 32 px link for very short project names). 137 tests + e2e green.
+
 ## Decisions
 - Vertical/square from wide: always fill the frame (author's request); blurred background never by default.
 - Face crop is fixed per clip (no panning) to avoid jitter; ambiguous cases use the centred crop.
@@ -153,4 +162,10 @@
 
 ## Next — v0.4 "Real world" (approved by the author 2026-11-06: "hazlo como tú quieras")
 Goal: prove and improve behaviour on real use, before new features. One milestone at a time, same process.
-- R1–R6 done and v0.4.0 released. Next scope to be chosen by the author.
+- R1–R6 done and v0.4.0 released.
+
+## Next — v0.5 "Encuadre" (chosen by the author 2026-11-06)
+- F1 done.
+- **F2** Moving speaker: when the face moves steadily, a smoothed horizontal pan instead of a fixed crop
+  (ffmpeg crop with a time expression); no jitter; preview approximates it.
+- Then release v0.5.0 (mandatory pause).
