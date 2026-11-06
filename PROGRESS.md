@@ -144,9 +144,10 @@
 - Output folder resolution: `SNIPSCOUT_OUTPUT_DIR` → preferences.json → Downloads/SnipScout/<project>.
 
 ## Current state
-- Version **0.3.0** released (v0.1.0, v0.2.0, v0.3.0 published). Dependabot opens weekly PRs (author merges).
+- Version **0.4.0** prepared (pyproject + CHANGELOG); v0.1.0–v0.3.0 published; v0.4.0 waits for the author's Release run.
+  Dependabot opens weekly PRs (author merges).
 - Tests: 124 passed + 2 slow deselected (`uv run pytest -q -m "not slow"`).
 
 ## Next — v0.4 "Real world" (approved by the author 2026-11-06: "hazlo como tú quieras")
 Goal: prove and improve behaviour on real use, before new features. One milestone at a time, same process.
-- R1–R6 done. Next: release v0.4.0 (mandatory pause).
+- R1–R6 done. **Release v0.4.0**: author runs Actions → Release → Run workflow (mandatory pause), then verify assets.
