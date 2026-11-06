@@ -1,0 +1,30 @@
+{
+ "name": "voxpopuli_es_4",
+ "language": "es",
+ "length": "short",
+ "transcript": "voxpopuli_es_4.transcript.json",
+ "moments": [
+  [
+   41.4,
+   65.2
+  ],
+  [
+   274.5,
+   296.1
+  ],
+  [
+   214.0,
+   236.5
+  ]
+ ],
+ "topic": "Sakharov Prize laureate message (read aloud) on Cuba",
+ "source": {
+  "dataset": "facebook/voxpopuli (Hugging Face), split es/test",
+  "licence": "CC0-1.0",
+  "speech": "20101215-0900-PLENARY-7-es_20101215-13:09:30",
+  "segments": 25,
+  "speaker_id": "105596",
+  "how": "consecutive segments of one speech concatenated (pauses between segments are lost); transcribed with SnipScout's Balanced model"
+ },
+ "annotation": "Moments chosen by one developer from the transcript only, before looking at SnipScout's proposals. One annotator: weak evidence, but real human speech."
+}

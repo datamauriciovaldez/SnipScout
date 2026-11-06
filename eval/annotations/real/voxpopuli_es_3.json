@@ -1,0 +1,30 @@
+{
+ "name": "voxpopuli_es_3",
+ "language": "es",
+ "length": "short",
+ "transcript": "voxpopuli_es_3.transcript.json",
+ "moments": [
+  [
+   204.0,
+   230.8
+  ],
+  [
+   282.7,
+   298.9
+  ],
+  [
+   350.2,
+   362.0
+  ]
+ ],
+ "topic": "Council presidency on gender equality and employment",
+ "source": {
+  "dataset": "facebook/voxpopuli (Hugging Face), split es/test",
+  "licence": "CC0-1.0",
+  "speech": "20100615-0900-PLENARY-14-es_20100615-21:30:17",
+  "segments": 25,
+  "speaker_id": "103035",
+  "how": "consecutive segments of one speech concatenated (pauses between segments are lost); transcribed with SnipScout's Balanced model"
+ },
+ "annotation": "Moments chosen by one developer from the transcript only, before looking at SnipScout's proposals. One annotator: weak evidence, but real human speech."
+}

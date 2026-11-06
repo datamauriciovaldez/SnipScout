@@ -8,6 +8,9 @@ All notable changes to this project are documented here. The format follows
 ### Added
 - Browser end-to-end test of the whole flow (upload → analyze → edit → render) with a fake speech model, run in CI.
 - README: step-by-step install guide for non-technical users (Windows, macOS, Linux) and a Spanish quick guide.
+- Real-speech evaluation set: 6 public-domain Spanish speeches (VoxPopuli) with transcripts and annotated moments;
+  `eval_scoring.py` now also reports a random baseline. Result, published in the README: the ranking is not yet
+  better than chance on real speech (29 % vs 38 % recall@5).
 
 ### Fixed
 - Clip selection no longer proposes the same content several times when a video repeats itself (recurring intros,

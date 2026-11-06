@@ -83,7 +83,19 @@
   `refine.DUPLICATE_SIM = 0.7` hard skip (distinct clips of the demo talk measured max cosine 0.115; synthetic
   recall still 7/7); after fix 12 distinct clips. Regression test with a 10× looped synthetic talk (fails without the fix).
 
+- **R4** real-speech evaluation: 6 single-speaker Spanish speeches from VoxPopuli es/test (CC0; consecutive segments
+  joined, 5–6 min each) transcribed with base → `eval/annotations/real/voxpopuli_es_{1..6}.json` + transcripts;
+  17 moments annotated blind (transcript only, before seeing proposals). Results: recall@5 **29 %** vs **random 38 %**
+  (synthetic set: 100 % vs random 77 % → too easy). Diagnosis: TF-IDF cohesion saturates on real sentences (raw pairwise
+  p75 0.042, p90 0.086 vs scale 0.04 → favours repetitive passages; top picks 0.83 vs gold 0.42); hook rarely fires
+  in formal speech. Tried cohesion scale 0.09, lower cohesion weight and a new "substance" signal: dev (1–3) 0.11 → 0.44,
+  but held-out (4–6) 0.50 → 0.25 → noise/overfit → **weights unchanged, substance reverted**. Kept: real set,
+  `eval_scoring.random_baseline` (printed by the script), honest numbers in README/scoring.md/weights.toml, test.
+  Next for quality: needs more and better annotated real talks (ideally the author's own) before any tuning.
+
 ## Decisions
+- Do not tune scoring weights on fewer than ~50 real annotated moments, and always validate on held-out speeches
+  against the random baseline.
 - Playwright in CI is pinned (`uv run --with playwright==1.64.1`) instead of a dev dependency, so normal installs stay small.
 - Ollama re-ranking: combined = 0.5 × heuristic + 0.5 × (rating × 10); only top 15 are rated; per-clip requests so
   progress/cancel work on a CPU; suggested titles never overwrite the user's title automatically.
@@ -109,9 +121,7 @@
 
 ## Next — v0.4 "Real world" (approved by the author 2026-11-06: "hazlo como tú quieras")
 Goal: prove and improve behaviour on real use, before new features. One milestone at a time, same process.
-- R1, R2, R3 done.
-- **R4** Real-speech evaluation: freely licensed real talks (CC-BY/public domain, recorded human speech) annotated
-  with good moments in `eval/annotations/`, measure recall@K, tune weights; author's own videos welcome.
+- R1–R4 done (R4: evaluation only; quality not improved — see Done).
 - **R5** Face-aware vertical reframing (local face detector, CPU, optional fallback to centre) — needs licence check.
 - **R6** Housekeeping: split `web/app.py` into routers, more JS unit tests, VP9 preview proxy for Qt (spec 5.6).
 - Then release v0.4.0 (mandatory pause).

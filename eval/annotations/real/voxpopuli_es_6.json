@@ -1,0 +1,30 @@
+{
+ "name": "voxpopuli_es_6",
+ "language": "es",
+ "length": "short",
+ "transcript": "voxpopuli_es_6.transcript.json",
+ "moments": [
+  [
+   40.2,
+   64.6
+  ],
+  [
+   65.1,
+   85.5
+  ],
+  [
+   0.0,
+   31.1
+  ]
+ ],
+ "topic": "Council presidency on organ donation and transplants",
+ "source": {
+  "dataset": "facebook/voxpopuli (Hugging Face), split es/test",
+  "licence": "CC0-1.0",
+  "speech": "20100518-0900-PLENARY-11-es_20100518-15:11:42",
+  "segments": 21,
+  "speaker_id": "101148",
+  "how": "consecutive segments of one speech concatenated (pauses between segments are lost); transcribed with SnipScout's Balanced model"
+ },
+ "annotation": "Moments chosen by one developer from the transcript only, before looking at SnipScout's proposals. One annotator: weak evidence, but real human speech."
+}

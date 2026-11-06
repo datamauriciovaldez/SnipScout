@@ -52,6 +52,21 @@ and if none succeeds nothing changes. Suggested titles are shown next to the cli
 uv run python scripts/eval_scoring.py --weights src/snipscout/core/scoring/weights.toml
 ```
 
-Status: weights are **hand-tuned on synthetic transcripts** (recall@5 = 7/7 on two annotated synthetic talks, weak
-evidence). They have not yet been validated on real videos. Annotations of real talks (`eval/annotations/*.json`:
-transcript + preferred ranges) are welcome — see [CONTRIBUTING](../CONTRIBUTING.md).
+It also prints what a **random** choice of K non-overlapping windows scores on the same files; a change to the
+weights only counts if it beats that clearly on data it was not tuned on.
+
+**Status (measured 2026-11-06):**
+
+| Data | Moments | SnipScout recall@5 | Random recall@5 |
+|---|---|---|---|
+| 2 synthetic talks written for development | 7 | 100 % | 77 % |
+| 6 real speeches (VoxPopuli, Spanish, public domain) | 17 | 29 % | 38 % |
+
+The synthetic set is too easy to prove anything. On real speech the heuristic is **not better than chance** yet.
+We tried recalibrating cohesion (it saturates on real sentences), lowering its weight and adding a "concrete content"
+signal: tuned on 3 speeches it improved, but on the 3 held-out speeches it got worse (4/8 → 2/8). With one annotator
+and 17 moments that is noise, so the weights were **not** changed. Caveats: parliamentary speeches are read and
+formal (few hooks), and the dataset's segments were joined without their original pauses.
+
+What would help most: real talks you own, with the moments *you* would clip (`eval/annotations/real/*.json`:
+transcript + `moments` in seconds) — see [CONTRIBUTING](../CONTRIBUTING.md).

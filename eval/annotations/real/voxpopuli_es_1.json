@@ -1,0 +1,30 @@
+{
+ "name": "voxpopuli_es_1",
+ "language": "es",
+ "length": "short",
+ "transcript": "voxpopuli_es_1.transcript.json",
+ "moments": [
+  [
+   193.6,
+   220.2
+  ],
+  [
+   90.2,
+   115.4
+  ],
+  [
+   270.5,
+   307.2
+  ]
+ ],
+ "topic": "EU envoy on the Middle East peace process",
+ "source": {
+  "dataset": "facebook/voxpopuli (Hugging Face), split es/test",
+  "licence": "CC0-1.0",
+  "speech": "20090218-0900-PLENARY-10-es_20090218-16:11:46",
+  "segments": 29,
+  "speaker_id": "36692",
+  "how": "consecutive segments of one speech concatenated (pauses between segments are lost); transcribed with SnipScout's Balanced model"
+ },
+ "annotation": "Moments chosen by one developer from the transcript only, before looking at SnipScout's proposals. One annotator: weak evidence, but real human speech."
+}

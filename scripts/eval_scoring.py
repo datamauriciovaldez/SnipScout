@@ -11,18 +11,22 @@ Annotation format (eval/annotations/*.json):
     "moments_sentences": [[first_idx, end_idx_exclusive], ...]
   }
 
-A moment counts as found when some top-K clip covers at least 50% of it.
+A moment counts as found when some top-K clip covers at least 50% of it. The script also prints what a random
+choice of K non-overlapping candidate windows scores on the same files: any tuning must beat that clearly.
 
 Usage: uv run python scripts/eval_scoring.py [--k 5] [--weights file.toml] [files...]
+       (default: every annotation under eval/annotations, synthetic and real)
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import random
 import sys
 from pathlib import Path
 
+from snipscout.core import candidates
 from snipscout.core.models import ClipLength, Transcript, Word
 from snipscout.core.scoring import ScoringConfig
 from snipscout.core.segment import segment
@@ -88,17 +92,46 @@ def evaluate(files: list[Path], k: int, config: ScoringConfig, verbose: bool = T
     return recall
 
 
+def random_baseline(files: list[Path], k: int, runs: int = 2000, seed: int = 0) -> float:
+    """Mean recall@k of picking k random non-overlapping candidate windows (same lengths as SnipScout's)."""
+    rng = random.Random(seed)  # noqa: S311 - statistics, not security
+    data = []
+    for f in files:
+        words, moments, lang, length, _ = load(f)
+        sents = segment(words, language=lang)
+        lo, hi = length.bounds
+        wins = [(sents[i].start, sents[j - 1].end) for i, j in candidates.windows(sents, lo, hi)]
+        data.append((wins, moments))
+    total = 0.0
+    for _ in range(runs):
+        found = n = 0
+        for wins, moments in data:
+            pick: list[tuple[float, float]] = []
+            for w in rng.sample(wins, len(wins)):
+                if all(w[1] <= p[0] or w[0] >= p[1] for p in pick):
+                    pick.append(w)
+                if len(pick) == k:
+                    break
+            found += sum(any(coverage(m, p) >= 0.5 for p in pick) for m in moments)
+            n += len(moments)
+        total += found / max(n, 1)
+    return total / runs
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("files", nargs="*", type=Path)
     ap.add_argument("--k", type=int, default=5)
     ap.add_argument("--weights", type=Path)
     args = ap.parse_args()
-    files = args.files or sorted((ROOT / "eval" / "annotations").glob("*.json"))
+    files = args.files or sorted(
+        f for f in (ROOT / "eval" / "annotations").rglob("*.json") if not f.name.endswith(".transcript.json")
+    )
     if not files:
         print("No annotation files found.", file=sys.stderr)
         return 1
     evaluate(files, args.k, ScoringConfig.load(args.weights))
+    print(f"Random choice of {args.k} windows: {random_baseline(files, args.k):.0%} (mean of 2000 draws)")
     return 0
 
 

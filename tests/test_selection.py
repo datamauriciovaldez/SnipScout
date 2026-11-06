@@ -183,6 +183,15 @@ def test_eval_recall_on_synthetic_set() -> None:
     assert eval_scoring.evaluate(files, k=5, config=ScoringConfig.load(), verbose=False) >= 0.85
 
 
+def test_random_baseline_and_real_annotations_load() -> None:
+    real = sorted((ROOT / "eval" / "annotations" / "real").glob("voxpopuli_es_?.json"))
+    assert len(real) == 6
+    words, moments, lang, _, duration = eval_scoring.load(real[0])
+    assert lang == "es" and len(words) > 500 and moments and all(0 <= a < b <= duration for a, b in moments)
+    base = eval_scoring.random_baseline(real[:2], k=5, runs=50)
+    assert 0.0 < base < 1.0
+
+
 def test_very_short_media_gives_one_clip() -> None:
     sents = _sentences(["Hola a todos.", "Esto dura muy poco."])
     clips = select_clips(sents, language="es", length=ClipLength.SHORT, media_duration=10)

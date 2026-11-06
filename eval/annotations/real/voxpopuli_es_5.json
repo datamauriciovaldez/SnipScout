@@ -1,0 +1,26 @@
+{
+ "name": "voxpopuli_es_5",
+ "language": "es",
+ "length": "short",
+ "transcript": "voxpopuli_es_5.transcript.json",
+ "moments": [
+  [
+   315.0,
+   335.5
+  ],
+  [
+   336.0,
+   359.7
+  ]
+ ],
+ "topic": "Council replies on the EU budget (dry, list-like answers)",
+ "source": {
+  "dataset": "facebook/voxpopuli (Hugging Face), split es/test",
+  "licence": "CC0-1.0",
+  "speech": "20100615-0900-PLENARY-12-es_20100615-18:44:21",
+  "segments": 24,
+  "speaker_id": "103046",
+  "how": "consecutive segments of one speech concatenated (pauses between segments are lost); transcribed with SnipScout's Balanced model"
+ },
+ "annotation": "Moments chosen by one developer from the transcript only, before looking at SnipScout's proposals. One annotator: weak evidence, but real human speech."
+}

@@ -183,7 +183,10 @@ speed and adjusts its estimates after the first analysis.
 
 ## Limitations & roadmap
 
-- Selection quality has only been tuned on synthetic transcripts so far; expect to adjust suggestions.
+- **Selection quality is not yet better than chance on real speech.** On 6 real public-domain speeches (European
+  Parliament, VoxPopuli, 17 moments annotated by one person), the top 5 suggestions caught 29 % of the moments;
+  a random choice of 5 windows catches 38 %. Treat the ranking as a starting point and review all suggestions —
+  that is why there are 12 and the editor exists. Details and how to help: [scoring](docs/scoring.md#5-tuning-and-honesty).
 - Reframing is center-crop or blurred background; no face tracking.
 - The preview in the app approximates the subtitle rendering; the exported file is the reference.
 - Windows double-click launch verified on a real machine; the native window on macOS is **not yet verified**.

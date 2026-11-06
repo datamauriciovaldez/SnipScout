@@ -1,0 +1,30 @@
+{
+ "name": "voxpopuli_es_2",
+ "language": "es",
+ "length": "short",
+ "transcript": "voxpopuli_es_2.transcript.json",
+ "moments": [
+  [
+   54.3,
+   75.3
+  ],
+  [
+   104.1,
+   131.8
+  ],
+  [
+   216.6,
+   233.2
+  ]
+ ],
+ "topic": "Report on ethical principles for artificial intelligence",
+ "source": {
+  "dataset": "facebook/voxpopuli (Hugging Face), split es/test",
+  "licence": "CC0-1.0",
+  "speech": "20201019-0900-PLENARY-es_20201019-17:29:40",
+  "segments": 27,
+  "speaker_id": "204413",
+  "how": "consecutive segments of one speech concatenated (pauses between segments are lost); transcribed with SnipScout's Balanced model"
+ },
+ "annotation": "Moments chosen by one developer from the transcript only, before looking at SnipScout's proposals. One annotator: weak evidence, but real human speech."
+}

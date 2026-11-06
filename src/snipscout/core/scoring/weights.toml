@@ -4,8 +4,8 @@
 # The final score is sum(weight * signal) / sum(weights) * 100.
 # Tune with: uv run python scripts/eval_scoring.py --weights path/to/weights.toml
 #
-# Calibration status: hand-tuned on synthetic transcripts (eval/annotations/*synthetic*).
-# Not yet validated on real videos — see docs/spike-report.md, spike 6.
+# Calibration status: hand-tuned on synthetic transcripts. On 6 real speeches (eval/annotations/real) recall@5 is
+# 29% vs 38% for random windows; tuning attempts did not generalise to held-out speeches (docs/scoring.md).
 
 [weights]
 hook = 3.0        # opening: question, number, emphasis/strong claim, contrast, direct address
