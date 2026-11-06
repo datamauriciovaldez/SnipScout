@@ -3,6 +3,8 @@
     <data>/projects/<id>/project.json, transcript.json, clips.json, audio.wav, exports/ ...
 
 Writes are atomic (temp file + ``os.replace``) so a crash never leaves a half-written JSON.
+On Windows a file that another thread is reading or replacing at that very moment raises a
+transient ``PermissionError`` (sharing violation); reads and replaces retry briefly in that case.
 """
 
 from __future__ import annotations
@@ -11,8 +13,10 @@ import os
 import re
 import shutil
 import tempfile
+import time
 import unicodedata
 import uuid
+from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import TypeVar
@@ -24,6 +28,8 @@ from snipscout.core.errors import SnipScoutError
 from snipscout.core.models import ClipSet, MediaInfo, Project, ProjectSettings, Transcript
 
 M = TypeVar("M", bound=BaseModel)
+T = TypeVar("T")
+SHARING_RETRIES = 8  # ~0.7 s in total
 _ID_RE = re.compile(r"^[a-f0-9]{12}$")
 
 
@@ -35,6 +41,18 @@ class StorageError(SnipScoutError):
     code = "storage"
 
 
+def retry_sharing(op: Callable[[], T]) -> T:
+    """Run ``op``, retrying a few times on ``PermissionError`` (Windows sharing violations are transient)."""
+    for attempt in range(SHARING_RETRIES):
+        try:
+            return op()
+        except PermissionError:
+            if attempt == SHARING_RETRIES - 1:
+                raise
+            time.sleep(0.02 * (attempt + 1))
+    raise AssertionError("unreachable")  # pragma: no cover
+
+
 def atomic_write_text(path: Path, text: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     fd, tmp = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
@@ -44,7 +62,7 @@ def atomic_write_text(path: Path, text: str) -> None:
             f.flush()
             os.fsync(f.fileno())
         Path(tmp).chmod(0o644)  # mkstemp creates 0600; exported files must be readable like normal files
-        Path(tmp).replace(path)
+        retry_sharing(lambda: Path(tmp).replace(path))
     except OSError as exc:
         Path(tmp).unlink(missing_ok=True)
         raise StorageError(
@@ -80,7 +98,7 @@ class ProjectStore:
     def _load(self, project_id: str, name: str, cls: type[M]) -> M | None:
         path = self._file(project_id, name)
         try:
-            return cls.model_validate_json(path.read_text(encoding="utf-8"))
+            return cls.model_validate_json(retry_sharing(lambda: path.read_text(encoding="utf-8")))
         except FileNotFoundError:
             return None
         except (OSError, ValidationError, ValueError) as exc:

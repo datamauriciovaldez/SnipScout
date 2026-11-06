@@ -39,6 +39,10 @@ All notable changes to this project are documented here. The format follows
   in headless Chromium).
 - With "reduce motion", pulsing and sliding indicators are static.
 
+### Fixed
+- Windows: reading or saving project data while a background job replaced the same file could fail with a
+  transient sharing violation (seen as a random server error); reads and replaces now retry briefly.
+
 ## [0.2.0] - 2026-11-05
 
 "Editor" release.

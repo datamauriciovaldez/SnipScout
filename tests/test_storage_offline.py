@@ -41,6 +41,36 @@ def test_transcript_resume_state(tmp_path: Path) -> None:
     assert again.words[0].text == "hola"
 
 
+def test_windows_sharing_violation_is_retried(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """A file being replaced by another thread can raise PermissionError on Windows for a moment."""
+    store = ProjectStore(tmp_path)
+    p = store.create(_media(tmp_path))
+    real_read, real_replace = Path.read_text, Path.replace
+    fails = {"read": 2, "replace": 2}
+
+    def flaky_read(self: Path, *a: object, **k: object) -> str:
+        if self.name == "project.json" and fails["read"]:
+            fails["read"] -= 1
+            raise PermissionError(13, "sharing violation")
+        return real_read(self, *a, **k)  # type: ignore[arg-type]
+
+    def flaky_replace(self: Path, target: object) -> Path:
+        if fails["replace"]:
+            fails["replace"] -= 1
+            raise PermissionError(13, "sharing violation")
+        return real_replace(self, target)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(Path, "read_text", flaky_read)
+    monkeypatch.setattr(Path, "replace", flaky_replace)
+    p.name = "renamed"
+    store.save(p)
+    assert store.load(p.id).name == "renamed"
+    assert fails == {"read": 0, "replace": 0}
+    fails["read"] = 99  # a permanent problem still becomes a typed error
+    with pytest.raises(StorageError):
+        store.load(p.id)
+
+
 @pytest.mark.parametrize("bad", ["../etc", "..", "ABCDEF123456", "a" * 13, "", "x/../../y"])
 def test_rejects_path_traversal(tmp_path: Path, bad: str) -> None:
     with pytest.raises(ProjectNotFoundError):
