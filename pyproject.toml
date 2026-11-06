@@ -1,6 +1,6 @@
 [project]
 name = "snipscout"
-version = "0.4.0"
+version = "0.5.0"
 description = "Turn long videos into short clips with word-by-word subtitles. 100% local, no accounts, no API keys."
 readme = "README.md"
 license = "MIT"
