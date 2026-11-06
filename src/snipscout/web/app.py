@@ -46,6 +46,8 @@ from snipscout.core.errors import (
     ModelDownloadError,
     NoSpeechError,
     OfflineError,
+    OllamaFailedError,
+    OllamaUnavailableError,
     SnipScoutError,
     UnsupportedMediaError,
 )
@@ -61,6 +63,7 @@ from snipscout.core.pipeline import Pipeline
 from snipscout.core.preferences import Preferences, Quality, load_preferences, save_preferences
 from snipscout.core.procs import CancelToken, run_ffmpeg
 from snipscout.core.scoring import ScoringConfig
+from snipscout.core.scoring.ollama import OllamaClient
 from snipscout.core.segment import segment
 from snipscout.core.storage import ProjectNotFoundError, ProjectStore, slugify
 from snipscout.core.transcribe import SpeechModel, estimate_seconds, load_model, measured_rtf
@@ -81,6 +84,8 @@ _STATUS = {
     OfflineError: 503,
     FfmpegMissingError: 503,
     ModelDownloadError: 502,
+    OllamaUnavailableError: 503,
+    OllamaFailedError: 502,
 }
 
 
@@ -101,6 +106,7 @@ class Context:
         *,
         model_loader: Callable[[str], SpeechModel] = load_model,
         uploads_dir: Path | None = None,
+        ollama_factory: Callable[[], OllamaClient] = OllamaClient,
     ) -> None:
         self.store = store
         self.binaries = binaries
@@ -108,6 +114,7 @@ class Context:
         self.jobs = JobManager()
         self.model_loader = model_loader
         self.uploads_dir = uploads_dir or (data_dir() / "uploads")
+        self.ollama_factory = ollama_factory
         self.allowed_hosts: set[str] = set()  # filled by the launcher with "127.0.0.1:PORT" etc.
 
     def require_ffmpeg(self) -> FfmpegBinaries:
@@ -171,6 +178,11 @@ class SettingsUpdate(BaseModel):
     quality: Quality | None = None
     hardware: bool | None = None
     loudnorm: bool | None = None
+    ollama_model: str | None = None  # "" = automatic
+
+
+class ImproveRequest(BaseModel):
+    model: str | None = Field(default=None, max_length=200)
 
 
 class DownloadRequest(BaseModel):
@@ -410,6 +422,8 @@ def create_app(ctx: Context) -> FastAPI:  # noqa: C901 - one place that lists th
                 prefs.output_dir = str(folder)
             else:
                 prefs.output_dir = None
+        if "ollama_model" in changes:
+            prefs.ollama_model = (changes.pop("ollama_model") or "").strip()[:200] or None
         for key, value in changes.items():
             if value is not None:
                 setattr(prefs, key, value)
@@ -555,6 +569,46 @@ def create_app(ctx: Context) -> FastAPI:  # noqa: C901 - one place that lists th
             ),
         )
         return {"started": "render"}
+
+    @app.get("/api/v1/system/ollama")
+    def ollama_status() -> dict[str, Any]:
+        """Is a local Ollama server running, and which models does it have? Never downloads anything."""
+        client = ctx.ollama_factory()
+        try:
+            st = client.status()
+        finally:
+            client.close()
+        pref = load_preferences().ollama_model
+        model = pref if pref in st.models else (st.models[0] if st.models else None)
+        return {**st.model_dump(), "model": model, "preferred": pref}
+
+    @app.post("/api/v1/projects/{pid}/improve", status_code=202)
+    def improve(pid: str, body: ImproveRequest | None = None) -> dict[str, Any]:
+        ctx.store.load(pid)
+        if not ctx.store.load_clips(pid):
+            raise ApiError("Analyze the video first.")
+        client = ctx.ollama_factory()
+        try:
+            st = client.status()
+        finally:
+            client.close()
+        if not st.available:
+            raise OllamaUnavailableError("No local Ollama server is running.", details=st.url)
+        wanted = (body.model if body else None) or load_preferences().ollama_model
+        model = wanted if wanted in st.models else (st.models[0] if st.models and not wanted else None)
+        if model is None:
+            raise OllamaUnavailableError("This model is not installed in Ollama.", details=wanted or "")
+        pipe = ctx.pipeline()
+
+        def work(emit: Callable[[JobEvent], None], cancel: CancelToken) -> object:
+            client = ctx.ollama_factory()
+            try:
+                return pipe.improve(pid, model, client=client, on_event=emit, cancel=cancel)
+            finally:
+                client.close()
+
+        ctx.jobs.start(pid, "improve", work)
+        return {"started": "improve", "model": model}
 
     @app.post("/api/v1/projects/{pid}/cancel")
     def cancel(pid: str) -> dict[str, Any]:

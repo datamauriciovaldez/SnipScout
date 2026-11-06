@@ -232,3 +232,14 @@ html, body, .app-root { height: 100%; }
   .results__side { width: auto; border-left: 0; border-top: var(--bw) solid var(--line); padding: var(--s-5); overflow: visible; }
   .results .statusbar { flex-wrap: wrap; }
 }
+
+/* Optional local AI (Ollama) */
+.ai-row { display: flex; align-items: center; gap: var(--s-3); margin-top: var(--s-4); flex-wrap: wrap; }
+.ai-row .faint { font-size: var(--fs-small); }
+.ai-title { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); margin-top: 14px;
+  padding: 10px 0; border-top: var(--bw) solid var(--line); border-bottom: var(--bw) solid var(--line); }
+.ai-title__text { font-weight: var(--fw-semibold); margin-top: 4px; }
+.ai-status { display: flex; align-items: center; gap: var(--s-3); }
+.status-dot--off::before { background: var(--text-3); }
+.ai-model { display: flex; align-items: center; gap: var(--s-3); margin-top: var(--s-3); }
+.ai-model .select { max-width: 320px; }

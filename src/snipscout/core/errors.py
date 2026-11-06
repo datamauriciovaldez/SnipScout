@@ -43,3 +43,15 @@ class FfmpegFailedError(SnipScoutError):
     """ffmpeg exited with an error while processing (render, extraction)."""
 
     code = "ffmpeg_failed"
+
+
+class OllamaUnavailableError(SnipScoutError):
+    """No local Ollama server answered, or the chosen model is not installed in it."""
+
+    code = "ollama_unavailable"
+
+
+class OllamaFailedError(SnipScoutError):
+    """Ollama answered but no clip got a valid rating (timeouts or malformed output)."""
+
+    code = "ollama_failed"

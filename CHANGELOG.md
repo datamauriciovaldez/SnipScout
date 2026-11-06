@@ -6,6 +6,11 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- Optional "Improve with local AI": if Ollama already runs on the computer, a model of the user's choice rates the
+  top 15 clips (0-10) and suggests a title for each. The new order mixes that rating 50/50 with the heuristic score;
+  suggested titles are applied only with *Use*. Loopback only, no key, never downloads a model; the transcript is sent
+  as JSON data, replies are validated (Pydantic) with a timeout, and the heuristic result is kept on any failure.
+  Settings shows whether Ollama is running and lets you pick the model.
 - `scripts/check_a11y.py`: audits every screen in both themes (axe-core WCAG 2.1 AA rules when given `axe.min.js`,
   40 px targets, keyboard Tab walk with visible focus, no horizontal scroll at 200 % zoom).
 - Subtle motion (transform/opacity only): views fade in, score bars grow, the selected-row marker slides in.

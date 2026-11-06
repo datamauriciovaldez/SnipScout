@@ -108,6 +108,8 @@ class Clip(_Model):
     included: bool = True
     subtitle_style: str | None = None  # None = project default
     text_overrides: dict[int, str] = Field(default_factory=dict)  # word index -> corrected text
+    ai_score: float | None = None  # 0-100 from the optional local re-ranking (Ollama)
+    ai_title: str | None = None  # title suggested by the local model; never applied automatically
 
     @property
     def duration(self) -> float:

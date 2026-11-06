@@ -25,7 +25,8 @@ video, proposes the moments that work on their own, and renders vertical clips w
 - Projects history, "continue where you left off", and settings for output folder, quality and speech models.
 - Export to 9:16, 1:1, 16:9 or original, with word-by-word highlighted subtitles (4 styles), plus `.srt`/`.vtt`,
   `metadata.json` and a ready-to-paste title and description per clip.
-- Spanish and English interface, light and dark themes, keyboard friendly.
+- Optional: re-rank the suggestions with a local Ollama model you already have (never downloaded by SnipScout).
+- Spanish and English interface, light and dark themes, keyboard friendly, automated WCAG 2.1 AA checks (axe-core) on every screen.
 
 ## Quickstart
 
@@ -60,11 +61,17 @@ flowchart LR
   G --> H[ffmpeg render<br/>reframe + ASS subtitles]
 ```
 
-Clip selection uses **no language model**. A heuristic scorer combines seven signals — opening hook, pace,
+Clip selection uses **no language model** by default. A heuristic scorer combines seven signals — opening hook, pace,
 vocal energy, topic cohesion, clean ending, whether it makes sense without context, and transcription
 confidence — with weights in a single documented file (`src/snipscout/core/scoring/weights.toml`).
 Titles, hooks and keywords are **extracted** from what was said, never generated. The suggestions are a
 starting point: the editor is there because you know your content better.
+
+**Optional local AI.** If you already run [Ollama](https://ollama.com) on your computer, *Improve with local AI*
+asks a model you have installed to rate the top clips and suggest titles; the new order mixes its rating with the
+heuristic score, and suggested titles are only applied when you click *Use*. SnipScout never downloads or bundles a
+language model, only talks to Ollama on `127.0.0.1`, and treats the transcript as untrusted data (validated JSON
+output, timeouts, and the heuristic result is kept if anything fails).
 
 ## 100% local & private
 
@@ -95,7 +102,7 @@ speed and adjusts its estimates after the first analysis.
 - Reframing is center-crop or blurred background; no face tracking.
 - The preview in the app approximates the subtitle rendering; the exported file is the reference.
 - Windows double-click launch verified on a real machine; the native window on macOS is **not yet verified**.
-- v0.3: polish, accessibility review, optional local-LLM re-ranking (Ollama, if you already run it), packaging.
+- v0.3 (in progress): polish and accessibility review (done), optional local-AI re-ranking (done), docs, packaging.
 
 ## Responsible use
 

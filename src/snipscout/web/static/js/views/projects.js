@@ -74,7 +74,7 @@ export function Projects() {
             <span class="row__cell mono projects__c">${fmt.duration(p.source.duration)}</span>
             <span class="row__cell mono projects__c">${p.clips_total ? t("projects.clips_count", { n: p.clips_included, total: p.clips_total }) : "—"}</span>
             <span class="row__cell mono projects__date">${fmt.date(p.updated_at)}</span>
-            <span class="projects__state"><${Tag}>${t(`project_status.${p.job ? (p.job.kind === "render" ? "rendering" : "analyzing") : p.status}`)}<//></span>
+            <span class="projects__state"><${Tag}>${t(`project_status.${p.job ? ({ render: "rendering", improve: "improving" }[p.job.kind] || "analyzing") : p.status}`)}<//></span>
             <span class="projects__act">
               <${Button} variant="ghost" onClick=${() => setRenaming(p.id)}>${t("projects.rename")}<//>
               ${p.export_dir && html`<${Button} variant="ghost" icon="folder" aria-label=${t("export.reveal")} onClick=${() => reveal(p)} />`}

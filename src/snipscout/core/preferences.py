@@ -28,6 +28,7 @@ class Preferences(BaseModel):
     quality: Quality = Quality.STANDARD
     hardware: bool = False  # try a hardware H.264 encoder first (falls back to libx264)
     loudnorm: bool = False  # normalise loudness to -14 LUFS
+    ollama_model: str | None = None  # model used by "Improve with local AI" (None = first installed)
 
 
 def preferences_file() -> Path:

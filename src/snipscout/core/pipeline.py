@@ -22,6 +22,7 @@ from snipscout.core.preferences import load_preferences
 from snipscout.core.procs import CancelToken
 from snipscout.core.reframe import default_mode, output_size
 from snipscout.core.render import RenderOptions
+from snipscout.core.scoring.ollama import OllamaClient, rerank
 from snipscout.core.segment import segment
 from snipscout.core.select import select_clips
 from snipscout.core.storage import ProjectStore, slugify
@@ -167,6 +168,62 @@ class Pipeline:
                     state=JobState.DONE,
                     message="stage.done",
                     params={"clips": len(clip_set.clips), "overall": 1.0},
+                )
+            )
+        return clip_set
+
+    # -- improve (optional local AI) ----------------------------------------------------------------
+    def improve(
+        self,
+        project_id: str,
+        model: str,
+        *,
+        client: OllamaClient | None = None,
+        on_event: EventSink | None = None,
+        cancel: CancelToken | None = None,
+    ) -> ClipSet:
+        """Re-rank the clips with a local Ollama model. A failure never changes the project's status:
+        the heuristic result stays as it was."""
+        project = self.store.load(project_id)
+        clip_set = self.store.load_clips(project_id) or ClipSet()
+        emit = self._emitter(on_event, {"improve": 1.0})
+        own = client is None
+        cl = client or OllamaClient()
+        try:
+            emit("improve", 0.0)
+            clips = rerank(
+                clip_set.clips,
+                self.sentences(project),
+                cl,
+                model,
+                on_progress=lambda i, n: emit("improve", i / n, done=i, total=n),
+                cancel=cancel,
+            )
+            clip_set = ClipSet(clips=clips)
+            self.store.save_clips(project_id, clip_set)
+        except SnipScoutError as exc:
+            if on_event:
+                cancelled = isinstance(exc, CancelledError)
+                on_event(
+                    JobEvent(
+                        stage="done",
+                        state=JobState.CANCELLED if cancelled else JobState.ERROR,
+                        message=f"error.{exc.code}",
+                        error_code=exc.code,
+                    )
+                )
+            raise
+        finally:
+            if own:
+                cl.close()
+        if on_event:
+            on_event(
+                JobEvent(
+                    stage="done",
+                    progress=1.0,
+                    state=JobState.DONE,
+                    message="stage.done",
+                    params={"overall": 1.0, "rated": sum(c.ai_score is not None for c in clips)},
                 )
             )
         return clip_set

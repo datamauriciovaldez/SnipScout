@@ -1,4 +1,4 @@
-// Settings: language, theme, output folder, export quality, speech models, disk space.
+// Settings: language, theme, output folder, export quality, speech models, optional local AI, disk space.
 import { useEffect, useRef, useState } from "preact/hooks";
 import { html } from "../html.js";
 import { api, native } from "../api.js";
@@ -93,6 +93,24 @@ function Models() {
   </div>`;
 }
 
+function LocalAi({ prefs, patch }) {
+  const [info, setInfo] = useState(null);
+  const check = () => { setInfo(null); api.ollama().then(setInfo).catch(() => setInfo({ available: false, models: [] })); };
+  useEffect(check, []);
+  if (!info) return html`<div class="skeleton" style="height:12px;width:40%"></div>`;
+  return html`<div>
+    <div class="ai-status"><span class=${`status-dot${info.available ? "" : " status-dot--off"}`}>${info.available
+      ? t("settings.ai_on", { n: info.models.length }) : t("settings.ai_off")}</span>
+      <${Button} variant="ghost" onClick=${check}>${t("settings.ai_check")}<//></div>
+    ${info.available && info.models.length > 0 && html`<label class="ai-model"><span class="label">${t("settings.ai_model")}</span>
+      <select class="select" value=${prefs.ollama_model || ""} onChange=${(e) => patch({ ollama_model: e.currentTarget.value })}>
+        <option value="">${t("settings.ai_auto", { model: info.models[0] })}</option>
+        ${info.models.map((m) => html`<option value=${m}>${m}</option>`)}
+      </select></label>`}
+    <div class="settings__help">${t("settings.ai_help")}</div>
+  </div>`;
+}
+
 function Disk() {
   const [st, setSt] = useState(null);
   const [freeing, setFreeing] = useState(false);
@@ -141,6 +159,7 @@ export function Settings() {
           <label class="inline-check"><${Checkbox} checked=${prefs.hardware} onChange=${(v) => patch({ hardware: v })} label=${t("settings.hardware")} /> ${t("settings.hardware")}</label>
           <label class="inline-check"><${Checkbox} checked=${prefs.loudnorm} onChange=${(v) => patch({ loudnorm: v })} label=${t("settings.loudnorm")} /> ${t("settings.loudnorm")}</label><//>`}
       <div class="settings__row settings__row--top"><span class="label">${t("settings.models")}</span><${Models} /></div>
+      ${prefs && html`<div class="settings__row settings__row--top"><span class="label">${t("settings.ai")}</span><${LocalAi} prefs=${prefs} patch=${patch} /></div>`}
       <div class="settings__row settings__row--top"><span class="label">${t("settings.disk")}</span><${Disk} /></div>
     </div>
   </main>`;

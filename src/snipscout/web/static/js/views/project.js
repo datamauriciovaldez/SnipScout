@@ -132,6 +132,7 @@ function Results({ project }) {
   const [active, setActive] = useState(0);
   const [rendering, setRendering] = useState(false);
   const status = project.settings;
+  const reloadClips = () => api.clips(project.id).then((r) => setClips(r.clips));
 
   useEffect(() => {
     api.clips(project.id).then((r) => setClips(r.clips));
@@ -170,11 +171,19 @@ function Results({ project }) {
   if (!clips.length) return html`<${EmptyResults} project=${project} />`;
   const total = included.reduce((a, c) => a + (c.end - c.start), 0);
   const clip = clips[Math.min(active, clips.length - 1)];
+  const useTitle = async (c) => {
+    try {
+      await api.patchClip(project.id, c.id, { title: c.ai_title });
+      setClips((cs) => cs.map((x) => (x.id === c.id ? { ...x, title: c.ai_title } : x)));
+      toast(t("results.ai_title_used"));
+    } catch (err) { toast(t(`errors.${err.code}.title`)); }
+  };
   return html`<div class="results">
     <section class="results__main" aria-labelledby="r-title" id="main">
       <div class="label">${t("results.eyebrow")}</div>
       <h1 class="title-1" id="r-title">${t(clips.length === 1 ? "results.title_one" : "results.title_many", { n: clips.length })}</h1>
-      <p class="lead">${t("results.lead")}</p>
+      <p class="lead">${t(clips.some((c) => c.ai_score != null) ? "results.lead_ai" : "results.lead")}</p>
+      <${AiImprove} project=${project} count=${Math.min(clips.length, 15)} onDone=${reloadClips} />
       <div class="table results__table">
         <div class="table__head label" aria-hidden="true"><span style="width:56px"></span><span style="width:36px">${t("results.col_n")}</span><span style="width:54px"></span>
           <span style="flex:1">${t("results.col_clip")}</span><span class="c-in-out">${t("results.col_inout")}</span><span class="c-dur">${t("results.col_dur")}</span><span class="c-score">${t("results.col_score")}</span></div>
@@ -198,11 +207,48 @@ function Results({ project }) {
         <span class="statusbar__end">${t("results.output", { dir: shortPath(appStatus.output_dir) })}</span>
       </div>
     </section>
-    <${PreviewPanel} project=${project} clip=${clip} index=${active} words=${words} sentences=${sentences} peaks=${peaks} onDownload=${() => render([clip.id])} />
+    <${PreviewPanel} project=${project} clip=${clip} index=${active} words=${words} sentences=${sentences} peaks=${peaks} onDownload=${() => render([clip.id])}
+      onUseTitle=${useTitle} />
   </div>`;
 }
 
-function PreviewPanel({ project, clip, index, words, sentences, peaks, onDownload }) {
+/** "Improve with local AI": only offered when Ollama already runs on this computer (never downloads a model). */
+function AiImprove({ project, count, onDone }) {
+  const [info, setInfo] = useState(null);
+  const [run, setRun] = useState(null); // { model, done, total } while running
+  const closeRef = useRef(null);
+  const listen = (model) => {
+    setRun({ model, done: 0, total: count });
+    closeRef.current = api.events(project.id, (e) => {
+      if (e.stage === "improve") setRun({ model, done: e.params.done || 0, total: e.params.total || count });
+      if (e.state === "running") return;
+      closeRef.current(); setRun(null);
+      if (e.state === "done") { onDone(); toast(t("results.ai_done", { n: e.params.rated || 0 })); }
+      else if (e.state === "error") toast(t(`errors.${e.error_code}.title`));
+    });
+  };
+  useEffect(() => {
+    api.ollama().then(setInfo).catch(() => setInfo({ available: false, models: [] }));
+    if (project.job && project.job.kind === "improve") listen("");
+    return () => closeRef.current && closeRef.current();
+  }, [project.id]);
+  const start = async () => {
+    try { const r = await api.improve(project.id); listen(r.model); }
+    catch (err) { toast(t(`errors.${err.code}.title`)); }
+  };
+  if (!info) return null;
+  const ready = info.available && info.model;
+  const note = run ? t("results.ai_running", { model: run.model, done: run.done, total: run.total })
+    : !info.available ? t("results.ai_unavailable") : !info.model ? t("results.ai_no_models") : t("results.ai_hint", { n: count, model: info.model });
+  return html`<div class="ai-row">
+    ${run ? html`<${Button} onClick=${() => api.cancel(project.id)}>${t("common.cancel")}<//>`
+      : html`<${Button} disabled=${!ready} onClick=${start} aria-describedby="ai-note">${t("results.ai_improve")}<//>`}
+    <span class="faint" id="ai-note">${note}</span>
+    <${LiveStatus} step=${run ? `${run.done}` : "idle"} message=${run ? note : ""} />
+  </div>`;
+}
+
+function PreviewPanel({ project, clip, index, words, sentences, peaks, onDownload, onUseTitle }) {
   const cw = useMemo(() => clipWords(words, clip.start, clip.end, clip.text_overrides), [words, clip]);
   const top = Object.entries(clip.contributions || {}).sort((a, b) => b[1] - a[1]).slice(0, 4);
   const lines = sentences.filter((s) => s.end > clip.start && s.start < clip.end).slice(0, 3);
@@ -223,9 +269,13 @@ function PreviewPanel({ project, clip, index, words, sentences, peaks, onDownloa
       <div class="why">
         <div class="label" style="margin-bottom:8px">${t("results.why")}</div>
         <div class="why__text">${clip.reasons.length ? clip.reasons.map((r) => t(`reasons.${r}`)).join(" · ") : t("results.why_none")}</div>
-        <div class="why__list mono">${top.map(([k, v]) => html`<div><span>${t(`signals.${k}`)}</span><b>+${Math.round(v)}</b></div>`)}</div>
+        <div class="why__list mono">${top.map(([k, v]) => html`<div><span>${t(`signals.${k}`)}</span><b>+${Math.round(v)}</b></div>`)}
+          ${clip.ai_score != null && html`<div><span>${t("results.ai_score")}</span><b>${Math.round(clip.ai_score / 10)}/10</b></div>`}</div>
       </div>
     </div>
+    ${clip.ai_title && clip.ai_title !== clip.title && html`<div class="ai-title">
+      <div><div class="label">${t("results.ai_title")}</div><div class="ai-title__text">${clip.ai_title}</div></div>
+      <${Button} variant="ghost" onClick=${() => onUseTitle(clip)}>${t("results.ai_use_title")}<//></div>`}
     ${bars.length > 0 && html`<div class="mini-wave"><${Wave} peaks=${bars} classFor=${(i, n) => (i / n >= inStart && i / n <= inEnd ? "in" : "")}>
         <span class="wave__marker wave__marker--in" style=${`left:calc(${inStart * 100}% - 4px)`}></span>
         <span class="wave__marker wave__marker--out" style=${`left:calc(${inEnd * 100}% + 2px)`}></span><//>

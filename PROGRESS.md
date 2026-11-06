@@ -33,7 +33,22 @@
   to open, filter 52 → 30 ms; headless Chromium). Light theme reviewed on every screen. Other lists are already bounded
   (live transcript ≤ 41 lines, editor context window, ≤ 15 results).
 
+- **P2** optional local AI: `core/scoring/ollama.py` (`OllamaClient` status/rate over httpx with `trust_env=False`, loopback
+  only incl. `SNIPSCOUT_OLLAMA_URL`; `rerank` rates top-15 one request per clip with Ollama structured output
+  `format` = `Rating` JSON schema, temperature 0, excerpt sent as a JSON string in the user message and the system prompt
+  forbids following it; malformed/timeout → that clip keeps its heuristic result, none rated → `ollama_failed`;
+  missing server/model → `ollama_unavailable`), `Clip.ai_score`/`ai_title`, `Pipeline.improve` (never changes the
+  project status), API `GET /system/ollama`, `POST /projects/{id}/improve` (job kind "improve", SSE), preference
+  `ollama_model`. UI: Results "Mejorar con IA local" (disabled with explanation when Ollama is absent, progress,
+  cancel, toast, lead text changes), "IA local n/10" in "why", suggested title with *Use*; Settings "IA local (opcional)"
+  (status, re-check, model select). Tests with httpx.MockTransport (6) incl. prompt-injection excerpt; browser e2e
+  against a fake Ollama server (on/off), a11y audit still 0 problems. 124 tests green.
+  Quality tuning from author annotations: **pending** — needs 3–4 real videos annotated by the author
+  (`eval/annotations/*.json`); optional per spec.
+
 ## Decisions
+- Ollama re-ranking: combined = 0.5 × heuristic + 0.5 × (rating × 10); only top 15 are rated; per-clip requests so
+  progress/cancel work on a CPU; suggested titles never overwrite the user's title automatically.
 - Spec "targets ≥ 40 px": compact 34 px controls keep the approved look and get an invisible `::before` hit area
   (`--target-min`); text-only links get padding + negative margin. Inline words in the transcript are exempt (WCAG inline).
 - axe-core (MPL-2.0) is only a dev-time input to the audit script, never vendored or shipped.
@@ -55,8 +70,7 @@
 - Tests: 118 passed + 2 slow deselected (`uv run pytest -q -m "not slow"`).
 
 ## Next
-- **v0.3 "Pulido"** (P1 done) (acceptance: accessibility verified, full light theme, complete docs + licences, real measurements):
-  - **P2 (next)**: optional `OllamaScorer` (local only, if the user already runs it; mocked in tests) + quality tuning from author annotations.
-  - **P3**: full CI, verified licences, issue/PR templates, Dependabot, docs `architecture.md`, `api.md`, `scoring.md`, `troubleshooting.md`.
+- **v0.3 "Pulido"** (P1, P2 done) (acceptance: accessibility verified, full light theme, complete docs + licences, real measurements):
+  - **P3 (next)**: full CI, verified licences, issue/PR templates, Dependabot, docs `architecture.md`, `api.md`, `scoring.md`, `troubleshooting.md`.
   - **P4**: reproducible screenshots + GIF, real performance measurements, experimental PyInstaller workflow (manual), **release v0.3.0** (pause).
 - Pending (spec 5.6): lightweight H.264→VP9 preview proxy when the webview can't play the source (Qt backend only) — not needed for Windows/macOS webviews; decide in U5/S1.

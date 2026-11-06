@@ -94,7 +94,8 @@
     "rendering": "Exportando",
     "done": "Exportado",
     "error": "Con error",
-    "cancelled": "Cancelado"
+    "cancelled": "Cancelado",
+    "improving": "Mejorando"
   },
   "settings": {
     "eyebrow": "Preferencias",
@@ -135,7 +136,14 @@
     "disk_cache": "Temporales {size}",
     "free_up": "Liberar espacio",
     "free_up_help": "Borra miniaturas, vistas previas y cachés. Tus clips y proyectos no se tocan.",
-    "freed": "Hemos liberado {size}"
+    "freed": "Hemos liberado {size}",
+    "ai": "IA local (opcional)",
+    "ai_on": "Ollama en marcha · {n} modelos",
+    "ai_off": "Ollama no está en marcha",
+    "ai_check": "Comprobar de nuevo",
+    "ai_model": "Modelo",
+    "ai_auto": "Automático ({model})",
+    "ai_help": "Si ya usas Ollama, SnipScout puede pedirle una segunda opinión sobre los clips. Todo se queda en tu ordenador; SnipScout no descarga ni instala modelos de IA."
   },
   "placeholder": {
     "eyebrow": "404",
@@ -153,7 +161,8 @@
     "find_moments": "Buscando los mejores momentos",
     "render": "Creando tus clips",
     "done": "Listo",
-    "exported": "Clips exportados"
+    "exported": "Clips exportados",
+    "improve": "Mejorando con IA local"
   },
   "errors": {
     "ffmpeg_missing": {
@@ -215,6 +224,14 @@
     "reveal_failed": {
       "title": "No pudimos abrir la carpeta",
       "body": "Tu sistema no tiene un explorador de archivos que podamos abrir. La ruta está arriba: cópiala y ábrela a mano."
+    },
+    "ollama_unavailable": {
+      "title": "La IA local no está disponible",
+      "body": "Abre Ollama en este ordenador y comprueba que el modelo elegido está instalado. Los clips siguen como estaban."
+    },
+    "ollama_failed": {
+      "title": "La IA local no dio una respuesta útil",
+      "body": "El modelo tardó demasiado o respondió en un formato inesperado. Los clips siguen como estaban; prueba con otro modelo."
     }
   },
   "components": {
@@ -319,7 +336,18 @@
     "download": "Descargar",
     "empty_title": "Este vídeo no nos ha dado clips",
     "empty_lead": "Lo hemos escuchado entero, pero ningún tramo se sostiene solo con esta duración.",
-    "try_medium": "Probar con clips medios"
+    "try_medium": "Probar con clips medios",
+    "ai_improve": "Mejorar con IA local",
+    "ai_unavailable": "Necesita Ollama abierto en este ordenador. SnipScout nunca descarga un modelo de IA.",
+    "ai_no_models": "Ollama está abierto, pero no tiene ningún modelo instalado.",
+    "ai_hint": "Reordena los {n} primeros con {model} y sugiere títulos. Tu selección no cambia.",
+    "ai_running": "Valorando con {model}: {done} de {total}",
+    "ai_done": "Orden actualizado con IA local ({n} clips valorados)",
+    "ai_score": "IA local",
+    "ai_title": "Título sugerido por IA local",
+    "ai_use_title": "Usar",
+    "ai_title_used": "Título actualizado",
+    "lead_ai": "Ordenados por puntuación y por la valoración de la IA local. Marca los que quieras exportar; puedes ajustar cada uno antes."
   },
   "player": {
     "play": "Reproducir",

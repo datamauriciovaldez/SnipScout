@@ -94,7 +94,8 @@
     "rendering": "Exporting",
     "done": "Exported",
     "error": "Failed",
-    "cancelled": "Cancelled"
+    "cancelled": "Cancelled",
+    "improving": "Improving"
   },
   "settings": {
     "eyebrow": "Preferences",
@@ -135,7 +136,14 @@
     "disk_cache": "Temporary {size}",
     "free_up": "Free up space",
     "free_up_help": "Deletes thumbnails, previews and caches. Your clips and projects are not touched.",
-    "freed": "We freed {size}"
+    "freed": "We freed {size}",
+    "ai": "Local AI (optional)",
+    "ai_on": "Ollama running · {n} models",
+    "ai_off": "Ollama is not running",
+    "ai_check": "Check again",
+    "ai_model": "Model",
+    "ai_auto": "Automatic ({model})",
+    "ai_help": "If you already use Ollama, SnipScout can ask it for a second opinion on the clips. Everything stays on your computer; SnipScout never downloads or installs AI models."
   },
   "placeholder": {
     "eyebrow": "404",
@@ -153,7 +161,8 @@
     "find_moments": "Finding the best moments",
     "render": "Making your clips",
     "done": "Done",
-    "exported": "Clips exported"
+    "exported": "Clips exported",
+    "improve": "Improving with local AI"
   },
   "errors": {
     "ffmpeg_missing": {
@@ -215,6 +224,14 @@
     "reveal_failed": {
       "title": "We couldn't open the folder",
       "body": "Your system has no file manager we can open. The path is shown above: copy it and open it yourself."
+    },
+    "ollama_unavailable": {
+      "title": "Local AI is not available",
+      "body": "Open Ollama on this computer and check that the chosen model is installed. Your clips are unchanged."
+    },
+    "ollama_failed": {
+      "title": "Local AI gave no usable answer",
+      "body": "The model took too long or replied in an unexpected format. Your clips are unchanged; try another model."
     }
   },
   "components": {
@@ -319,7 +336,18 @@
     "download": "Download",
     "empty_title": "This video didn't give us any clips",
     "empty_lead": "We listened to all of it, but no part stands on its own at this length.",
-    "try_medium": "Try medium clips"
+    "try_medium": "Try medium clips",
+    "ai_improve": "Improve with local AI",
+    "ai_unavailable": "Needs Ollama running on this computer. SnipScout never downloads an AI model.",
+    "ai_no_models": "Ollama is running but has no models installed.",
+    "ai_hint": "Re-orders the top {n} with {model} and suggests titles. Your selection stays the same.",
+    "ai_running": "Rating with {model}: {done} of {total}",
+    "ai_done": "Order updated with local AI ({n} clips rated)",
+    "ai_score": "Local AI",
+    "ai_title": "Title suggested by local AI",
+    "ai_use_title": "Use",
+    "ai_title_used": "Title updated",
+    "lead_ai": "Sorted by score and by the local AI's rating. Tick the ones you want to export; you can adjust each one first."
   },
   "player": {
     "play": "Play",
