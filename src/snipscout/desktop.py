@@ -17,7 +17,8 @@ from snipscout.core.binaries import FfmpegBinaries, resolve_ffmpeg
 from snipscout.core.errors import FfmpegMissingError
 from snipscout.core.ingest import SUPPORTED_EXTS
 from snipscout.core.storage import ProjectStore
-from snipscout.web.app import Context, create_app
+from snipscout.web.app import create_app
+from snipscout.web.common import Context
 
 log = logging.getLogger("snipscout")
 

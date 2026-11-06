@@ -184,7 +184,7 @@ def test_analyze_events_clips_render_zip(
     assert any(n.endswith(".mp4") for n in names) and "metadata.json" in names
 
     opened: list[Path] = []
-    monkeypatch.setattr("snipscout.web.app._reveal", opened.append)
+    monkeypatch.setattr("snipscout.web.routes.exports._reveal", opened.append)
     assert client.post(f"/api/v1/projects/{pid}/reveal").status_code == 204
     assert opened == [out]
 

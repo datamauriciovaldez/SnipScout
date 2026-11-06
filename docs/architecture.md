@@ -8,7 +8,7 @@ flowchart TB
     W[desktop.py<br/>pywebview window or browser] --> F[web/static<br/>Preact + htm, no build step]
     CLI[cli.py<br/>doctor · run · ui]
   end
-  F -- REST + SSE, 127.0.0.1 + session cookie --> A[web/app.py<br/>FastAPI /api/v1]
+  F -- REST + SSE, 127.0.0.1 + session cookie --> A[web/app.py + web/routes/*<br/>FastAPI /api/v1]
   A --> J[web/jobs.py<br/>background jobs, event replay]
   J --> P[core/pipeline.py]
   CLI --> P
