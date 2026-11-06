@@ -7,7 +7,6 @@ body {
   margin: 0; background: var(--bg); color: var(--text);
   font: var(--fw-regular) var(--fs-body) / var(--lh-body) var(--font-sans);
   -webkit-font-smoothing: antialiased;
-  transition: background-color var(--dur-theme) linear, color var(--dur-theme) linear;
 }
 button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; }
@@ -34,17 +33,18 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
   padding: 0 var(--s-6); border-bottom: var(--bw) solid var(--line); background: var(--panel);
 }
 .topbar__left, .topbar__right { display: flex; align-items: center; gap: var(--s-4); min-width: 0; }
-.brand { display: flex; align-items: center; gap: 9px; font-weight: var(--fw-semibold); font-size: var(--fs-row); letter-spacing: -0.01em; color: var(--text); text-decoration: none; }
+.brand { display: flex; align-items: center; gap: 9px; font-weight: var(--fw-semibold); font-size: var(--fs-row); letter-spacing: -0.01em; color: var(--text); text-decoration: none;
+  min-height: var(--target-min); }
 .brand__mark { width: 22px; height: 22px; border-radius: 5px; background: var(--text); color: var(--bg); display: grid; place-items: center; flex: none; }
 .brand__mark svg { width: 13px; height: 13px; }
 .crumb { display: flex; align-items: center; gap: var(--s-3); min-width: 0; color: var(--text-2); }
 .crumb__sep { color: var(--line); }
-.crumb__name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.crumb__name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-block: 10px; margin-block: -10px; }
 .status-dot { display: inline-flex; align-items: center; gap: 7px; }
 .status-dot::before { content: ""; width: 6px; height: 6px; border-radius: 99px; background: var(--ok); }
 .status-dot--busy::before { background: var(--text); animation: pulse 1.4s ease-in-out infinite; }
 .nav { display: flex; gap: var(--s-1); }
-.nav a { color: var(--text-2); text-decoration: none; padding: 6px 10px; border-radius: var(--r-2); }
+.nav a { color: var(--text-2); text-decoration: none; padding: 0 10px; min-height: var(--target-min); display: inline-flex; align-items: center; border-radius: var(--r-2); }
 .nav a:hover { color: var(--text); background: var(--hover); }
 .nav a[aria-current="page"] { color: var(--text); box-shadow: inset 0 -2px 0 var(--text); border-radius: 0; }
 
@@ -61,7 +61,11 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
   min-height: var(--control-h-sm); padding: 8px 14px; border-radius: var(--r-3); border: var(--bw) solid transparent;
   font-size: 13.5px; font-weight: var(--fw-medium); line-height: 1; background: transparent; color: var(--text); text-decoration: none;
   transition: transform var(--dur-fast) var(--ease-out), opacity var(--dur-fast) linear;
+  position: relative;
 }
+/* Compact controls keep their 34 px look but get a >= 40 px hit area (spec: targets >= 40 px). */
+.btn::before, .seg button::before { content: ""; position: absolute; left: 50%; top: 50%;
+  width: max(100%, var(--target-min)); height: max(100%, var(--target-min)); transform: translate(-50%, -50%); }
 .btn:active { transform: translateY(1px); }
 .btn:disabled, .btn[aria-disabled="true"] { opacity: .4; cursor: not-allowed; transform: none; }
 .btn--lg { min-height: var(--control-h); padding: 0 18px; font-size: var(--fs-body); }
@@ -78,8 +82,10 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
 .btn svg { width: 16px; height: 16px; flex: none; }
 .btn kbd, .kbd {
   font-family: var(--font-mono); font-size: var(--fs-label); font-weight: var(--fw-medium); letter-spacing: .04em;
-  padding: 2px 5px; border-radius: var(--r-1); border: var(--bw) solid currentColor; opacity: .7; line-height: 1;
+  padding: 2px 5px; border-radius: var(--r-1); border: var(--bw) solid currentColor; line-height: 1;
 }
+.btn kbd { opacity: .7; }
+.kbd { color: var(--text-2); border-color: var(--line-strong); }
 .btn.is-loading { color: transparent; position: relative; pointer-events: none; }
 .btn.is-loading::after {
   content: ""; position: absolute; width: 14px; height: 14px; border-radius: 50%;
@@ -99,8 +105,10 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
 .check-hit { width: 56px; min-height: var(--control-h); display: flex; align-items: center; justify-content: center; }
 
 /* ---------- Segmented selector ---------- */
-.seg { display: inline-flex; border: var(--bw) solid var(--line-strong); border-radius: var(--r-2); overflow: hidden; }
-.seg button { border: 0; background: transparent; min-height: var(--control-h-sm); padding: 0 12px; color: var(--text-2);
+.seg { display: inline-flex; border: var(--bw) solid var(--line-strong); border-radius: var(--r-2); }
+.seg button:first-child { border-radius: calc(var(--r-2) - 1px) 0 0 calc(var(--r-2) - 1px); }
+.seg button:last-child { border-radius: 0 calc(var(--r-2) - 1px) calc(var(--r-2) - 1px) 0; }
+.seg button { position: relative; border: 0; background: transparent; min-height: var(--control-h-sm); padding: 0 12px; color: var(--text-2);
   font-family: var(--font-mono); font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .seg button + button { border-left: var(--bw) solid var(--line); }
 .seg button:hover { color: var(--text); background: var(--hover); }
@@ -114,7 +122,8 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
   position: relative; cursor: default; }
 .row:hover { background: var(--hover); }
 .row[aria-selected="true"] { background: var(--panel); }
-.row[aria-selected="true"]::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent); }
+.row[aria-selected="true"]::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent);
+  animation: grow-y var(--dur-fast) var(--ease-out); }
 .row__num { width: 36px; color: var(--text-3); font-size: var(--fs-mono); }
 .row__main { flex: 1; min-width: 0; padding-right: 18px; }
 .row__title { font-weight: var(--fw-semibold); font-size: var(--fs-row); letter-spacing: var(--tracking-row); }
@@ -133,7 +142,8 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
 /* ---------- Score bar ---------- */
 .score { display: flex; align-items: center; gap: 10px; }
 .score__track { width: 56px; height: 5px; background: var(--score-track); border-radius: 2px; overflow: hidden; }
-.score__fill { height: 100%; border-radius: 2px; background: var(--score-low); width: calc(var(--v) * 1%); }
+.score__fill { height: 100%; border-radius: 2px; background: var(--score-low); width: 100%; transform-origin: left;
+  transform: scaleX(calc(var(--v) / 100)); animation: grow-x var(--dur-base) var(--ease-out); }
 .score--high .score__fill { background: var(--score-high); }
 .score__value { width: 24px; text-align: right; font-family: var(--font-mono); font-weight: var(--fw-medium); font-size: var(--fs-body); font-variant-numeric: tabular-nums; }
 
@@ -262,8 +272,7 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
 
 /* ---------- Drop zone ---------- */
 .drop { position: relative; border: var(--bw-control) dashed var(--line-strong); border-radius: var(--r-3); background: var(--sunken);
-  display: grid; place-items: center; text-align: center; padding: var(--s-12) var(--s-6); overflow: hidden;
-  transition: border-color var(--dur-fast) linear, background-color var(--dur-fast) linear; }
+  display: grid; place-items: center; text-align: center; padding: var(--s-12) var(--s-6); overflow: hidden; }
 .drop.is-over { border-color: var(--text); border-style: solid; background: var(--selected); }
 .drop__wave { position: absolute; left: 0; right: 0; bottom: 18px; opacity: .5; pointer-events: none; }
 .drop__body { position: relative; display: grid; gap: var(--s-2); justify-items: center; }
@@ -275,3 +284,19 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
 .empty { border-top: var(--bw) solid var(--rule); padding: var(--s-10) 0; max-width: 520px; display: grid; gap: var(--s-3); }
 .skeleton { background: var(--score-track); border-radius: var(--r-1); animation: pulse 1.4s ease-in-out infinite; }
 @keyframes pulse { 50% { opacity: .5; } }
+/* Narrow windows and 200 % zoom (720 px CSS width): keep the top bar on one line. */
+@media (max-width: 860px) {
+  .topbar { padding: 0 var(--s-4); gap: var(--s-3); }
+  .btn kbd, .topbar .status-dot { display: none; }
+}
+
+/* ---------- Motion: transform + opacity only; durations collapse to 0 with prefers-reduced-motion ---------- */
+.app-main > * { animation: view-in var(--dur-base) var(--ease-out); }
+@keyframes view-in { from { opacity: 0; transform: translateY(4px); } }
+@keyframes grow-x { from { transform: scaleX(0); } }
+@keyframes grow-y { from { transform: scaleY(0); } }
+@media (prefers-reduced-motion: reduce) {
+  .status-dot--busy::before, .stage.is-active .stage__dot, .skeleton { animation: none; }
+  .progress--indeterminate .progress__fill { animation: none; width: 100%; opacity: .5; }
+  .btn.is-loading::after { animation-duration: 2s; }
+}

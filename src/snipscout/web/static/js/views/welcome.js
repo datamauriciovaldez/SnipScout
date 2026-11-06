@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "preact/hooks";
 import { html } from "../html.js";
 import { api } from "../api.js";
-import { Button, Progress, Stepper } from "../components.js";
+import { Button, LiveStatus, Progress, Stepper } from "../components.js";
 import { fmt, setLang, t } from "../i18n.js";
 import { navigate } from "../router.js";
 import { store, useStore } from "../store.js";
@@ -88,7 +88,8 @@ function DownloadStep({ model, onDone }) {
     <div class="label">${t("welcome.dl_eyebrow", { model: t(`models.${spec.label}`) })}</div>
     <h1 class="title-1">${state === "done" ? t("welcome.dl_done_title") : t("welcome.dl_title")}</h1>
     <p class="lead">${t("welcome.dl_lead")}</p>
-    <div class="dl" aria-live="polite">
+    <${LiveStatus} step=${`${state}|${Math.floor(frac * 10)}`} message=${state === "done" ? t("welcome.dl_done_title") : `${Math.floor(frac * 100)} %`} />
+    <div class="dl">
       <div class="dl__nums"><span class="dl__pct mono">${Math.floor(frac * 100)} %</span>
         <span class="mono muted">${state === "done" ? t("welcome.dl_verified", { size: fmt.bytes(prog.total) })
           : t("welcome.dl_bytes", { done: fmt.bytes(prog.done), total: fmt.bytes(prog.total) })}${

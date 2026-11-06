@@ -1,11 +1,18 @@
 // Reusable Preact components. Styling lives in css/components.css; colours only in css/tokens.css.
-import { useEffect, useRef } from "preact/hooks";
+import { useEffect, useRef, useState } from "preact/hooks";
 import { html } from "./html.js";
 import { Icon } from "./icons.js";
 import { t } from "./i18n.js";
 import { store, useStore } from "./store.js";
 
 const cx = (...parts) => parts.filter(Boolean).join(" ");
+
+/** Screen-reader progress: announces `message` only when `step` changes (stage, every 10 %), not on every tick. */
+export function LiveStatus({ message, step }) {
+  const [said, setSaid] = useState(message);
+  useEffect(() => setSaid(message), [step]);
+  return html`<div class="sr-only" role="status" aria-live="polite">${said}</div>`;
+}
 
 /** variant: primary | accent | outline | ghost ; size: md | lg ; icon-only when `icon` and no children. */
 export function Button({ variant = "outline", size = "md", icon, kbd, loading, block, class: extra, children, ...rest }) {

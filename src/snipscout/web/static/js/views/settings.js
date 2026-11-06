@@ -71,7 +71,7 @@ function Models() {
   };
   const installed = status.models.filter((m) => m.installed);
   return html`<div class="table models">
-    ${status.models.map((m) => html`<div class=${`row${def === m.name ? " is-default" : ""}`} aria-selected=${String(def === m.name)}>
+    ${status.models.map((m) => html`<div class=${`row${def === m.name ? " is-default" : ""}`}>
       <div class="row__main" style="padding-left:12px"><div class="row__title" style="font-size:14px">${t(`models.${m.label}`)}
         ${def === m.name && html` <span class="tag" style="margin-left:6px">${t("settings.default_model")}</span>`}</div>
         <div class="row__sub">${t(`welcome.model_${m.label}`)}</div></div>

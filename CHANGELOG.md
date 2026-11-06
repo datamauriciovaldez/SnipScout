@@ -3,6 +3,23 @@
 All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+- `scripts/check_a11y.py`: audits every screen in both themes (axe-core WCAG 2.1 AA rules when given `axe.min.js`,
+  40 px targets, keyboard Tab walk with visible focus, no horizontal scroll at 200 % zoom).
+- Subtle motion (transform/opacity only): views fade in, score bars grow, the selected-row marker slides in.
+
+### Changed
+- Every control has a hit area of at least 40 px; compact buttons keep their look.
+- Progress is announced to screen readers once per stage or 10 % instead of on every update.
+- The results list is an ARIA grid (fixes nested interactive controls); keyboard shortcuts in the editor have AA contrast.
+- Narrow windows and 200 % zoom: results stack above the preview, the top bar stays on one line, timeline labels no
+  longer overlap.
+- The projects list renders 50 rows at a time as you scroll (400 projects: ~550 ms → ~130–250 ms to open, measured
+  in headless Chromium).
+- With "reduce motion", pulsing and sliding indicators are static.
+
 ## [0.2.0] - 2026-11-05
 
 "Editor" release.

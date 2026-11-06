@@ -19,8 +19,8 @@ function tokens() {
            region: v("--selected"), line: v("--line"), mono: v("--font-mono") };
 }
 
-function niceStep(seconds) {
-  for (const s of [0.5, 1, 2, 5, 10, 15, 30, 60, 120, 300, 600, 900, 1800, 3600]) if (seconds / s <= 8) return s;
+function niceStep(seconds, maxTicks = 8) {
+  for (const s of [0.5, 1, 2, 5, 10, 15, 30, 60, 120, 300, 600, 900, 1800, 3600]) if (seconds / s <= maxTicks) return s;
   return 7200;
 }
 
@@ -94,11 +94,12 @@ export function Timeline({ projectId, duration, start, end, time, sentences, onC
     // Ruler.
     g.fillStyle = k.line; g.fillRect(0, HEIGHT, width, 1);
     g.fillStyle = k.faint; g.font = `11px ${k.mono}`; g.textBaseline = "top";
-    const st = niceStep(view[1] - view[0]);
+    const st = niceStep(view[1] - view[0], Math.max(2, Math.min(8, Math.floor(width / 64)))); // labels never touch
     for (let tt = Math.ceil(view[0] / st) * st; tt <= view[1]; tt += st) {
       const px = x(tt);
       g.fillRect(px, HEIGHT, 1, 4);
-      g.fillText(fmt.duration(tt), Math.min(width - 34, px + 3), HEIGHT + 6);
+      const label = fmt.duration(tt);
+      if (px + 3 + g.measureText(label).width <= width) g.fillText(label, px + 3, HEIGHT + 6);
     }
   }, [width, view, peaks, start, end, time, themeTick]);
 

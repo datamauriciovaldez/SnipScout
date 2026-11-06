@@ -1,11 +1,24 @@
 // Projects & history: search, rename, open, show exported folder, delete with confirmation.
-import { useEffect, useState } from "preact/hooks";
+import { useEffect, useRef, useState } from "preact/hooks";
 import { html } from "../html.js";
 import { api } from "../api.js";
 import { Button, Modal, Tag, toast } from "../components.js";
 import { fmt, t } from "../i18n.js";
 import { navigate } from "../router.js";
 import { store } from "../store.js";
+
+const PAGE = 50; // rows rendered per step; more are added as the end of the list scrolls into view
+
+/** Renders an invisible marker that calls `onVisible` when it nears the viewport. */
+function MoreSentinel({ onVisible }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const io = new IntersectionObserver((es) => es.some((e) => e.isIntersecting) && onVisible(), { rootMargin: "600px" });
+    io.observe(ref.current);
+    return () => io.disconnect();
+  }, [onVisible]);
+  return html`<div ref=${ref} aria-hidden="true" style="height:1px"></div>`;
+}
 
 const where = (p) => (p.status === "done" ? `/proyecto/${p.id}/exportar` : `/proyecto/${p.id}`);
 
@@ -14,6 +27,8 @@ export function Projects() {
   const [query, setQuery] = useState("");
   const [renaming, setRenaming] = useState(null);
   const [toDelete, setToDelete] = useState(null);
+  const [limit, setLimit] = useState(PAGE);
+  useEffect(() => setLimit(PAGE), [query]);
   const load = () => api.projects().then((ps) => { setList(ps); store.set({ projects: ps }); }).catch(() => setList([]));
   useEffect(() => { load(); }, []);
 
@@ -47,7 +62,7 @@ export function Projects() {
           <div class="table__head label" aria-hidden="true"><span style="flex:1;padding-left:12px">${t("projects.col_name")}</span>
             <span class="projects__c">${t("projects.col_length")}</span><span class="projects__c">${t("projects.col_clips")}</span>
             <span class="projects__date">${t("projects.col_date")}</span><span class="projects__state">${t("projects.col_state")}</span><span class="projects__act"></span></div>
-          ${shown.map((p) => html`<div class="row projects__row">
+          ${shown.slice(0, limit).map((p) => html`<div class="row projects__row">
             <div class="row__main" style="padding-left:12px">
               ${renaming === p.id
                 ? html`<input class="input" autofocus value=${p.name} aria-label=${t("projects.rename")}
@@ -66,6 +81,7 @@ export function Projects() {
               <${Button} variant="ghost" icon="trash" aria-label=${t("projects.delete_named", { name: p.name })} disabled=${Boolean(p.job)} onClick=${() => setToDelete(p)} />
             </span>
           </div>`)}
+          ${shown.length > limit && html`<${MoreSentinel} onVisible=${() => setLimit((n) => n + PAGE)} />`}
           ${shown.length === 0 && html`<p class="faint" style="padding:16px 12px">${t("projects.no_match")}</p>`}
         </div>`}
     <${Modal} open=${Boolean(toDelete)} eyebrow=${t("projects.delete")} title=${toDelete ? t("projects.delete_title", { name: toDelete.name }) : ""}

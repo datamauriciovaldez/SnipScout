@@ -22,7 +22,21 @@
 - **E3** shortcuts + undo + autosave: pure helpers `js/editing.js` (bounded undo/redo history, nearest boundary, word stepping) with `node --test` unit tests run from pytest (`tests/js/`, skipped without node); editor: every confirmed change is one undo step (a handle drag = 1 step, title on blur), Ctrl/Cmd+Z / Shift+Z / Y, I/O set in/out at the playhead snapped to sentences (Alt exact), ←/→ previous/next word (Shift ±5 s), Ctrl/Cmd+Enter save and back; autosave 0.9 s after the last change with indicator (pending/saving/saved/error); Reset returns to the clip as opened. Browser e2e: O→137.41 autosaved, undo→152.83, redo→137.41, → to next word exact, no console errors. Not browser-verified: drag-as-single-undo-step (logic in place).
 - **E4** projects + settings + resume: `views/projects.js` (search, rename button, delete with confirm, reveal, clip counts), `views/resume.js` (last project/clip/export location in localStorage → "Continue where you left off" on Home), `views/settings.js` (language, theme, output folder via native picker or path input + reset, export quality light/standard/high = CRF 24/20/17, hardware encoder and loudnorm toggles, speech models download/default/delete, disk usage + Free up space). Core `preferences.py` (`<data>/preferences.json`); `config.output_dir()` = env → preference → Downloads/SnipScout; render options read preferences. API: GET/PATCH /settings, GET /system/storage, POST /system/storage/free (caches + orphan uploads only), DELETE /system/models/{name}, clip counts in project list. Fixed: double-click rename on a link navigated away (rename is a button now). Browser e2e OK; README screenshots regenerated. Version 0.2.0 + CHANGELOG.
 
+- **v0.2.0 RELEASED** 2026-11-06 (author ran the Release workflow; assets verified: .bat CRLF, launchers executable, no dev/local files).
+- **P1** polish: `scripts/check_a11y.py` (every screen × light/dark × 100/200 % zoom: axe-core WCAG 2.1 AA, ≥ 40 px targets
+  incl. `::before` hit areas, Tab walk with visible focus/no trap, no horizontal scroll at 720 px) → **0 problems**
+  (started at ~120: 34 px controls, nested interactive results rows, `aria-selected` on plain rows, .kbd contrast,
+  6 px overflow in the editor top bar). Results list is now an ARIA grid; `LiveStatus` announces progress once per
+  stage/10 % (Processing, Export, model download); motion = view fade-in, score bars grow, selected-row marker (transform/
+  opacity only, 0 ms + static indicators with reduced motion); narrow/200 % layout (Results stacks, timeline labels
+  never overlap, compact top bar); Projects renders 50 rows at a time + `content-visibility` (400 projects: ~550 → 130–250 ms
+  to open, filter 52 → 30 ms; headless Chromium). Light theme reviewed on every screen. Other lists are already bounded
+  (live transcript ≤ 41 lines, editor context window, ≤ 15 results).
+
 ## Decisions
+- Spec "targets ≥ 40 px": compact 34 px controls keep the approved look and get an invisible `::before` hit area
+  (`--target-min`); text-only links get padding + negative margin. Inline words in the transcript are exempt (WCAG inline).
+- axe-core (MPL-2.0) is only a dev-time input to the audit script, never vendored or shipped.
 - This session cannot push git tags (HTTP 403): releases are published from Actions → Release → Run workflow (creates tag v<pyproject version>).
 - Project renamed **SnipScout** (package `snipscout`, CLI `snipscout`, env `SNIPSCOUT_*`, theme key `snipscout.theme`). Repo: https://github.com/datamauriciovaldez/SnipScout (branch `main`).
 - Author approved: Whisper `base` default (Rápido=tiny, Preciso=small); embeddings optional download, TF-IDF default.
@@ -37,16 +51,12 @@
 - Output folder resolution: `SNIPSCOUT_OUTPUT_DIR` → preferences.json → Downloads/SnipScout/<project>.
 
 ## Current state
-- Version in pyproject: **0.2.0** (CHANGELOG has 0.2.0 + 0.1.0). v0.1.0 released; **v0.2.0 not yet released**.
+- Version in pyproject: **0.2.0**; v0.1.0 and v0.2.0 released. CHANGELOG `[Unreleased]` collects v0.3 work.
 - Tests: 118 passed + 2 slow deselected (`uv run pytest -q -m "not slow"`).
 
 ## Next
-- **Release v0.2.0**: waiting for the author to run Actions → Release → Run workflow (mandatory pause). Verify assets after.
-- Then **v0.3 "Pulido"** (acceptance: accessibility verified, full light theme, complete docs + licences, real measurements):
-  - **P1**: fine animations/transitions (transform/opacity only, 120/220 ms, `prefers-reduced-motion`), light theme polish on
-    every screen, full accessibility review (keyboard paths, visible focus, aria labels/live regions, ≥40 px targets,
-    200 % zoom, contrast), performance (virtualise long lists: results, transcript words, projects).
-  - **P2**: optional `OllamaScorer` (local only, if the user already runs it; mocked in tests) + quality tuning from author annotations.
+- **v0.3 "Pulido"** (P1 done) (acceptance: accessibility verified, full light theme, complete docs + licences, real measurements):
+  - **P2 (next)**: optional `OllamaScorer` (local only, if the user already runs it; mocked in tests) + quality tuning from author annotations.
   - **P3**: full CI, verified licences, issue/PR templates, Dependabot, docs `architecture.md`, `api.md`, `scoring.md`, `troubleshooting.md`.
   - **P4**: reproducible screenshots + GIF, real performance measurements, experimental PyInstaller workflow (manual), **release v0.3.0** (pause).
 - Pending (spec 5.6): lightweight H.264→VP9 preview proxy when the webview can't play the source (Qt backend only) — not needed for Windows/macOS webviews; decide in U5/S1.

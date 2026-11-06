@@ -189,8 +189,8 @@ html, body, .app-root { height: 100%; }
 .projects__date { width: 150px; }
 .projects__state { width: 130px; }
 .projects__act { width: 210px; display: flex; justify-content: flex-end; gap: 2px; }
-.projects__row { min-height: 64px; }
-.projects__name { color: inherit; text-decoration: none; }
+.projects__row { min-height: 64px; content-visibility: auto; contain-intrinsic-size: auto 64px; }
+.projects__name { color: inherit; text-decoration: none; display: inline-block; padding-block: 10px; margin-block: -10px; } /* 40 px hit area */
 .projects__name:hover { text-decoration: underline; }
 @media (max-width: 1180px) { .projects__date, .projects__c:nth-of-type(2) { display: none; } }
 
@@ -209,6 +209,7 @@ html, body, .app-root { height: 100%; }
 .path-row__value { font-size: var(--fs-mono); color: var(--text-2); overflow-wrap: anywhere; }
 .path-row .input { flex: 1; min-width: 240px; }
 .models .row { min-height: 60px; }
+.models .row.is-default { background: var(--panel); }
 .models .row.is-default::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent); }
 .models__act { width: 230px; display: flex; justify-content: flex-end; gap: 2px; }
 .disk__head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s-3); flex-wrap: wrap; }
@@ -221,3 +222,13 @@ html, body, .app-root { height: 100%; }
 .disk__legend i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; }
 .disk__act { display: flex; gap: var(--s-3); align-items: center; margin-top: 14px; font-size: var(--fs-small); flex-wrap: wrap; }
 @media (max-width: 1180px) { .settings-page .settings__row { grid-template-columns: minmax(0, 1fr); gap: 8px; } }
+
+/* Narrow windows / 200 % zoom: Results stacks the list above the preview panel. */
+@media (max-width: 900px) {
+  .results { flex-direction: column; height: auto; }
+  .results__main { padding: 22px var(--s-5) 0; }
+  .results__table { overflow: visible; }
+  .results .c-dur { display: none; }
+  .results__side { width: auto; border-left: 0; border-top: var(--bw) solid var(--line); padding: var(--s-5); overflow: visible; }
+  .results .statusbar { flex-wrap: wrap; }
+}

@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import { html } from "../html.js";
 import { api } from "../api.js";
-import { Button, Checkbox, ErrorNotice, Modal, ScoreBar, Wave, toast } from "../components.js";
+import { Button, Checkbox, ErrorNotice, LiveStatus, Modal, ScoreBar, Wave, toast } from "../components.js";
 import { fmt, t } from "../i18n.js";
 import { navigate } from "../router.js";
 import { useStore, useTopbar } from "../store.js";
@@ -82,7 +82,8 @@ function Processing({ project, running, onDone }) {
       <div class="label">${t("processing.eyebrow")}</div>
       <h1 class="title-1">${headline}</h1>
       <p class="lead">${state === "running" ? t("processing.lead") : t("processing.paused_lead")}</p>
-      <div class="eta" aria-live="polite">
+      <${LiveStatus} step=${`${headline}|${Math.floor(frac * 10)}`} message=${`${headline} · ${Math.floor(frac * 100)} %`} />
+      <div class="eta">
         <div><div class="label">${t("processing.left")}</div><b class="mono">${info.eta != null ? t("processing.minutes", { m: Math.floor(info.eta / 60), s: String(Math.round(info.eta % 60)).padStart(2, "0") }) : "—"}</b></div>
         <div><div class="label">${t("processing.heard")}</div><b class="mono">${fmt.duration(info.processed)}</b> <span class="mono faint">/ ${fmt.duration(info.total)}</span></div>
       </div>
@@ -177,16 +178,16 @@ function Results({ project }) {
       <div class="table results__table">
         <div class="table__head label" aria-hidden="true"><span style="width:56px"></span><span style="width:36px">${t("results.col_n")}</span><span style="width:54px"></span>
           <span style="flex:1">${t("results.col_clip")}</span><span class="c-in-out">${t("results.col_inout")}</span><span class="c-dur">${t("results.col_dur")}</span><span class="c-score">${t("results.col_score")}</span></div>
-        <div role="listbox" aria-label=${t("results.list_label")} onKeyDown=${onKey}>
-          ${clips.map((c, i) => html`<div class="row" id=${`row-${c.id}`} role="option" tabindex=${i === active ? 0 : -1} aria-selected=${String(i === active)}
+        <div role="grid" aria-label=${t("results.list_label")} onKeyDown=${onKey}>
+          ${clips.map((c, i) => html`<div class="row" id=${`row-${c.id}`} role="row" tabindex=${i === active ? 0 : -1} aria-selected=${String(i === active)}
               onClick=${(e) => !e.target.closest(".check-hit") && setActive(i)} onDblClick=${() => navigate(`/proyecto/${project.id}/clip/${c.id}`)}>
-            <label class="check-hit"><${Checkbox} checked=${c.included} onChange=${(v) => toggle(c, v)} label=${t("results.include", { title: c.title })} /></label>
-            <div class="row__num mono">${String(i + 1).padStart(2, "0")}</div>
-            <div class="thumb">${project.source.has_video && html`<img src=${api.thumbUrl(project.id, c.id)} alt="" loading="lazy" class="thumb__img" />`}</div><div class="gap-20"></div>
-            <div class="row__main"><div class="row__title">${c.title}</div><div class="row__sub">${c.hook}</div></div>
-            <div class="row__cell mono c-in-out">${fmt.timecode(c.start)} → ${fmt.timecode(c.end)}</div>
-            <div class="row__cell mono c-dur" style="color:var(--text)">${fmt.duration(c.end - c.start)}</div>
-            <div class="c-score"><${ScoreBar} value=${c.score} threshold=${HIGH} /></div>
+            <div role="gridcell"><label class="check-hit"><${Checkbox} checked=${c.included} onChange=${(v) => toggle(c, v)} label=${t("results.include", { title: c.title })} /></label></div>
+            <div class="row__num mono" role="gridcell">${String(i + 1).padStart(2, "0")}</div>
+            <div class="thumb" role="gridcell">${project.source.has_video && html`<img src=${api.thumbUrl(project.id, c.id)} alt="" loading="lazy" class="thumb__img" />`}</div><div class="gap-20" aria-hidden="true"></div>
+            <div class="row__main" role="gridcell"><div class="row__title">${c.title}</div><div class="row__sub">${c.hook}</div></div>
+            <div class="row__cell mono c-in-out" role="gridcell">${fmt.timecode(c.start)} → ${fmt.timecode(c.end)}</div>
+            <div class="row__cell mono c-dur" role="gridcell" style="color:var(--text)">${fmt.duration(c.end - c.start)}</div>
+            <div class="c-score" role="gridcell"><${ScoreBar} value=${c.score} threshold=${HIGH} /></div>
           </div>`)}
         </div>
       </div>

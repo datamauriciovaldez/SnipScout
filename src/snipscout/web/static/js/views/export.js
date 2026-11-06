@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "preact/hooks";
 import { html } from "../html.js";
 import { api, native } from "../api.js";
-import { Button, ErrorNotice, Modal, Progress, toast } from "../components.js";
+import { Button, ErrorNotice, LiveStatus, Modal, Progress, toast } from "../components.js";
 import { Icon } from "../icons.js";
 import { fmt, t } from "../i18n.js";
 import { navigate } from "../router.js";
@@ -61,7 +61,8 @@ function Rendering({ project, onDone }) {
     <div class="label">${t("export.eyebrow")}</div>
     <h1 class="title-1">${t("export.rendering_title")}</h1>
     <p class="lead">${t("export.rendering_lead")}</p>
-    <div class="export__overall" aria-live="polite">
+    <${LiveStatus} step=${`${done}|${Math.floor(overall * 10)}`} message=${`${Math.floor(overall * 100)} % · ${rows.length ? t("export.count", { done, total: rows.length }) : t("export.preparing")}`} />
+    <div class="export__overall">
       <span class="dl__pct mono">${Math.floor(overall * 100)} %</span>
       <span class="mono muted">${rows.length ? t("export.count", { done, total: rows.length }) : t("export.preparing")}</span>
     </div>
