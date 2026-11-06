@@ -32,9 +32,21 @@
 - Farewells ("that's it", "eso es todo") are NOT closers.
 - "Ver fotograma real" deferred to E2 (v0.2) as in the spec.
 - CLI uses argparse (no extra dependency).
-- CI not yet run on GitHub (no remote). Windows/macOS behaviour unverified until first push.
+- CI runs on GitHub for every push to main (ubuntu/windows/macos + autonomy guard). Last verified green: 91610d4 (macOS runner not assigned that time).
+- Accent colour only for: high scores, active subtitle word, wave markers/handles, active row, Download button.
+- Output folder resolution: `SNIPSCOUT_OUTPUT_DIR` → preferences.json → Downloads/SnipScout/<project>.
+
+## Current state
+- Version in pyproject: **0.2.0** (CHANGELOG has 0.2.0 + 0.1.0). v0.1.0 released; **v0.2.0 not yet released**.
+- Tests: 118 passed + 2 slow deselected (`uv run pytest -q -m "not slow"`).
 
 ## Next
-- **Release v0.2.0**: waiting for the author to run Actions → Release → Run workflow (mandatory pause).
-- Then **v0.3 "Pulido" — P1**: fine animations/transitions, full light theme polish, full accessibility review, performance.
+- **Release v0.2.0**: waiting for the author to run Actions → Release → Run workflow (mandatory pause). Verify assets after.
+- Then **v0.3 "Pulido"** (acceptance: accessibility verified, full light theme, complete docs + licences, real measurements):
+  - **P1**: fine animations/transitions (transform/opacity only, 120/220 ms, `prefers-reduced-motion`), light theme polish on
+    every screen, full accessibility review (keyboard paths, visible focus, aria labels/live regions, ≥40 px targets,
+    200 % zoom, contrast), performance (virtualise long lists: results, transcript words, projects).
+  - **P2**: optional `OllamaScorer` (local only, if the user already runs it; mocked in tests) + quality tuning from author annotations.
+  - **P3**: full CI, verified licences, issue/PR templates, Dependabot, docs `architecture.md`, `api.md`, `scoring.md`, `troubleshooting.md`.
+  - **P4**: reproducible screenshots + GIF, real performance measurements, experimental PyInstaller workflow (manual), **release v0.3.0** (pause).
 - Pending (spec 5.6): lightweight H.264→VP9 preview proxy when the webview can't play the source (Qt backend only) — not needed for Windows/macOS webviews; decide in U5/S1.
