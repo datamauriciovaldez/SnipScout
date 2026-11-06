@@ -69,6 +69,13 @@
 - **v0.3.0 RELEASED** 2026-11-06 (author ran the Release workflow; assets verified: .bat CRLF, launchers executable,
   sdist version 0.3.0, docs/GIF/SECURITY included, no dev/local files). **All spec milestones (H0–P4) are done.**
 
+- **R1** README step-by-step install guide (Windows/macOS/Linux, first run, update/uninstall, Spanish quick guide).
+- **R2** `tests/e2e/test_full_flow.py`: real server + Chromium + fake speech model (`FakeSpeech`, punctuated Spanish
+  sentences) on a 75 s video under an accented path: browser upload → Processing → Results (keyboard toggle,
+  Enter opens the active row) → editor rename + autosave (pending → saved) + Ctrl+Enter → Results shows the new title →
+  render ticked clips → finished list + download link → MP4 files on disk named from the edited title; zero console
+  errors. 47 s locally; skipped without Playwright; CI `ui` job runs it. No app bugs found (two test assumptions fixed).
+
 ## Decisions
 - Playwright in CI is pinned (`uv run --with playwright==1.64.1`) instead of a dev dependency, so normal installs stay small.
 - Ollama re-ranking: combined = 0.5 × heuristic + 0.5 × (rating × 10); only top 15 are rated; per-clip requests so
@@ -95,9 +102,7 @@
 
 ## Next — v0.4 "Real world" (approved by the author 2026-11-06: "hazlo como tú quieras")
 Goal: prove and improve behaviour on real use, before new features. One milestone at a time, same process.
-- **R1** README beginner install tutorial (Windows/macOS/Linux, first run, update/uninstall, Spanish quick guide). ← done in this commit
-- **R2** Full-flow browser e2e in CI with a fake speech model (upload → analyze → results → editor edit/save →
-  render → export screen), moved from scratch scripts into `tests/e2e/` + a CI job.
+- R1, R2 done.
 - **R3** Long-video robustness: synthetic 2 h file (concatenated speech) → time, peak RAM, transcript/clips size,
   editor/results responsiveness; fix what breaks (e.g. transcript payload paging).
 - **R4** Real-speech evaluation: freely licensed real talks (CC-BY/public domain, recorded human speech) annotated

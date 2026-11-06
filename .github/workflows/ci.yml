@@ -54,7 +54,8 @@ jobs:
       - run: uv run snipscout doctor
 
   ui:
-    # Real server + Chromium: API with session cookie, first-run screens in both themes, component gallery.
+    # Real server + Chromium: API with session cookie, first-run screens in both themes, component gallery,
+    # and the whole upload → analyze → edit → render flow with a fake speech model.
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -69,6 +70,8 @@ jobs:
         run: uv run --with playwright==1.64.1 playwright install --with-deps chromium
       - run: uv run --with playwright==1.64.1 python scripts/smoke_ui.py --out smoke-shots
       - run: uv run --with playwright==1.64.1 python scripts/check_components.py
+      - name: Full flow in the browser (fake speech model)
+        run: uv run --with playwright==1.64.1 pytest -q --tb=short tests/e2e
       - uses: actions/upload-artifact@v4
         if: always()
         with:
