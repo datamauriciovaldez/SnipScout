@@ -93,8 +93,15 @@
 - Version **0.3.0** released (v0.1.0, v0.2.0, v0.3.0 published). Dependabot opens weekly PRs (author merges).
 - Tests: 124 passed + 2 slow deselected (`uv run pytest -q -m "not slow"`).
 
-## Next
-- Spec complete. Optional: author runs Actions → Experimental bundle to try the PyInstaller build on Windows/macOS.
-- Possible next work (scope change → needs the author's decision): real-video scorer tuning with annotated talks
-  (`eval/annotations/*.json`), H.264→VP9 preview proxy for the Qt webview (spec 5.6, only Linux/Qt), face-aware
-  reframing, signed installers.
+## Next — v0.4 "Real world" (approved by the author 2026-11-06: "hazlo como tú quieras")
+Goal: prove and improve behaviour on real use, before new features. One milestone at a time, same process.
+- **R1** README beginner install tutorial (Windows/macOS/Linux, first run, update/uninstall, Spanish quick guide). ← done in this commit
+- **R2** Full-flow browser e2e in CI with a fake speech model (upload → analyze → results → editor edit/save →
+  render → export screen), moved from scratch scripts into `tests/e2e/` + a CI job.
+- **R3** Long-video robustness: synthetic 2 h file (concatenated speech) → time, peak RAM, transcript/clips size,
+  editor/results responsiveness; fix what breaks (e.g. transcript payload paging).
+- **R4** Real-speech evaluation: freely licensed real talks (CC-BY/public domain, recorded human speech) annotated
+  with good moments in `eval/annotations/`, measure recall@K, tune weights; author's own videos welcome.
+- **R5** Face-aware vertical reframing (local face detector, CPU, optional fallback to centre) — needs licence check.
+- **R6** Housekeeping: split `web/app.py` into routers, more JS unit tests, VP9 preview proxy for Qt (spec 5.6).
+- Then release v0.4.0 (mandatory pause).

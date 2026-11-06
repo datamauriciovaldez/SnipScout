@@ -30,25 +30,101 @@ video, proposes the moments that work on their own, and renders vertical clips w
 - Optional: re-rank the suggestions with a local Ollama model you already have (never downloaded by SnipScout).
 - Spanish and English interface, light and dark themes, keyboard friendly, automated WCAG 2.1 AA checks (axe-core) on every screen.
 
-## Quickstart
+## Install and start (step by step)
 
-**Windows** — download the ZIP from the [latest release](https://github.com/datamauriciovaldez/SnipScout/releases),
-unzip it and double-click **`Start-SnipScout.bat`**. The first run asks before installing
-[uv](https://docs.astral.sh/uv/) into that folder, prepares Python (a few hundred MB, only once) and opens the app.
-Windows may show a SmartScreen warning for a downloaded script: choose *More info → Run anyway*.
-The window uses Microsoft WebView2, which is already installed on Windows 10/11.
+You don't need to know how to program. You need a computer with Windows 10/11, macOS or Linux, about **2 GB of free
+disk space** and an internet connection **the first time only**.
 
-**macOS / Linux** — one line (needs [uv](https://docs.astral.sh/uv/getting-started/installation/)):
+### Windows
+
+1. Open the [latest release](https://github.com/datamauriciovaldez/SnipScout/releases/latest) and click
+   **`SnipScout-<version>-windows.zip`** to download it.
+2. Go to your *Downloads* folder, right-click the ZIP → **Extract All…** → **Extract**.
+   (Don't run it from inside the ZIP: it must be extracted first.)
+3. Open the extracted folder and double-click **`Start-SnipScout.bat`**.
+4. If Windows says *"Windows protected your PC"*, click **More info → Run anyway**. This appears because the file
+   was downloaded from the internet.
+5. A black window opens and asks to install a small helper called *uv* (about 30 MB): press **S** or **Y**.
+   The first time it prepares everything for a few minutes; the next times it opens in seconds.
+6. SnipScout opens in its own window. **Keep the black window open** while you use it — closing it closes the app.
+
+To open it again later, double-click `Start-SnipScout.bat` again (tip: right-click it → *Send to → Desktop* for a
+shortcut).
+
+### macOS
+
+1. Open the [latest release](https://github.com/datamauriciovaldez/SnipScout/releases/latest) and download
+   **`SnipScout-<version>-macos-linux.tar.gz`**. Double-click it in *Downloads* to extract the folder.
+2. In the folder, **right-click `Start-SnipScout.command` → Open → Open**. If macOS still refuses
+   ("unidentified developer"), go to *System Settings → Privacy & Security* and click **Open Anyway**.
+3. A Terminal window asks to install *uv*: type **y** and press Enter. The first time takes a few minutes.
+4. SnipScout opens. Keep the Terminal window open while you use it.
+
+(The macOS window has not been tested on a real Mac yet; if it doesn't open, SnipScout falls back to your browser.
+Please [report it](https://github.com/datamauriciovaldez/SnipScout/issues).)
+
+### Linux
+
+Download the same `.tar.gz`, extract it, open a terminal in the folder and run:
+
+```bash
+./start-snipscout.sh
+```
+
+Without GTK or Qt webview libraries, SnipScout opens in your browser instead of its own window.
+
+### First time in the app
+
+1. Choose your language.
+2. SnipScout checks your computer and suggests a speech model — **Balanced** is right for most people.
+3. It downloads the model once (about 150 MB). After that, everything works **without internet**.
+4. Drag a video onto the window (or click *Choose file*), pick the clip length and format, and press **Find my best clips**.
+   You get a list of suggested moments: tick the ones you like, adjust them if you want, and export.
+   Your clips land in *Downloads/SnipScout*.
+
+### Update or uninstall
+
+- **Update:** download the new release and start it the same way. Your projects and the speech model are kept
+  (they live in your user folder, not in the app folder).
+- **Uninstall:** delete the app folder. To also remove projects and models, delete the `SnipScout` folder in
+  `%LOCALAPPDATA%` (Windows), `~/Library/Application Support` and `~/Library/Caches` (macOS) or
+  `~/.local/share` and `~/.cache` (Linux). Your exported clips in *Downloads/SnipScout* are never deleted.
+
+Something went wrong? The launcher leaves a `snipscout-error.log` file in its folder — see
+[troubleshooting](docs/troubleshooting.md) or attach it to an [issue](https://github.com/datamauriciovaldez/SnipScout/issues).
+
+<details>
+<summary><b>Guía rápida en español</b></summary>
+
+1. Entra en la [última versión](https://github.com/datamauriciovaldez/SnipScout/releases/latest) y descarga el
+   archivo de tu sistema: **`…-windows.zip`** (Windows) o **`…-macos-linux.tar.gz`** (Mac y Linux).
+2. **Descomprímelo** (Windows: clic derecho → *Extraer todo*; Mac: doble clic).
+3. Abre la carpeta y ejecuta el lanzador:
+   - **Windows:** doble clic en `Start-SnipScout.bat`. Si sale *"Windows protegió su PC"*: **Más información →
+     Ejecutar de todas formas**.
+   - **Mac:** clic derecho en `Start-SnipScout.command` → **Abrir → Abrir** (o *Ajustes del Sistema →
+     Privacidad y seguridad → Abrir igualmente*).
+   - **Linux:** en una terminal dentro de la carpeta, `./start-snipscout.sh`.
+4. La ventana negra (o Terminal) pide instalar *uv*: pulsa **S** (o **y**) y Enter. La primera vez tarda unos
+   minutos; las siguientes, segundos. **No cierres esa ventana** mientras uses SnipScout.
+5. En la app: elige idioma, deja el modelo **Equilibrado** y espera la descarga (unos 150 MB, solo una vez).
+   Después funciona **sin internet**.
+6. Arrastra un vídeo, pulsa **Encontrar mis mejores clips**, marca los momentos que te gusten y exporta. Los clips quedan en
+   *Descargas/SnipScout*.
+
+Para actualizar, descarga la versión nueva y ábrela igual: tus proyectos se conservan.
+</details>
+
+### For developers
+
+With [uv](https://docs.astral.sh/uv/getting-started/installation/) installed, one line on any system:
 
 ```bash
 uv tool install git+https://github.com/datamauriciovaldez/SnipScout && snipscout ui
 ```
 
-Or use the release `.tar.gz` and run `./start-snipscout.sh` (Linux) / right-click `Start-SnipScout.command` →
-*Open* (macOS). ZIP files lose the executable bit, so on macOS/Linux prefer the `.tar.gz` or `chmod +x` the launcher.
-On Linux without GTK/Qt webview libraries, SnipScout opens in your default browser instead of its own window.
-
-**Command line**: `snipscout run video.mp4 --count 3` analyzes and exports the top 3 clips; `snipscout doctor` checks your setup.
+**Command line**: `snipscout run video.mp4 --count 3` analyzes and exports the top 3 clips; `snipscout doctor`
+checks your setup.
 
 ## How it works
 
