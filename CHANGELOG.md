@@ -6,6 +6,13 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- Documentation: `docs/architecture.md`, `docs/api.md`, `docs/scoring.md`, `docs/troubleshooting.md`.
+- `SECURITY.md` (private reporting), `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1), `CONTRIBUTING.md`, issue and
+  pull-request templates.
+- CI: UI smoke test in Chromium (real server, session check, first-run screens in both themes, screenshots as
+  artifacts), component gallery check, licence check against installed package metadata
+  (`scripts/check_licenses.py`), informational `pip-audit`, weekly workflow for slow tests with a real model,
+  Dependabot for Python packages and GitHub Actions.
 - Optional "Improve with local AI": if Ollama already runs on the computer, a model of the user's choice rates the
   top 15 clips (0-10) and suggests a title for each. The new order mixes that rating 50/50 with the heuristic score;
   suggested titles are applied only with *Use*. Loopback only, no key, never downloads a model; the transcript is sent

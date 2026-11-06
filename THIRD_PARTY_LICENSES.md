@@ -20,7 +20,8 @@ Licences verified from the upstream package metadata and LICENSE files on 2026-1
 
 ## Runtime dependencies (installed by uv/pip, not vendored)
 
-Licences read from the installed package metadata on 2026-11-05.
+Licences read from the installed package metadata; `scripts/check_licenses.py` re-checks this table against the
+installed packages (run in CI). Last verified 2026-11-06.
 
 | Package | Version | Licence |
 |---|---|---|
@@ -36,4 +37,5 @@ Licences read from the installed package metadata on 2026-11-05.
 | httpx | 0.28.1 | BSD-3-Clause |
 | psutil / platformdirs | 7.2.2 / 4.14.5 | BSD-3-Clause / MIT |
 | huggingface-hub / tokenizers | 1.33.0 / 0.23.3 | Apache-2.0 |
+| fastembed (optional extra `embeddings`) | ≥ 0.4 (0.9.1 on PyPI) | Apache-2.0 |
 ffmpeg is never redistributed in this repository; it comes from the user's system or the `imageio-ffmpeg` wheel.

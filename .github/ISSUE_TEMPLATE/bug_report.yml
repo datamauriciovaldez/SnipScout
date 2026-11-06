@@ -1,0 +1,39 @@
+name: Bug report
+description: Something does not work as expected.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks! Please do not attach videos you have no right to share. For security problems use Security → Report a vulnerability instead.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected and what you saw.
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Output of `snipscout doctor`
+      description: Or the contents of `snipscout-error.log` if the launcher failed.
+      render: text
+  - type: input
+    id: version
+    attributes:
+      label: SnipScout version
+      placeholder: "0.3.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options: [Windows 11, Windows 10, macOS, Linux, Other]
+    validations:
+      required: true
+  - type: textarea
+    id: media
+    attributes:
+      label: About the video
+      description: Length, container/codec if you know them (e.g. MP4 H.264, 45 min), language spoken.

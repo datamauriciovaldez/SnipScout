@@ -50,4 +50,41 @@ jobs:
       - run: uv run mypy src
       - run: uv run pytest -q --tb=short
       - run: uv run python scripts/check_contrast.py
+      - run: uv run python scripts/check_licenses.py
       - run: uv run snipscout doctor
+
+  ui:
+    # Real server + Chromium: API with session cookie, first-run screens in both themes, component gallery.
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - run: uv sync
+      - name: Install Chromium for Playwright
+        run: uv run --with playwright==1.64.1 playwright install --with-deps chromium
+      - run: uv run --with playwright==1.64.1 python scripts/smoke_ui.py --out smoke-shots
+      - run: uv run --with playwright==1.64.1 python scripts/check_components.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ui-screenshots
+          path: smoke-shots/
+          retention-days: 14
+
+  audit:
+    # Informational: known vulnerabilities in the locked runtime dependencies. Never blocks a merge.
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+      - run: uv export --format requirements-txt --no-dev --no-hashes --no-emit-project > requirements-audit.txt
+      - run: uvx pip-audit --requirement requirements-audit.txt --progress-spinner off

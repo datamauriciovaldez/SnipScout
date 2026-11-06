@@ -46,7 +46,16 @@
   Quality tuning from author annotations: **pending** — needs 3–4 real videos annotated by the author
   (`eval/annotations/*.json`); optional per spec.
 
+- **P3** CI/docs/community: CI jobs `ui` (smoke_ui.py: real server + 401 without session + first-run screens light/dark
+  in Chromium, no console errors, no raw i18n keys, screenshots artifact; check_components.py) and `audit`
+  (pip-audit, continue-on-error; locally "No known vulnerabilities"), `check_licenses.py` in the test matrix (all 16
+  runtime packages match their metadata; fastembed row added), `slow.yml` (dispatch + weekly), Dependabot (uv +
+  actions, grouped). Docs architecture/api/scoring/troubleshooting (claims checked against the code), SECURITY,
+  CODE_OF_CONDUCT (Contributor Covenant 2.1 text), CONTRIBUTING, issue forms + PR template; README links them.
+  Author action suggested: enable *Private vulnerability reporting* in repo Settings → Security.
+
 ## Decisions
+- Playwright in CI is pinned (`uv run --with playwright==1.64.1`) instead of a dev dependency, so normal installs stay small.
 - Ollama re-ranking: combined = 0.5 × heuristic + 0.5 × (rating × 10); only top 15 are rated; per-clip requests so
   progress/cancel work on a CPU; suggested titles never overwrite the user's title automatically.
 - Spec "targets ≥ 40 px": compact 34 px controls keep the approved look and get an invisible `::before` hit area
@@ -70,7 +79,6 @@
 - Tests: 118 passed + 2 slow deselected (`uv run pytest -q -m "not slow"`).
 
 ## Next
-- **v0.3 "Pulido"** (P1, P2 done) (acceptance: accessibility verified, full light theme, complete docs + licences, real measurements):
-  - **P3 (next)**: full CI, verified licences, issue/PR templates, Dependabot, docs `architecture.md`, `api.md`, `scoring.md`, `troubleshooting.md`.
-  - **P4**: reproducible screenshots + GIF, real performance measurements, experimental PyInstaller workflow (manual), **release v0.3.0** (pause).
+- **v0.3 "Pulido"** (P1, P2, P3 done) (acceptance: accessibility verified, full light theme, complete docs + licences, real measurements):
+  - **P4 (next)**: reproducible screenshots + GIF, real performance measurements, experimental PyInstaller workflow (manual), **release v0.3.0** (pause).
 - Pending (spec 5.6): lightweight H.264→VP9 preview proxy when the webview can't play the source (Qt backend only) — not needed for Windows/macOS webviews; decide in U5/S1.

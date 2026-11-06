@@ -112,8 +112,9 @@ when you publish clips. SnipScout works on local files only; downloading videos 
 ## Architecture & contributing
 
 `src/snipscout/core` is the processing engine (no UI imports), `web/` is the local API and the Preact frontend
-(no build step), `desktop.py` opens the window. See [`PROGRESS.md`](PROGRESS.md) and
-[`docs/spike-report.md`](docs/spike-report.md).
+(no build step), `desktop.py` opens the window. Docs: [architecture](docs/architecture.md), [local API](docs/api.md),
+[how clips are chosen](docs/scoring.md), [troubleshooting](docs/troubleshooting.md). Contributions: see
+[CONTRIBUTING](CONTRIBUTING.md), [Code of Conduct](CODE_OF_CONDUCT.md) and [security policy](SECURITY.md).
 
 ```bash
 uv sync

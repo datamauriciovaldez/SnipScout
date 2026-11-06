@@ -1,0 +1,24 @@
+name: Slow tests
+
+# Tests marked `slow` download the real Whisper tiny model (~78 MB) from Hugging Face and transcribe.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 4 * * 1"  # Mondays
+
+permissions:
+  contents: read
+
+jobs:
+  slow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - run: uv sync
+      - run: uv run pytest -q -m slow --tb=short
