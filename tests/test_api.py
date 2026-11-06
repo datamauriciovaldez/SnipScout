@@ -371,3 +371,23 @@ def test_settings_storage_and_models(
     assert client.delete("/api/v1/system/models/small").status_code == 204
     s = client.patch("/api/v1/settings", json={"output_dir": ""}).json()
     assert s["output_dir"] is None and s["output_dir_resolved"] == s["output_dir_default"]
+
+
+def test_playback_proxy_for_unplayable_sources(client: TestClient, video_mp4: Path) -> None:
+    import time
+
+    pid = client.post("/api/v1/projects", json={"path": str(video_mp4)}).json()["id"]
+    assert client.get(f"/api/v1/projects/{pid}/media/proxy").json()["state"] == "none"
+    assert client.get(f"/api/v1/projects/{pid}/media", params={"variant": "proxy"}).status_code == 400
+    assert client.post(f"/api/v1/projects/{pid}/media/proxy").json()["state"] in {"working", "ready"}
+    deadline = time.monotonic() + 60
+    while (st := client.get(f"/api/v1/projects/{pid}/media/proxy").json())["state"] == "working":
+        assert time.monotonic() < deadline
+        time.sleep(0.2)
+    assert st["state"] == "ready"
+    r = client.get(
+        f"/api/v1/projects/{pid}/media", params={"variant": "proxy"}, headers={"Range": "bytes=0-99"}
+    )
+    assert r.status_code == 206 and r.headers["content-type"] == "video/webm" and len(r.content) == 100
+    assert client.post(f"/api/v1/projects/{pid}/media/proxy").json()["state"] == "ready"  # idempotent
+    assert client.get(f"/api/v1/projects/{pid}/media").headers["content-type"] != "video/webm"  # original

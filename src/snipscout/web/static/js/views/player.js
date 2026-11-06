@@ -5,37 +5,14 @@ import { html } from "../html.js";
 import { api } from "../api.js";
 import { Button } from "../components.js";
 import { fmt, t } from "../i18n.js";
+import { activeWord, clipWords, lineFor } from "../subtitles.js";
 
-const GROUP = 4;
-
-/** Words inside the clip (by midpoint) with overrides applied; deleted words are dropped. */
-export function clipWords(words, start, end, overrides = {}) {
-  const out = [];
-  words.forEach((w, i) => {
-    const mid = (w.start + w.end) / 2;
-    if (mid < start || mid > end) return;
-    const text = (overrides[i] !== undefined ? overrides[i] : w.text).trim();
-    if (text) out.push({ ...w, text, index: i });
-  });
-  return out;
-}
+export { clipWords }; // re-exported for the views that already import it from here
 
 function subtitleAt(words, time, style) {
-  // Active word = last word that has started; it stays until the next one starts (or 0.4 s after its end).
-  let k = -1;
-  for (let i = 0; i < words.length && words[i].start <= time; i++) k = i;
+  const k = activeWord(words, time);
   if (k < 0) return null;
-  const next = words[k + 1];
-  if (!next && time > words[k].end + 0.4) return null;
-  if (next && next.start - words[k].end > 0.5 && time > words[k].end + 0.4) return null; // pause: hide
-  const g0 = Math.floor(k / GROUP) * GROUP;
-  const group = words.slice(g0, g0 + GROUP);
-  const upper = style === "bold-pop";
-  return group.map((w, j) => {
-    const text = upper ? w.text.toUpperCase() : w.text;
-    const lit = g0 + j === k || (style === "karaoke" && g0 + j < k);
-    return lit && style !== "classic" && style !== "minimal" ? html`<mark>${text}</mark> ` : `${text} `;
-  });
+  return lineFor(words, k, style).map((w) => (w.lit ? html`<mark>${w.text}</mark> ` : `${w.text} `));
 }
 
 export function ClipPlayer({ projectId, hasVideo, start, end, words, style, big, seek, onTime: report }) {
@@ -43,6 +20,24 @@ export function ClipPlayer({ projectId, hasVideo, start, end, words, style, big,
   const [time, setTime] = useState(start);
   const [playing, setPlaying] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [variant, setVariant] = useState("original"); // "proxy" once a playable copy exists
+  const [preparing, setPreparing] = useState(null); // 0..1 while the playable copy is encoded
+
+  // The window can't play this file (e.g. HEVC on Windows, H.264 on Qt): ask for a WebM copy and switch to it.
+  const fallBack = async () => {
+    if (variant === "proxy") { setFailed(true); return; }
+    setPreparing(0);
+    try {
+      let st = await api.makeProxy(projectId);
+      while (st.state === "working") {
+        setPreparing(st.progress || 0);
+        await new Promise((r) => setTimeout(r, 1500));
+        st = await api.proxyStatus(projectId);
+      }
+      if (st.state === "ready") { setVariant("proxy"); setPreparing(null); return; }
+    } catch (e) { /* fall through to the message */ }
+    setPreparing(null); setFailed(true);
+  };
 
   useEffect(() => { // moving the in-point shows its frame; moving the out-point doesn't jump
     const v = video.current;
@@ -58,7 +53,7 @@ export function ClipPlayer({ projectId, hasVideo, start, end, words, style, big,
 
   const toggle = () => {
     const v = video.current; if (!v) return;
-    if (v.paused) { if (v.currentTime < start || v.currentTime >= end) v.currentTime = start; v.play().catch(() => setFailed(true)); }
+    if (v.paused) { if (v.currentTime < start || v.currentTime >= end) v.currentTime = start; v.play().catch((e) => { if (e && e.name === "NotSupportedError") fallBack(); }); }
     else v.pause();
   };
   useEffect(() => {
@@ -82,11 +77,14 @@ export function ClipPlayer({ projectId, hasVideo, start, end, words, style, big,
   const shown = Math.max(0, Math.min(end - start, time - start));
   return html`<div class=${`player${big ? " player--big" : ""}`}>
     <div class="thumb thumb--preview player__screen">
-      ${hasVideo && !failed
-        ? html`<video ref=${video} src=${api.mediaUrl(projectId)} preload="metadata" playsinline
-            onLoadedMetadata=${(e) => { e.currentTarget.currentTime = start; }} onTimeUpdate=${onTime}
-            onPlay=${() => setPlaying(true)} onPause=${() => setPlaying(false)} onError=${() => setFailed(true)}></video>`
-        : html`<div class="player__note">${failed ? t("player.cannot_play") : t("player.audio_only")}</div>`}
+      ${hasVideo && !failed && preparing === null
+        ? html`<video ref=${video} key=${variant} src=${api.mediaUrl(projectId, variant)} preload="metadata" playsinline
+            onLoadedMetadata=${(e) => { // no picture size = codec not supported here (Chromium plays HEVC audio only)
+              if (!e.currentTarget.videoWidth) { fallBack(); return; } e.currentTarget.currentTime = start; }} onTimeUpdate=${onTime}
+            onPlay=${() => setPlaying(true)} onPause=${() => setPlaying(false)} onError=${fallBack}></video>`
+        : html`<div class="player__note" role="status">${preparing !== null
+            ? t("player.preparing", { pct: Math.floor(preparing * 100) })
+            : failed ? t("player.cannot_play") : t("player.audio_only")}</div>`}
       <div class="thumb__shade"></div>
       ${sub && html`<div class="subtitle">${sub}</div>`}
     </div>

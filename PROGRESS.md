@@ -109,6 +109,16 @@
   > 5 %), else keeps the centred crop. BLUR_PAD stays available but is never chosen by default. Verified with stills
   (demo 1280x720 → centred crop; face video → face crop), tests updated (no `boxblur` in the default vertical graph).
 
+- **R6** housekeeping: `web/app.py` (897 lines) split into `web/common.py` (Context, request models, helpers made
+  public: `apply_settings`, `project_json`, `sse_event`) + `web/routes/{system,projects,clips,exports}.py` with
+  `register(app, ctx)`; same 30 routes, tests patch `snipscout.web.routes.exports._reveal`. Playback proxy
+  (spec 5.6, broadened): `core/proxy.py` (VP9 realtime cpu-used 8 + Opus, ≤ 360p, same timeline, `.part` then
+  rename), `GET/POST /projects/{id}/media/proxy`, `GET /media?variant=proxy`, background thread per project
+  (`ctx.proxies`), included in *Free up space*. Player falls back on `error`, on `play()` NotSupportedError and when
+  metadata loads with `videoWidth == 0` — found that Chromium plays HEVC audio with a black picture and fires no
+  error. Browser check: 40 s HEVC → note → proxy in 4.8 s → plays 640x360. JS: pure `js/subtitles.js`
+  (clipWords/activeWord/lineFor) + `tests/js/subtitles.test.mjs`. 135 tests + e2e green.
+
 ## Decisions
 - Vertical/square from wide: always fill the frame (author's request); blurred background never by default.
 - Face crop is fixed per clip (no panning) to avoid jitter; ambiguous cases use the centred crop.
@@ -139,6 +149,4 @@
 
 ## Next — v0.4 "Real world" (approved by the author 2026-11-06: "hazlo como tú quieras")
 Goal: prove and improve behaviour on real use, before new features. One milestone at a time, same process.
-- R1–R5 done (R4: evaluation only; quality not improved — see Done).
-- **R6** Housekeeping: split `web/app.py` into routers, more JS unit tests, VP9 preview proxy for Qt (spec 5.6).
-- Then release v0.4.0 (mandatory pause).
+- R1–R6 done. Next: release v0.4.0 (mandatory pause).

@@ -13,6 +13,7 @@ If the launcher fails it writes **`snipscout-error.log`** next to it — attach 
 | macOS/Linux: "permission denied" on the launcher | ZIP files drop the executable bit. Use the `.tar.gz` release or `chmod +x start-snipscout.sh`. macOS: right-click `Start-SnipScout.command` → *Open*. |
 | Linux: opens in the browser instead of a window | No GTK or Qt webview libraries were found. Either is fine; e.g. on Debian/Ubuntu `sudo apt install gir1.2-webkit2-4.1` (GTK) — or keep using the browser. |
 | "Open SnipScout from its window" | The page was opened without the session link. Close it and start SnipScout again. |
+| The preview says it is preparing a light copy | The window can't play this video's format (e.g. HEVC from an iPhone). SnipScout makes a small WebM copy once, just for the preview; exports use the original. |
 | "The app isn't responding" | The local server stopped. Close SnipScout and open it again. |
 
 ## Error screens

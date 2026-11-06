@@ -169,7 +169,8 @@ def register(app: FastAPI, ctx: Context) -> None:  # noqa: C901 - routes as clos
         items: list[Path] = []
         for d in ctx.store.root.iterdir() if ctx.store.root.is_dir() else []:
             if d.is_dir():
-                items += [d / "thumbs", d / "preview", *d.glob("envelope_*.npy"), *d.glob("waveform_*.json")]
+                items += [d / "thumbs", d / "preview", d / "preview.webm", *d.glob("envelope_*.npy")]
+                items += list(d.glob("waveform_*.json"))
         used = {str(p.source.path.parent) for p in ctx.store.list()}
         if ctx.uploads_dir.is_dir():
             items += [u for u in ctx.uploads_dir.iterdir() if u.is_dir() and str(u) not in used]

@@ -19,6 +19,11 @@ All notable changes to this project are documented here. The format follows
   Option *Follow the speaker's face* in Home (on by default) and `snipscout run --no-face`. `metadata.json` records
   the layout used per clip.
 
+- Preview of videos the window can't play (HEVC/iPhone videos on Windows, H.264 on Qt-based Linux windows, other
+  codecs): SnipScout notices it, prepares a light WebM copy once (VP9/Opus, 360p; ~5 s for 40 s of video) and plays
+  that instead. Exports still use the original. The copy is removed by *Free up space*.
+- The local API is split into route modules (`web/routes/`); the subtitle preview logic has its own unit tests.
+
 ### Fixed
 - Clip selection no longer proposes the same content several times when a video repeats itself (recurring intros,
   catchphrases, loops): near-duplicates (topic similarity ≥ 0.7) are skipped. Found with a 2-hour test video.

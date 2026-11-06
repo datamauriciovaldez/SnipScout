@@ -355,7 +355,8 @@
     "play": "Play",
     "pause": "Pause",
     "audio_only": "Audio only: the clip will have a plain background with subtitles.",
-    "cannot_play": "This video can't be previewed here, but it will export fine."
+    "cannot_play": "This video can't be previewed here, but it will export fine.",
+    "preparing": "This video can't play here directly. Preparing a light copy for the preview… {pct} %"
   },
   "editor": {
     "crumb": "Clip {n}",

@@ -474,3 +474,19 @@ def test_cli_run_real_model_offline(
     code = cli.main(["run", str(video), "--model", "tiny", "--lang", "es", "--count", "1", "--out", str(out)])
     assert code == 0, capsys.readouterr().err
     assert list(out.glob("clip_01_*.mp4"))
+
+
+def test_playback_proxy_is_webm_vp9_with_same_duration(
+    ff: FfmpegBinaries, video_mp4: Path, tmp_path: Path
+) -> None:
+    from snipscout.core.ingest import probe
+    from snipscout.core.proxy import build_proxy
+
+    media = probe(video_mp4, ff.ffprobe)
+    seen: list[float] = []
+    out = build_proxy(ff.ffmpeg, media, tmp_path / "preview.webm", on_progress=seen.append)
+    assert out.is_file() and not (tmp_path / "preview.part.webm").exists()
+    info = probe(out, ff.ffprobe)
+    assert info.video_codec == "vp9" and info.has_video
+    assert abs(info.duration - media.duration) < 0.3
+    assert info.display_size is not None and info.display_size[1] <= 360

@@ -58,7 +58,8 @@ SSE body from `POST /system/models/download`.
 | GET | `/projects/{id}/clips/{cid}/thumbnail` | JPEG thumbnail. |
 | POST | `/projects/{id}/clips/{cid}/preview-frame` | One real frame (JPEG) for an unsaved draft (`at`, `start`, `end`, style, overrides). |
 | GET | `/projects/{id}/transcript` | Words and sentences. |
-| GET | `/projects/{id}/media` | Source media with HTTP Range support. |
+| GET | `/projects/{id}/media` | Source media with HTTP Range support (`?variant=proxy`: the WebM preview copy). |
+| GET / POST | `/projects/{id}/media/proxy` | Status of / start the WebM preview copy for formats the window can't play. |
 | GET | `/projects/{id}/waveform` | Peaks (`points`, optional `start`/`end` for the zoomed timeline). |
 | GET | `/projects/{id}/exports` | Files of the last export with caption text. |
 | GET | `/projects/{id}/exports/{name}` | One exported file (Range, download). |

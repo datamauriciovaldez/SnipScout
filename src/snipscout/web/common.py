@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import threading
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
@@ -63,6 +64,10 @@ class Context:
         self.model_loader = model_loader
         self.uploads_dir = uploads_dir or (data_dir() / "uploads")
         self.ollama_factory = ollama_factory
+        self.proxies: dict[
+            str, dict[str, Any]
+        ] = {}  # project id -> playback proxy state (see routes/clips.py)
+        self.proxies_lock = threading.Lock()
         self.allowed_hosts: set[str] = set()  # filled by the launcher with "127.0.0.1:PORT" etc.
 
     def require_ffmpeg(self) -> FfmpegBinaries:

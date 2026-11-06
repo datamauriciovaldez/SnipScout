@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import threading
 import uuid
 from typing import Any
 
@@ -11,17 +12,18 @@ from fastapi.responses import (
 )
 
 from snipscout.core import audio
-from snipscout.core.errors import (
-    UnsupportedMediaError,
-)
+from snipscout.core.errors import SnipScoutError, UnsupportedMediaError
 from snipscout.core.models import (
     ClipSet,
 )
 from snipscout.core.procs import run_ffmpeg
+from snipscout.core.proxy import build_proxy
 from snipscout.core.scoring import ScoringConfig
 from snipscout.core.segment import segment
 from snipscout.core.storage import ProjectNotFoundError
 from snipscout.web.common import ApiError, ClipPatch, Context, PreviewFrameRequest
+
+PROXY_NAME = "preview.webm"  # inside the project folder; regenerable, removed by "Free up space"
 
 
 def register(app: FastAPI, ctx: Context) -> None:  # noqa: C901 - routes as closures over ctx
@@ -165,11 +167,58 @@ def register(app: FastAPI, ctx: Context) -> None:  # noqa: C901 - routes as clos
 
     # --- media ------------------------------------------------------------------------------------
     @app.get("/api/v1/projects/{pid}/media")
-    def media(pid: str) -> FileResponse:
+    def media(pid: str, variant: str = "original") -> FileResponse:
+        """The source file, or (``variant=proxy``) the WebM playback proxy once it is ready."""
         p = ctx.store.load(pid)
+        if variant == "proxy":
+            proxy = ctx.store.project_dir(pid) / PROXY_NAME
+            if not proxy.is_file():
+                raise ApiError("The preview copy is not ready yet.", details=pid)
+            return FileResponse(proxy, media_type="video/webm")
         if not p.source.path.is_file():
             raise UnsupportedMediaError("The original file is no longer there.", details=str(p.source.path))
         return FileResponse(p.source.path)  # Starlette answers Range requests with 206
+
+    def _proxy_state(pid: str) -> dict[str, Any]:
+        if (ctx.store.project_dir(pid) / PROXY_NAME).is_file():
+            return {"state": "ready", "progress": 1.0}
+        st = ctx.proxies.get(pid)
+        return dict(st) if st else {"state": "none", "progress": 0.0}
+
+    @app.get("/api/v1/projects/{pid}/media/proxy")
+    def proxy_status(pid: str) -> dict[str, Any]:
+        ctx.store.load(pid)
+        return _proxy_state(pid)
+
+    @app.post("/api/v1/projects/{pid}/media/proxy", status_code=202)
+    def proxy_start(pid: str) -> dict[str, Any]:
+        """Start encoding the playback proxy (the window could not play the original). Idempotent."""
+        p = ctx.store.load(pid)
+        ff = ctx.require_ffmpeg().ffmpeg
+        with ctx.proxies_lock:
+            st = _proxy_state(pid)
+            if st["state"] in {"ready", "working"} or not p.source.has_video:
+                return st
+            ctx.proxies[pid] = {"state": "working", "progress": 0.0}
+
+        def work() -> None:
+            def progress(f: float) -> None:
+                ctx.proxies[pid] = {"state": "working", "progress": round(f, 3)}
+
+            try:
+                build_proxy(
+                    ff,
+                    p.source,
+                    ctx.store.project_dir(pid) / PROXY_NAME,
+                    audio_track=p.settings.audio_track,
+                    on_progress=progress,
+                )
+                ctx.proxies.pop(pid, None)
+            except SnipScoutError as exc:
+                ctx.proxies[pid] = {"state": "error", "progress": 0.0, "error_code": exc.code}
+
+        threading.Thread(target=work, name=f"proxy-{pid}", daemon=True).start()
+        return {"state": "working", "progress": 0.0}
 
     @app.get("/api/v1/projects/{pid}/waveform")
     def waveform(pid: str, points: int = 800, start: float = 0.0, end: float | None = None) -> dict[str, Any]:

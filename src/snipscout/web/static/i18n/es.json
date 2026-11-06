@@ -355,7 +355,8 @@
     "play": "Reproducir",
     "pause": "Pausar",
     "audio_only": "Solo audio: el clip llevará un fondo liso con los subtítulos.",
-    "cannot_play": "Este vídeo no se puede previsualizar aquí, pero se exportará bien."
+    "cannot_play": "Este vídeo no se puede previsualizar aquí, pero se exportará bien.",
+    "preparing": "Este vídeo no se puede ver directamente aquí. Preparando una copia ligera para la vista previa… {pct} %"
   },
   "editor": {
     "crumb": "Clip {n}",

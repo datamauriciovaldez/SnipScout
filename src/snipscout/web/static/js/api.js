@@ -54,7 +54,9 @@ export const api = {
   transcript: (id) => request("GET", `/projects/${id}/transcript`),
   waveform: (id, points = 800, start, end) => request("GET", `/projects/${id}/waveform?points=${Math.round(points)}`
     + (start !== undefined ? `&start=${start.toFixed(3)}` : "") + (end !== undefined ? `&end=${end.toFixed(3)}` : "")),
-  mediaUrl: (id) => `${BASE}/projects/${id}/media`,
+  mediaUrl: (id, variant) => `${BASE}/projects/${id}/media${variant === "proxy" ? "?variant=proxy" : ""}`,
+  proxyStatus: (id) => request("GET", `/projects/${id}/media/proxy`),
+  makeProxy: (id) => request("POST", `/projects/${id}/media/proxy`),
   thumbUrl: (id, cid) => `${BASE}/projects/${id}/clips/${cid}/thumbnail`,
   zipUrl: (id) => `${BASE}/projects/${id}/export.zip`,
   exports: (id) => request("GET", `/projects/${id}/exports`),
