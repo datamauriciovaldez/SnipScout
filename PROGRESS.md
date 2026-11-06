@@ -62,6 +62,10 @@
   with BUNDLE-README) — local Linux build 593 MB, `doctor` OK and full offline `run` with the bundled imageio ffmpeg
   (no PATH) in 40 s. Version 0.3.0, CHANGELOG 0.3.0, 124 tests green.
 
+- **Fix before v0.3.0**: Windows CI caught a 500 in `test_busy_and_cancel` — a transient sharing violation
+  (PermissionError) when reading/replacing `project.json` while the job thread writes it. `storage.retry_sharing`
+  retries reads and replaces (8 tries, ~0.7 s); regression test added. CI green on all OS (b51e59b).
+
 ## Decisions
 - Playwright in CI is pinned (`uv run --with playwright==1.64.1`) instead of a dev dependency, so normal installs stay small.
 - Ollama re-ranking: combined = 0.5 × heuristic + 0.5 × (rating × 10); only top 15 are rated; per-clip requests so
