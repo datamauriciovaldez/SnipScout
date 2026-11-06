@@ -169,7 +169,7 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument(
         "--no-face",
         action="store_true",
-        help="Never crop around the speaker's face (keep the blurred background).",
+        help="Always centre the crop instead of following the speaker's face.",
     )
     run.add_argument("--out", help="Output folder (default: inside the project folder).")
     run.add_argument("--hardware", action="store_true", help="Try a hardware H.264 encoder first.")

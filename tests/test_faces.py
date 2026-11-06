@@ -87,19 +87,21 @@ def test_face_crop_filter_follows_focus(ff: FfmpegBinaries, tmp_path: Path) -> N
     )
 
 
-def test_for_clip_switches_only_wide_to_tall(
+def test_for_clip_follows_face_only_when_cropping(
     monkeypatch: pytest.MonkeyPatch, video_mp4: Path, ff: FfmpegBinaries
 ) -> None:
     from snipscout.core.ingest import probe
 
     media = probe(video_mp4, ff.ffprobe)
     monkeypatch.setattr("snipscout.core.render.find_focus", lambda *a, **k: Focus(0.25, 0.4, 1.0))
-    blur = RenderOptions(width=1080, height=1920, mode=ReframeMode.BLUR_PAD, follow_face=True)
-    assert for_clip(ff.ffmpeg, media, blur, 0, 3).mode == ReframeMode.FACE
-    assert for_clip(ff.ffmpeg, media, blur, 0, 3).focus == (0.25, 0.4)
-    off = RenderOptions(width=1080, height=1920, mode=ReframeMode.BLUR_PAD, follow_face=False)
+    crop = RenderOptions(width=1080, height=1920, mode=ReframeMode.CENTER, follow_face=True)
+    assert for_clip(ff.ffmpeg, media, crop, 0, 3).mode == ReframeMode.FACE
+    assert for_clip(ff.ffmpeg, media, crop, 0, 3).focus == (0.25, 0.4)
+    off = RenderOptions(width=1080, height=1920, mode=ReframeMode.CENTER, follow_face=False)
     assert for_clip(ff.ffmpeg, media, off, 0, 3) is off
-    center = RenderOptions(width=1080, height=1920, mode=ReframeMode.CENTER, follow_face=True)
-    assert for_clip(ff.ffmpeg, media, center, 0, 3) is center
+    same_shape = RenderOptions(width=640, height=480, mode=ReframeMode.CENTER, follow_face=True)  # 4:3 too
+    assert for_clip(ff.ffmpeg, media, same_shape, 0, 3) is same_shape
+    pad = RenderOptions(width=1080, height=1920, mode=ReframeMode.BLUR_PAD, follow_face=True)
+    assert for_clip(ff.ffmpeg, media, pad, 0, 3) is pad  # an explicit blur-pad request is respected
     monkeypatch.setattr("snipscout.core.render.find_focus", lambda *a, **k: None)
-    assert for_clip(ff.ffmpeg, media, blur, 0, 3).mode == ReframeMode.BLUR_PAD
+    assert for_clip(ff.ffmpeg, media, crop, 0, 3).mode == ReframeMode.CENTER  # no clear face: centred crop

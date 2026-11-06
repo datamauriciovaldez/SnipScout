@@ -162,7 +162,9 @@ def _media(w: int, h: int, rotation: int = 0) -> MediaInfo:
 def test_output_sizes_and_default_modes() -> None:
     wide = _media(1920, 1080)
     assert output_size(wide, AspectRatio.VERTICAL) == (1080, 1920)
-    assert default_mode(wide, AspectRatio.VERTICAL) == ReframeMode.BLUR_PAD
+    # A vertical clip from a wide video fills the screen (crop), never a strip over a blurred background.
+    assert default_mode(wide, AspectRatio.VERTICAL) == ReframeMode.CENTER
+    assert "boxblur" not in video_filter(1080, 1920, default_mode(wide, AspectRatio.VERTICAL))
     assert default_mode(wide, AspectRatio.HORIZONTAL) == ReframeMode.CENTER
     assert default_mode(_media(1080, 1920), AspectRatio.VERTICAL) == ReframeMode.CENTER
     phone = _media(3840, 2160, rotation=90)  # 4K portrait phone video

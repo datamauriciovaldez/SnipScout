@@ -1,8 +1,8 @@
 """Output geometry and ffmpeg filter chains for changing aspect ratio.
 
-Modes: ``center`` (scale to cover + center crop), ``blur-pad`` (whole frame over a blurred,
-zoomed copy of itself) and ``face`` (scale to cover + crop centred on the speaker's face, see
-``core/faces.py``; the crop is fixed for the whole clip).
+Modes: ``center`` (scale to cover + center crop, the default), ``face`` (scale to cover + crop centred on
+the speaker's face, see ``core/faces.py``; fixed for the whole clip) and ``blur-pad`` (whole frame over a
+blurred, zoomed copy of itself; kept for callers that ask for it, never chosen by default).
 """
 
 from __future__ import annotations
@@ -41,13 +41,10 @@ def output_size(media: MediaInfo, aspect: AspectRatio) -> tuple[int, int]:
 
 
 def default_mode(media: MediaInfo, aspect: AspectRatio) -> ReframeMode:
-    """blur-pad when the shapes differ a lot (e.g. 16:9 → 9:16), center crop otherwise."""
-    if aspect == AspectRatio.ORIGINAL or not media.display_size:
-        return ReframeMode.CENTER
-    sw, sh = media.display_size
-    tw, th = output_size(media, aspect)
-    ratio = (sw / sh) / (tw / th)
-    return ReframeMode.BLUR_PAD if ratio > 1.3 or ratio < 1 / 1.3 else ReframeMode.CENTER
+    """Always fill the whole output (scale to cover + crop): a vertical clip must be vertical video edge to
+    edge, never a horizontal strip over a blurred background. ``render.for_clip`` moves the crop onto the
+    speaker's face when one is steadily in view; otherwise the crop is centred."""
+    return ReframeMode.CENTER
 
 
 def video_filter(width: int, height: int, mode: ReframeMode, focus: tuple[float, float] | None = None) -> str:

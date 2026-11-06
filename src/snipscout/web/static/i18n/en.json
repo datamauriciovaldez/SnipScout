@@ -63,7 +63,7 @@
     "length_help_long": "60–90 s · stories and longer answers.",
     "format": "Format",
     "original": "Original",
-    "format_help_9_16": "Vertical for Reels, TikTok and Shorts. If your video is horizontal, we crop around the speaker's face; with no clear face, the background is filled with a blurred copy of it.",
+    "format_help_9_16": "Vertical for Reels, TikTok and Shorts. If your video is horizontal, it is cropped to fill the whole screen, centred on the speaker's face.",
     "format_help_1_1": "Square for the Instagram or LinkedIn feed.",
     "format_help_16_9": "Horizontal for YouTube or slides.",
     "format_help_original": "Keeps your video's shape.",
@@ -87,7 +87,7 @@
     "tracks_one": "{n} audio track",
     "tracks_other": "{n} audio tracks",
     "follow_face": "Follow the speaker's face",
-    "follow_face_help": "Detected on your computer. With two people in view or a moving camera, the blurred background is used instead."
+    "follow_face_help": "Detected on your computer. With no clear face (or two people in view), the crop is centred."
   },
   "project_status": {
     "new": "New",

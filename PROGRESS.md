@@ -95,7 +95,7 @@
 
 - **R5** face-aware reframing: `core/faces.py` (YuNet 2023mar ONNX, MIT, 232 KB bundled in `assets/models`;
   onnxruntime CPU, 2 threads, ~12 ms/frame; ffmpeg samples ≤ 40 frames at ≤ 1 fps to 640 px BGR; largest face per
-  frame; focus = median centre if a face is in ≥ 50 % of frames and the x interquartile range ≤ 0.15, else None;
+  frame; focus = median centre if a face is in ≥ 50 % of frames and the x interquartile range ≤ 0.15, else None (centred crop);
   cached per file/range for editor previews). `ReframeMode.FACE` = scale-to-cover + fixed crop centred on the face
   (face at 40 % height). `render.for_clip()` switches BLUR_PAD → FACE per clip (export + preview-frame);
   `ProjectSettings.follow_face` (default on), Home checkbox for 9:16/1:1, CLI `--no-face`, metadata `reframe`.
@@ -103,8 +103,15 @@
   full `snipscout run` with face on the right → focus 0.758, vertical clip centred on the face. CI tests: YuNet
   decoding maths + NMS, decision rule, bundled model on CPU, ffmpeg crop direction (red/blue), for_clip switching.
 
+- **Author feedback (R5 follow-up):** a TikTok/vertical export showed the horizontal video in the middle with a blurred
+  fill; the author wants the vertical video to fill the screen. `reframe.default_mode` now always returns CENTER
+  (scale to cover + crop); `for_clip` applies the face focus whenever the crop cuts the frame (shape ratio differs
+  > 5 %), else keeps the centred crop. BLUR_PAD stays available but is never chosen by default. Verified with stills
+  (demo 1280x720 → centred crop; face video → face crop), tests updated (no `boxblur` in the default vertical graph).
+
 ## Decisions
-- Face crop is fixed per clip (no panning) to avoid jitter; ambiguous cases fall back to blur-pad (safe default).
+- Vertical/square from wide: always fill the frame (author's request); blurred background never by default.
+- Face crop is fixed per clip (no panning) to avoid jitter; ambiguous cases use the centred crop.
 - Do not tune scoring weights on fewer than ~50 real annotated moments, and always validate on held-out speeches
   against the random baseline.
 - Playwright in CI is pinned (`uv run --with playwright==1.64.1`) instead of a dev dependency, so normal installs stay small.

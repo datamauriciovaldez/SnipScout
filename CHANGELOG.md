@@ -13,8 +13,9 @@ All notable changes to this project are documented here. The format follows
   better than chance on real speech (29 % vs 38 % recall@5).
 
 ### Changed
-- Wide videos exported as vertical or square clips are now cropped around the speaker's face when one person is
-  steadily in view (YuNet face detector, bundled, CPU, ~0.4 s per clip); otherwise the blurred background is kept.
+- Vertical and square clips from wide videos now fill the whole screen: no more horizontal strip over a blurred
+  background. The crop is centred on the speaker's face when one person is steadily in view (YuNet face detector,
+  bundled, CPU, ~0.4 s per clip), otherwise on the middle of the frame.
   Option *Follow the speaker's face* in Home (on by default) and `snipscout run --no-face`. `metadata.json` records
   the layout used per clip.
 

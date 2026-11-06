@@ -35,7 +35,7 @@ class RenderOptions:
     loudnorm: bool = False
     hardware: bool = False  # try a hardware H.264 encoder first, fall back to libx264
     burn_subtitles: bool = True
-    follow_face: bool = False  # crop around the speaker when the layout would otherwise be blur-pad
+    follow_face: bool = False  # when cropping a different shape, centre the crop on the speaker's face
     focus: tuple[float, float] | None = None  # set by for_clip() in FACE mode
 
 
@@ -116,9 +116,13 @@ def for_clip(
     *,
     cancel: CancelToken | None = None,
 ) -> RenderOptions:
-    """Options for one clip: switch blur-pad to a face-centred crop when one speaker is steadily in view."""
-    if not (opts.follow_face and opts.mode == ReframeMode.BLUR_PAD and media.has_video):
+    """Options for one clip: when the crop cuts away part of the frame (e.g. 16:9 → 9:16), centre it on the
+    speaker's face if one is steadily in view; otherwise keep the centred crop."""
+    if not (opts.follow_face and opts.mode == ReframeMode.CENTER and media.has_video and media.display_size):
         return opts
+    sw, sh = media.display_size
+    if abs((sw / sh) / (opts.width / opts.height) - 1) < 0.05:
+        return opts  # same shape: nothing is cropped away
     focus = find_focus(ffmpeg, media, start, end, cancel=cancel)
     if focus is None:
         return opts

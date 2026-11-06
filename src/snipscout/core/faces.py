@@ -3,7 +3,7 @@
 Uses YuNet (OpenCV Zoo, MIT, 230 KB, bundled in ``assets/models``) through onnxruntime on the CPU.
 A clip is sampled at about one frame per second; the largest face in each frame is kept. If a face is
 seen in most frames and stays in one place (one speaker, steady framing), its median position is the
-crop focus. Otherwise there is no focus and the caller keeps the safe blurred-background layout.
+crop focus. Otherwise there is no focus and the crop stays centred.
 """
 
 from __future__ import annotations
