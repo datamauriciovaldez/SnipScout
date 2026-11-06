@@ -66,6 +66,9 @@
   (PermissionError) when reading/replacing `project.json` while the job thread writes it. `storage.retry_sharing`
   retries reads and replaces (8 tries, ~0.7 s); regression test added. CI green on all OS (b51e59b).
 
+- **v0.3.0 RELEASED** 2026-11-06 (author ran the Release workflow; assets verified: .bat CRLF, launchers executable,
+  sdist version 0.3.0, docs/GIF/SECURITY included, no dev/local files). **All spec milestones (H0–P4) are done.**
+
 ## Decisions
 - Playwright in CI is pinned (`uv run --with playwright==1.64.1`) instead of a dev dependency, so normal installs stay small.
 - Ollama re-ranking: combined = 0.5 × heuristic + 0.5 × (rating × 10); only top 15 are rated; per-clip requests so
@@ -87,12 +90,11 @@
 - Output folder resolution: `SNIPSCOUT_OUTPUT_DIR` → preferences.json → Downloads/SnipScout/<project>.
 
 ## Current state
-- Version in pyproject: **0.3.0** (CHANGELOG 0.3.0); v0.1.0 and v0.2.0 released; **v0.3.0 waiting for the author's release run**.
+- Version **0.3.0** released (v0.1.0, v0.2.0, v0.3.0 published). Dependabot opens weekly PRs (author merges).
 - Tests: 124 passed + 2 slow deselected (`uv run pytest -q -m "not slow"`).
 
 ## Next
-- **Release v0.3.0** (mandatory pause): author runs Actions → Release → Run workflow; optionally Actions →
-  Experimental bundle to try the PyInstaller build on Windows/macOS. Then verify assets.
-- After v0.3 (needs the author's decision, outside the current spec): real-video scorer tuning with annotated talks
+- Spec complete. Optional: author runs Actions → Experimental bundle to try the PyInstaller build on Windows/macOS.
+- Possible next work (scope change → needs the author's decision): real-video scorer tuning with annotated talks
   (`eval/annotations/*.json`), H.264→VP9 preview proxy for the Qt webview (spec 5.6, only Linux/Qt), face-aware
   reframing, signed installers.
