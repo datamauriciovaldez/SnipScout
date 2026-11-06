@@ -141,6 +141,8 @@
   33 % while playing). Tests: path smoothness/speed/two-people rule, real ffmpeg pan (red→blue), JS path helpers.
 
 ## Decisions
+- From v0.5.0: no GitHub Actions use on request of the author. Commits carry `[skip ci]`; tests (incl. e2e) run
+  locally; Windows/macOS are no longer checked automatically (risk accepted; author can test launchers by hand).
 - Vertical/square from wide: always fill the frame (author's request); blurred background never by default.
 - Face crop is fixed per clip (no panning) to avoid jitter; ambiguous cases use the centred crop.
 - Do not tune scoring weights on fewer than ~50 real annotated moments, and always validate on held-out speeches
@@ -165,7 +167,10 @@
 - Output folder resolution: `SNIPSCOUT_OUTPUT_DIR` → preferences.json → Downloads/SnipScout/<project>.
 
 ## Current state
-- Version **0.5.0** prepared; v0.1.0–v0.4.0 published; v0.5.0 waits for the author's Release run.
+- Version **0.5.0** prepared; v0.1.0–v0.4.0 published. v0.5.0 built **locally** (author asked to stop using GitHub
+  Actions: free-plan usage notice at 90 %): sdist, wheel, windows.zip, macos-linux.tar.gz + notes.md via the same
+  commands as release.yml, verified (CRLF .bat, exec bits, version, YuNet model, no local files); 139 tests green locally.
+  The author creates the GitHub release by hand (web UI) and uploads the files.
   Dependabot opens weekly PRs (author merges).
 - Tests: 124 passed + 2 slow deselected (`uv run pytest -q -m "not slow"`).
 
@@ -174,4 +179,4 @@ Goal: prove and improve behaviour on real use, before new features. One mileston
 - R1–R6 done and v0.4.0 released.
 
 ## Next — v0.5 "Encuadre" (chosen by the author 2026-11-06)
-- F1, F2 done. **Release v0.5.0**: author runs Actions → Release → Run workflow (mandatory pause), then verify assets.
+- F1, F2 done. **Release v0.5.0**: author publishes it manually on GitHub with the locally built files; then verify via API.
