@@ -167,7 +167,9 @@
 - Output folder resolution: `SNIPSCOUT_OUTPUT_DIR` → preferences.json → Downloads/SnipScout/<project>.
 
 ## Current state
-- Version **0.5.0** prepared; v0.1.0–v0.4.0 published. v0.5.0 built **locally** (author asked to stop using GitHub
+- **FINAL STATE (author's decision 2026-11-06): the project stays at v0.4.0.** `main` was reverted to the v0.4.0 tree
+  (new commit, history kept: the v0.5 work F1/F2 lives in commits 27303f2 and 345189b if it is ever wanted).
+  Before that: v0.5.0 was built **locally** (author asked to stop using GitHub
   Actions: free-plan usage notice at 90 %): sdist, wheel, windows.zip, macos-linux.tar.gz + notes.md via the same
   commands as release.yml, verified (CRLF .bat, exec bits, version, YuNet model, no local files); 139 tests green locally.
   The author creates the GitHub release by hand (web UI) and uploads the files.
@@ -179,4 +181,5 @@ Goal: prove and improve behaviour on real use, before new features. One mileston
 - R1–R6 done and v0.4.0 released.
 
 ## Next — v0.5 "Encuadre" (chosen by the author 2026-11-06)
-- F1, F2 done. **Release v0.5.0**: author publishes it manually on GitHub with the locally built files; then verify via API.
+- F1, F2 were done but **not released**; code reverted to v0.4.0 at the author's request. The session cannot create
+  releases, tags or edit repo settings (GitHub 403 for this session type). About text/topics were given to the author.

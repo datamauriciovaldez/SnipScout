@@ -10,7 +10,6 @@ import { useTopbar } from "../store.js";
 import { ClipPlayer, clipWords } from "./player.js";
 import { Timeline } from "./timeline.js";
 import { createHistory, nearest, record, redo, sameDraft, undo, wordStep } from "../editing.js";
-import { displaySize, outputRatio, previewPosition } from "../framing.js";
 
 const STYLES = ["bold-pop", "classic", "karaoke", "minimal"];
 
@@ -36,7 +35,6 @@ export function Editor({ id, cid }) {
   const [seek, setSeek] = useState(null); // { t, n } → player
   const [frame, setFrame] = useState(null); // { url, at } real preview frame
   const [framing, setFraming] = useState(false);
-  const [cropInfo, setCropInfo] = useState(null); // { crops, auto_focus } for the current in/out
 
   useEffect(() => {
     Promise.all([api.project(id), api.clips(id), api.transcript(id)])
@@ -45,7 +43,6 @@ export function Editor({ id, cid }) {
         if (!clip) throw Object.assign(new Error("clip"), { code: "project_not_found" });
         setData({ project, clip, words: tr.words, sentences: tr.sentences });
         const first = { start: clip.start, end: clip.end, title: clip.title, style: clip.subtitle_style || project.settings.subtitle_style,
-                        framing: clip.framing || "auto", focusX: clip.focus_x ?? null,
                         overrides: { ...clip.text_overrides } };
         openedAs.current = first;
         setDraft(first);
@@ -55,14 +52,13 @@ export function Editor({ id, cid }) {
 
   const dirty = data && draft && (draft.start !== data.clip.start || draft.end !== data.clip.end || draft.title !== data.clip.title
     || draft.style !== (data.clip.subtitle_style || data.project.settings.subtitle_style)
-    || draft.framing !== (data.clip.framing || "auto") || draft.focusX !== (data.clip.focus_x ?? null)
     || JSON.stringify(draft.overrides) !== JSON.stringify(data.clip.text_overrides));
 
   const save = async (silent = true) => {
     setSaveState("saving");
     try {
       const clip = await api.patchClip(id, cid, { start: draft.start, end: draft.end, title: draft.title,
-        subtitle_style: draft.style, text_overrides: draft.overrides, framing: draft.framing, focus_x: draft.focusX });
+        subtitle_style: draft.style, text_overrides: draft.overrides });
       setData((d) => ({ ...d, clip }));
       setSaveState("saved");
       if (!silent) toast(t("editor.saved"));
@@ -135,17 +131,12 @@ export function Editor({ id, cid }) {
     setFraming(true);
     try {
       const url = await api.previewFrame(id, cid, { at, start: draft.start, end: draft.end, subtitle_style: draft.style,
-        text_overrides: draft.overrides, framing: draft.framing, focus_x: draft.focusX });
+        text_overrides: draft.overrides });
       if (frame) URL.revokeObjectURL(frame.url);
       setFrame({ url, at });
     } catch (err) { toast(t(`errors.${err.code}.title`)); }
     setFraming(false);
   };
-  useEffect(() => { // what "automatic" framing does for the current in/out (face search is cached server-side)
-    if (!draft || !data || !data.project.source.has_video) return undefined;
-    const timer = setTimeout(() => api.clipFraming(id, cid, draft.start, draft.end).then(setCropInfo).catch(() => null), 500);
-    return () => clearTimeout(timer);
-  }, [draft && draft.start, draft && draft.end, data && data.project.id]);
   const cw = useMemo(() => (data && draft ? clipWords(data.words, draft.start, draft.end, draft.overrides) : []), [data, draft]);
   useEffect(() => { // keep the spoken word visible while playing
     const el = document.querySelector(".words__body .word.is-active");
@@ -157,11 +148,6 @@ export function Editor({ id, cid }) {
   const { project, sentences, words } = data;
   const dur = project.source.duration;
   const original = openedAs.current;
-  const [srcW, srcH] = displaySize(project.source);
-  const outRatio = outputRatio(project.settings.aspect, srcW, srcH);
-  const autoX = cropInfo && cropInfo.auto_focus ? cropInfo.auto_focus[0] : null;
-  const panning = draft.framing === "auto" && Boolean(cropInfo && cropInfo.auto_path);
-  const { posX, posPath } = previewPosition(draft.framing, draft.focusX, cropInfo, srcW / srcH, outRatio);
   const starts = sentences.map((s) => Math.max(0, s.start - 0.15));
   const ends = sentences.map((s) => Math.min(dur, s.end + 0.15));
   const snap = (field, dir) => {
@@ -195,7 +181,7 @@ export function Editor({ id, cid }) {
   return html`<div class="editor">
     <section class="editor__player" aria-label=${t("editor.preview")}>
       <${ClipPlayer} projectId=${id} hasVideo=${project.source.has_video} start=${draft.start} end=${draft.end} words=${cw} style=${draft.style} big
-        seek=${seek} onTime=${setPlayhead} ratio=${outRatio} posX=${posX} posPath=${posPath} />
+        seek=${seek} onTime=${setPlayhead} />
       <${Button} icon="image" loading=${framing} onClick=${realFrame} class="real-frame-btn">${t("editor.real_frame")}<//>
       <p class="faint" style="font-size:12px;margin:0">${t("editor.approx")}</p>
     </section>
@@ -245,18 +231,6 @@ export function Editor({ id, cid }) {
       </section>
     </main>
     <aside class="editor__side" aria-label=${t("editor.style")}>
-      ${cropInfo && cropInfo.crops && html`<div class="settings"><div class="settings__row"><span class="label">${t("editor.framing")}</span>
-        <${Segmented} label=${t("editor.framing")} mono=${false} value=${draft.framing}
-          onChange=${(v) => commit({ ...draft, framing: v, focusX: v === "manual" ? (draft.focusX ?? autoX ?? 0.5) : draft.focusX })}
-          options=${["auto", "center", "manual"].map((v) => ({ value: v, label: t(`editor.framing_${v}`) }))} />
-        <div class="settings__help">${draft.framing === "auto" ? t(panning ? "editor.framing_auto_pan" : autoX != null ? "editor.framing_auto_face" : project.settings.follow_face === false ? "editor.framing_auto_off" : "editor.framing_auto_none")
-          : draft.framing === "center" ? t("editor.framing_center_help") : t("editor.framing_manual_help")}</div>
-        ${draft.framing === "manual" && html`<label class="framing-slider"><span class="label">${t("editor.framing_position")}</span>
-          <input type="range" min="0" max="1" step="0.01" value=${draft.focusX ?? 0.5} aria-label=${t("editor.framing_position")}
-            onInput=${(e) => setDraft({ ...draft, focusX: Number(e.currentTarget.value) })}
-            onFocus=${() => { titleSnap.current = draft; }}
-            onChange=${() => { if (titleSnap.current && titleSnap.current.focusX !== draft.focusX) { record(history.current, titleSnap.current); setHistTick((n) => n + 1); } titleSnap.current = draft; }} /></label>`}
-      </div></div>`}
       <div class="settings"><div class="settings__row"><span class="label">${t("editor.style")}</span>
         <${Segmented} label=${t("editor.style")} mono=${false} value=${draft.style} onChange=${(v) => commit({ ...draft, style: v })}
           options=${STYLES.map((v) => ({ value: v, label: t(`styles.${v.replace("-", "_")}`) }))} /></div></div>

@@ -47,31 +47,14 @@ def default_mode(media: MediaInfo, aspect: AspectRatio) -> ReframeMode:
     return ReframeMode.CENTER
 
 
-def _pan_expr(path: tuple[tuple[float, float], ...]) -> str:
-    """ffmpeg expression of the focus x at time ``t``: piecewise linear between keyframes."""
-    expr = f"{path[-1][1]:.4f}"
-    for (t0, x0), (t1, x1) in reversed(list(zip(path, path[1:], strict=False))):
-        slope = (x1 - x0) / max(t1 - t0, 1e-3)
-        expr = f"if(lt(t\\,{t1:.3f})\\,{x0:.4f}+({slope:.5f})*(t-{t0:.3f})\\,{expr})"
-    return expr
-
-
-def video_filter(
-    width: int,
-    height: int,
-    mode: ReframeMode,
-    focus: tuple[float, float] | None = None,
-    path: tuple[tuple[float, float], ...] | None = None,
-) -> str:
+def video_filter(width: int, height: int, mode: ReframeMode, focus: tuple[float, float] | None = None) -> str:
     """Filter graph from input label [0:v] to an output ready for subtitles (label [base]).
 
     ``focus`` (FACE mode) is the face centre as fractions of the source frame; the crop window is
-    centred on it and clamped inside the frame. With ``path`` ((seconds, x) keyframes from the clip start)
-    the crop pans along it instead of staying fixed."""
+    centred on it and clamped inside the frame."""
     if mode == ReframeMode.FACE and focus is not None:
         fx, fy = (min(1.0, max(0.0, v)) for v in focus)
-        fxe = f"({_pan_expr(path)})" if path and len(path) > 1 else f"{fx:.4f}"
-        x = f"min(max({fxe}*iw-{width}/2\\,0)\\,iw-{width})"
+        x = f"min(max({fx:.4f}*iw-{width}/2\\,0)\\,iw-{width})"
         y = f"min(max({fy:.4f}*ih-{height}*0.4\\,0)\\,ih-{height})"  # face in the upper part of the frame
         return (
             f"[0:v]scale={width}:{height}:force_original_aspect_ratio=increase,"

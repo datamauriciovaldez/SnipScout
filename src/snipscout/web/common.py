@@ -20,7 +20,6 @@ from snipscout.core.errors import (
 from snipscout.core.models import (
     AspectRatio,
     ClipLength,
-    Framing,
     JobEvent,
     Project,
     ProjectSettings,
@@ -111,8 +110,6 @@ class ClipPatch(BaseModel):
     title: str | None = Field(default=None, max_length=300)
     subtitle_style: str | None = None
     text_overrides: dict[int, str] | None = None
-    framing: Framing | None = None
-    focus_x: float | None = Field(default=None, ge=0, le=1)
 
 
 class RenderRequest(BaseModel):
@@ -128,8 +125,6 @@ class PreviewFrameRequest(BaseModel):
     end: float | None = Field(default=None, ge=0)
     subtitle_style: str | None = None
     text_overrides: dict[int, str] | None = None
-    framing: Framing | None = None
-    focus_x: float | None = Field(default=None, ge=0, le=1)
 
 
 class SettingsUpdate(BaseModel):

@@ -15,8 +15,8 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from snipscout.core.errors import FfmpegFailedError
-from snipscout.core.faces import find_focus, path_at
-from snipscout.core.models import Framing, MediaInfo
+from snipscout.core.faces import find_focus
+from snipscout.core.models import MediaInfo
 from snipscout.core.procs import CancelToken, run_ffmpeg
 from snipscout.core.reframe import AUDIO_ONLY_BG, ReframeMode, video_filter
 from snipscout.core.subtitles import FONTS_DIR
@@ -37,7 +37,6 @@ class RenderOptions:
     burn_subtitles: bool = True
     follow_face: bool = False  # when cropping a different shape, centre the crop on the speaker's face
     focus: tuple[float, float] | None = None  # set by for_clip() in FACE mode
-    path: tuple[tuple[float, float], ...] | None = None  # FACE mode, moving speaker: pan keyframes
 
 
 def ensure_fonts(work_dir: Path) -> None:
@@ -76,7 +75,7 @@ def build_args(
     dur = max(0.1, end - start)
     args = ["-ss", f"{start:.3f}", "-t", f"{dur:.3f}", "-i", str(media.path)]
     if media.has_video:
-        graph = video_filter(opts.width, opts.height, opts.mode, opts.focus, opts.path)
+        graph = video_filter(opts.width, opts.height, opts.mode, opts.focus)
     else:
         args += [
             "-f",
@@ -108,14 +107,6 @@ def build_args(
     return args
 
 
-def crops(media: MediaInfo, opts: RenderOptions) -> bool:
-    """True when the export crops part of the source frame (so where to crop matters)."""
-    if opts.mode != ReframeMode.CENTER or not media.has_video or not media.display_size:
-        return False
-    sw, sh = media.display_size
-    return abs((sw / sh) / (opts.width / opts.height) - 1) >= 0.05
-
-
 def for_clip(
     ffmpeg: Path,
     media: MediaInfo,
@@ -123,30 +114,19 @@ def for_clip(
     start: float,
     end: float,
     *,
-    framing: Framing = Framing.AUTO,
-    focus_x: float | None = None,
     cancel: CancelToken | None = None,
 ) -> RenderOptions:
-    """Options for one clip when the crop cuts away part of the frame (e.g. 16:9 → 9:16):
-    AUTO centres it on the speaker's face if one is steadily in view (and the project allows it), CENTER keeps
-    the middle, MANUAL centres it on ``focus_x``."""
-    if not crops(media, opts):
+    """Options for one clip: when the crop cuts away part of the frame (e.g. 16:9 → 9:16), centre it on the
+    speaker's face if one is steadily in view; otherwise keep the centred crop."""
+    if not (opts.follow_face and opts.mode == ReframeMode.CENTER and media.has_video and media.display_size):
         return opts
-    if framing == Framing.MANUAL and focus_x is not None:
-        return dataclasses.replace(opts, mode=ReframeMode.FACE, focus=(focus_x, 0.4))
-    if framing == Framing.CENTER or not opts.follow_face:
-        return opts
+    sw, sh = media.display_size
+    if abs((sw / sh) / (opts.width / opts.height) - 1) < 0.05:
+        return opts  # same shape: nothing is cropped away
     focus = find_focus(ffmpeg, media, start, end, cancel=cancel)
     if focus is None:
         return opts
-    return dataclasses.replace(opts, mode=ReframeMode.FACE, focus=(focus.x, focus.y), path=focus.path)
-
-
-def at_time(opts: RenderOptions, t: float) -> RenderOptions:
-    """Options for a single frame ``t`` seconds after the clip start: a pan path becomes its position then."""
-    if not opts.path or not opts.focus:
-        return opts
-    return dataclasses.replace(opts, focus=(path_at(opts.path, t), opts.focus[1]), path=None)
+    return dataclasses.replace(opts, mode=ReframeMode.FACE, focus=(focus.x, focus.y))
 
 
 def render_clip(
@@ -210,7 +190,7 @@ def render_still(
         ensure_fonts(work_dir)
     if media.has_video:
         args = ["-ss", f"{max(0.0, at):.3f}", "-i", str(media.path)]
-        graph = video_filter(opts.width, opts.height, opts.mode, opts.focus, opts.path)
+        graph = video_filter(opts.width, opts.height, opts.mode, opts.focus)
     else:
         args = ["-f", "lavfi", "-i", f"color=c={AUDIO_ONLY_BG}:s={opts.width}x{opts.height}:r=30"]
         graph = "[0:v]format=yuv420p[base]"

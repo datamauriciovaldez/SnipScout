@@ -401,18 +401,7 @@
     "key_out": "Out point at playhead",
     "key_undo": "Undo",
     "key_redo": "Redo",
-    "key_done": "Save and go back",
-    "framing": "Framing",
-    "framing_auto": "Automatic",
-    "framing_center": "Centre",
-    "framing_manual": "Manual",
-    "framing_auto_face": "Follows the speaker's face (found in this part).",
-    "framing_auto_none": "No clear face in this part: the crop is centred.",
-    "framing_auto_off": "Following the face is turned off for this project: the crop is centred.",
-    "framing_center_help": "The crop always stays in the middle of the video.",
-    "framing_manual_help": "Move the crop to the part of the video you want to show.",
-    "framing_position": "Horizontal position",
-    "framing_auto_pan": "Follows the speaker as they move (smooth pan)."
+    "key_done": "Save and go back"
   },
   "reasons": {
     "question_hook": "Opens with a question",

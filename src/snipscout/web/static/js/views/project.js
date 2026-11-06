@@ -7,7 +7,6 @@ import { fmt, t } from "../i18n.js";
 import { navigate } from "../router.js";
 import { useStore, useTopbar } from "../store.js";
 import { ClipPlayer, clipWords } from "./player.js";
-import { displaySize, outputRatio, previewPosition } from "../framing.js";
 
 const STAGES = ["prepare_audio", "transcribe", "understand", "find_moments"];
 const HIGH = 85;
@@ -251,15 +250,6 @@ function AiImprove({ project, count, onDone }) {
 
 function PreviewPanel({ project, clip, index, words, sentences, peaks, onDownload, onUseTitle }) {
   const cw = useMemo(() => clipWords(words, clip.start, clip.end, clip.text_overrides), [words, clip]);
-  const [cropInfo, setCropInfo] = useState(null);
-  useEffect(() => {
-    setCropInfo(null);
-    if (!project.source.has_video) return;
-    api.clipFraming(project.id, clip.id, clip.start, clip.end).then(setCropInfo).catch(() => null);
-  }, [clip.id, clip.start, clip.end]);
-  const [srcW, srcH] = displaySize(project.source);
-  const outRatio = outputRatio(project.settings.aspect, srcW, srcH);
-  const { posX, posPath } = previewPosition(clip.framing || "auto", clip.focus_x ?? null, cropInfo, srcW / srcH, outRatio);
   const top = Object.entries(clip.contributions || {}).sort((a, b) => b[1] - a[1]).slice(0, 4);
   const lines = sentences.filter((s) => s.end > clip.start && s.start < clip.end).slice(0, 3);
   // Waveform window: the clip plus 15 % of context on each side.
@@ -275,7 +265,7 @@ function PreviewPanel({ project, clip, index, words, sentences, peaks, onDownloa
       <span class="mono faint" style="font-size:12px">${fmt.duration(clip.end - clip.start)}</span></span></div>
     <div class="results__side-top">
       <${ClipPlayer} projectId=${project.id} hasVideo=${project.source.has_video} start=${clip.start} end=${clip.end} words=${cw}
-        style=${clip.subtitle_style || project.settings.subtitle_style}  ratio=${outRatio} posX=${posX} posPath=${posPath} />
+        style=${clip.subtitle_style || project.settings.subtitle_style} />
       <div class="why">
         <div class="label" style="margin-bottom:8px">${t("results.why")}</div>
         <div class="why__text">${clip.reasons.length ? clip.reasons.map((r) => t(`reasons.${r}`)).join(" · ") : t("results.why_none")}</div>

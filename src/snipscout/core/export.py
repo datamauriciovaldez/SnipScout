@@ -87,16 +87,7 @@ def export_clips(
                 if on_clip_progress:
                     on_clip_progress(i, len(selected), f)
 
-            clip_opts = for_clip(
-                ffmpeg,
-                media,
-                opts,
-                clip.start,
-                clip.end,
-                framing=clip.framing,
-                focus_x=clip.focus_x,
-                cancel=cancel,
-            )
+            clip_opts = for_clip(ffmpeg, media, opts, clip.start, clip.end, cancel=cancel)
             video = render_clip(
                 ffmpeg,
                 media,
@@ -123,11 +114,7 @@ def export_clips(
                     "start": clip.start,
                     "end": clip.end,
                     "duration": round(clip.end - clip.start, 3),
-                    "reframe": {
-                        "mode": clip_opts.mode.value,
-                        "focus": clip_opts.focus,
-                        "pan": clip_opts.path is not None,
-                    },
+                    "reframe": {"mode": clip_opts.mode.value, "focus": clip_opts.focus},
                     "keywords": clip.keywords,
                     "subtitles": {
                         "srt": srt.name,

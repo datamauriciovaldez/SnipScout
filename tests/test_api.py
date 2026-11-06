@@ -391,21 +391,3 @@ def test_playback_proxy_for_unplayable_sources(client: TestClient, video_mp4: Pa
     assert r.status_code == 206 and r.headers["content-type"] == "video/webm" and len(r.content) == 100
     assert client.post(f"/api/v1/projects/{pid}/media/proxy").json()["state"] == "ready"  # idempotent
     assert client.get(f"/api/v1/projects/{pid}/media").headers["content-type"] != "video/webm"  # original
-
-
-def test_per_clip_framing(client: TestClient, ctx: Context, video_mp4: Path) -> None:
-    pid = client.post("/api/v1/projects", json={"path": str(video_mp4)}).json()["id"]
-    client.post(f"/api/v1/projects/{pid}/analyze")
-    assert _events_until_done(client, pid)[-1]["state"] == "done"
-    cid = client.get(f"/api/v1/projects/{pid}/clips").json()["clips"][0]["id"]
-    info = client.get(f"/api/v1/projects/{pid}/clips/{cid}/framing").json()
-    assert info == {"crops": True, "auto_focus": None, "auto_path": None}  # 4:3 test pattern → 9:16, no face
-    r = client.patch(f"/api/v1/projects/{pid}/clips/{cid}", json={"framing": "manual", "focus_x": 0.2})
-    assert r.status_code == 200 and r.json()["framing"] == "manual" and r.json()["focus_x"] == 0.2
-    assert client.patch(f"/api/v1/projects/{pid}/clips/{cid}", json={"focus_x": 1.5}).status_code == 422
-    assert client.patch(f"/api/v1/projects/{pid}/clips/{cid}", json={"framing": "zoom"}).status_code == 422
-    frame = client.post(
-        f"/api/v1/projects/{pid}/clips/{cid}/preview-frame",
-        json={"at": 1.0, "framing": "manual", "focus_x": 0.9},
-    )
-    assert frame.status_code == 200 and frame.headers["content-type"] == "image/jpeg"

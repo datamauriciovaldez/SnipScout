@@ -29,12 +29,6 @@ MIN_SCORE = 0.6
 MIN_PRESENCE = 0.5  # share of sampled frames that must show a face
 MAX_SPREAD = 0.15  # interquartile range of face centres (fraction of width) for a "steady" speaker
 MAX_SAMPLES = 40
-TRACK_PRESENCE = 0.6  # a moving speaker must be visible in most frames to be followed
-TRACK_MAX_STEP = (
-    0.12  # largest jump between consecutive detections for "one person moving" (else: two people)
-)
-TRACK_SMOOTH_S = 3.0  # moving-average window of the pan path
-TRACK_MAX_SPEED = 0.1  # pan speed limit, fraction of the frame width per second
 _CACHE: OrderedDict[tuple[str, float, float, float], Focus | None] = OrderedDict()  # editor previews
 
 
@@ -54,9 +48,6 @@ class Focus:
     x: float
     y: float
     presence: float  # share of sampled frames with a face
-    path: tuple[tuple[float, float], ...] | None = (
-        None  # moving speaker: (seconds from clip start, x) keyframes
-    )
 
 
 @lru_cache(maxsize=1)
@@ -112,53 +103,22 @@ def detect(frame_bgr: npt.NDArray[np.uint8]) -> list[Face]:
     return decode(dict(zip(names, values, strict=True)))
 
 
-def summarize(per_frame: list[list[Face]], frame_w: int, frame_h: int, fps: float = 1.0) -> Focus | None:
-    """Focus from the largest face of each frame (frame i is at i / fps seconds).
-
-    Steady face → fixed focus. One face that moves smoothly → a pan path. Missing face, or jumps between
-    places (two people taking turns, cuts) → None, and the caller keeps the centred crop."""
+def summarize(per_frame: list[list[Face]], frame_w: int, frame_h: int) -> Focus | None:
+    """Focus from the largest face of each frame, or None when the face is missing or moves around."""
     if not per_frame:
         return None
-    seen = [
-        (i / fps, (f.x + f.w / 2) / frame_w, (f.y + f.h / 2) / frame_h)
-        for i, fs in enumerate(per_frame)
-        if fs
-        for f in [max(fs, key=lambda f: f.w * f.h)]
+    centres = [
+        ((f.x + f.w / 2) / frame_w, (f.y + f.h / 2) / frame_h)
+        for f in (max(fs, key=lambda f: f.w * f.h) for fs in per_frame if fs)
     ]
-    presence = len(seen) / len(per_frame)
+    presence = len(centres) / len(per_frame)
     if presence < MIN_PRESENCE:
         return None
-    ts, xs, ys = (np.array(v) for v in zip(*seen, strict=True))
-    y = float(np.median(ys))
-    if float(np.percentile(xs, 75) - np.percentile(xs, 25)) <= MAX_SPREAD:
-        return Focus(float(np.median(xs)), y, round(presence, 2))
-    path = _track(ts, xs, len(per_frame), fps, presence)
-    if path is None:
-        return None
-    return Focus(float(np.median(xs)), y, round(presence, 2), path)
-
-
-def _track(
-    ts: npt.NDArray[np.float64], xs: npt.NDArray[np.float64], frames: int, fps: float, presence: float
-) -> tuple[tuple[float, float], ...] | None:
-    """Smoothed, speed-limited pan path for one moving face, or None when it isn't one face moving."""
-    if presence < TRACK_PRESENCE or len(xs) < 3 or float(np.max(np.abs(np.diff(xs)))) > TRACK_MAX_STEP:
-        return None
-    grid = np.arange(frames) / fps
-    x = np.interp(grid, ts, xs)  # fill frames without a detection
-    k = max(1, round(TRACK_SMOOTH_S * fps))
-    if k > 1:
-        padded = np.pad(x, (k // 2, k - 1 - k // 2), mode="edge")
-        x = np.convolve(padded, np.ones(k) / k, mode="valid")
-    step = TRACK_MAX_SPEED / fps
-    for i in range(1, len(x)):  # never pan faster than the limit
-        x[i] = min(max(x[i], x[i - 1] - step), x[i - 1] + step)
-    return tuple((round(float(t), 3), round(float(v), 4)) for t, v in zip(grid, x, strict=True))
-
-
-def path_at(path: tuple[tuple[float, float], ...], t: float) -> float:
-    """Pan position at ``t`` seconds from the clip start (linear between keyframes, clamped at the ends)."""
-    return float(np.interp(t, [p[0] for p in path], [p[1] for p in path]))
+    xs = np.array([c[0] for c in centres])
+    if float(np.percentile(xs, 75) - np.percentile(xs, 25)) > MAX_SPREAD:
+        return None  # two people, or a moving camera: a fixed crop would cut someone off
+    ys = np.array([c[1] for c in centres])
+    return Focus(float(np.median(xs)), float(np.median(ys)), round(presence, 2))
 
 
 def find_focus(
@@ -215,4 +175,4 @@ def _find_focus(
         if cancel:
             cancel.raise_if_cancelled()
         per_frame.append(detect(frame))
-    return summarize(per_frame, fw, fh, fps)
+    return summarize(per_frame, fw, fh)
